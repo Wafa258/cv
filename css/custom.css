@@ -2,13 +2,58 @@
  *  Draco HTML Template by @flamekaizar
  *  License: Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
  */
+
+* {}
+
+#experiences {
+  padding: 5% 5% 5% 65%;
+  background: hwb(230 0% 0%) url(https://www.prepa-laurea.com/wp-content/uploads/2022/11/methodologie-concours-acces.jpg) no-repeat;
+  background-size: contain;
+  background-position: left;
+}
+
+#experiences h1{
+  color: #4dd7e0;
+}
+
+#achievements {
+  padding: 5% 5% 5% 0%;
+  background: #456954 url(https://www.avanse.com/blogs/images/blogs-migration-98.jpg) no-repeat;
+  background-size: contain;
+  background-position: right;
+  color: #005eff;
+}
+
+#achievements .container {
+/*
+padding: 90px;
+margin: 15px;
+*/
+}
+
+#achievements h1{
+  color: #c3f487;
+}
+
+
+#skills {
+  background: #005eff url(https://cdn.dribbble.com/prismic-export/assets/graphic-designer-skills/1.png) no-repeat ;
+  padding: 5% 5% 5% 65%;
+  background-size: contain;
+  background-position: left;
+}
+#skills h1{
+  color:#00F0F0;
+}
+
+
 h1, h2, h3, h4, h5, h6 {
   font-family: "Playfair Display SC", serif;
-  color: #333333; }
+  color: #000000; }
 
 a, p, li {
   font-family: "Lato", Arial, sans-serif;
-  color: #4e4e4e;
+  color: #000000;
   font-size: 1em;
   line-height: 1.75em; }
 
@@ -80,7 +125,8 @@ a:hover {
     color: #4d4d4d; }
 
 .section.second {
-  margin-bottom: 90px; }
+  margin-bottom: 90px; 
+}
 .section .container {
   position: relative; }
   .section .container:after {
@@ -116,30 +162,30 @@ a:hover {
   .work .work-list li {
     list-style: none;
     font-size: 0.9375em;
-    color: #8c8c8c; }
+    color: #ffffff; }
     .work .work-list li a {
       padding-bottom: 5px;
       font-size: 1.1875em;
       font-weight: 700;
       text-decoration: none;
-      border-bottom: 1px solid #b3b3b3; }
+      border-bottom: 1px solid #ffffff; }
       .work .work-list li a:hover {
-        border-bottom: 1px solid #333333; }
+        border-bottom: 1px solid #ffffff; }
 
 .award .award-list {
   margin-left: 0px; }
   .award .award-list li:first-child {
     font-size: 0.9375em;
-    color: #8c8c8c; }
+    color: #ffffff; }
 
 .skills .skill-list {
   margin-left: 0px; }
   .skills .skill-list li:first-child {
     font-size: 0.9375em;
-    color: #8c8c8c; }
+    color: #ffffff; }
 
 .quote {
-  background: url(../img/bg.jpg);
+  background: url(https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/09728e95605887.5e9b500fca63d.jpg);
   padding: 20px 0px;
   margin-top: 120px; }
   .quote h1 {
@@ -147,6 +193,11 @@ a:hover {
     padding: 40px 20px;
     border: 5px solid #fff;
     color: #fff; }
+    
+    .quote a {
+    color: #fff;
+    text-transform: uppercase;
+    }
 
 footer {
   padding: 50px 0px 0px 0px; }

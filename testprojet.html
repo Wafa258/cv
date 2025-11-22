@@ -2,135 +2,173 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Emoji Match</title>
-<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+<title>Emoji Match Game</title>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
 <style>
-  body { margin:0; background:#f0f8ff; display:flex; justify-content:center; align-items:center; height:100vh; }
-  canvas { border:2px solid #000; }
+    body {
+        margin: 0;
+        background: linear-gradient(135deg, #FFDEE9, #B5FFFC);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    #phaser-example {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
 </style>
 </head>
 <body>
+<div id="phaser-example"></div>
 <script>
+
+// ------------- GLOBAL VARIABLES ----------------
+const LEVELS = [
+    { emojis: ['😀','😎','🥳','😂','😇','😍','🤩','😋'], time: 45 },
+    { emojis: ['😀','😎','🥳','😂','😇','😍','🤩','😋','😡','🤯','🤖','👻'], time: 90 }
+];
+
+// ------------- SCENES ----------------
+
+// Boot Scene
+class Boot extends Phaser.Scene {
+    constructor() { super('Boot'); }
+    create() {
+        this.scene.start('MainMenu');
+    }
+}
+
+// Main Menu Scene
 class MainMenu extends Phaser.Scene {
-  constructor(){ super('MainMenu'); }
-  preload(){ 
-    this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-    this.load.audio('bgmusic','https://actions.google.com/sounds/v1/ambiences/soft_music_loop.ogg');
-  }
-  create(){
-    this.add.rectangle(400,300,800,600,0x87CEFA); // fond bleu
-    this.add.text(400,150,'Emoji Match',{fontSize:'64px', color:'#FF4500', fontStyle:'bold'}).setOrigin(0.5);
-
-    const btn=this.add.rectangle(400,400,300,70,0xFF6347).setInteractive({useHandCursor:true});
-    const txt=this.add.text(400,400,'Start Level 1',{fontSize:'32px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-
-    btn.on('pointerover',()=>btn.setFillStyle(0xFF4500));
-    btn.on('pointerout',()=>btn.setFillStyle(0xFF6347));
-    btn.on('pointerdown',()=>{
-      if(!this.sound.get('bgmusic')) this.sound.play('bgmusic',{loop:true,volume:0.3});
-      this.sound.play('click');
-      this.scene.start('MainGame',{level:1});
-    });
-  }
+    constructor() { super('MainMenu'); }
+    create() {
+        this.cameras.main.setBackgroundColor('#88E0EF');
+        const style = { font: "48px Arial", color: "#222", fontStyle: "bold", align: "center" };
+        this.add.text(400, 200, "Emoji Match Game", style).setOrigin(0.5);
+        
+        const button = this.add.text(400, 400, "Start Level 1", { font: "32px Arial", color: "#fff", backgroundColor: "#FF7F50", padding: { x: 20, y: 10 }, borderRadius: 10 }).setOrigin(0.5).setInteractive();
+        button.on('pointerdown', () => { this.scene.start('MainGame', { level: 0 }); });
+    }
 }
 
-class LevelTransition extends Phaser.Scene {
-  constructor(){ super('LevelTransition'); }
-  init(data){ this.nextLevel=data.level||2; }
-  preload(){ this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg'); }
-  create(){
-    this.add.rectangle(400,300,800,600,0xFFD700);
-    this.add.text(400,250,'Félicitations !',{fontSize:'48px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
-    this.add.text(400,320,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'32px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
-
-    const btn=this.add.rectangle(400,400,300,70,0xFF6347).setOrigin(0.5).setInteractive({useHandCursor:true});
-    const txt=this.add.text(400,400,'Level '+this.nextLevel,{fontSize:'32px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-
-    btn.on('pointerover',()=>btn.setFillStyle(0xFF4500));
-    btn.on('pointerout',()=>btn.setFillStyle(0xFF6347));
-    btn.on('pointerdown',()=>{
-      this.sound.play('click');
-      this.scene.start('MainGame',{level:this.nextLevel});
-    });
-  }
-}
-
+// Main Game Scene
 class MainGame extends Phaser.Scene {
-  constructor(){ super('MainGame'); }
-  init(data){ this.level = data.level || 1; }
-  preload(){
-    this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-    this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/pop.ogg');
-  }
-  create(){
-    this.add.rectangle(400,300,800,600,0xFFFFE0); // fond jaune clair
-    this.score=0;
-    this.matched=0;
-
-    this.timeLeft = this.level===1?60:120;
-    this.pairs = this.level===1?8:12;
-
-    this.timerText = this.add.text(20,20,'Time: '+this.timeLeft,{fontSize:'32px',color:'#333',fontStyle:'bold'});
-    this.scoreText = this.add.text(550,20,'Found: '+this.score,{fontSize:'32px',color:'#333',fontStyle:'bold'});
-
-    // Emojis
-    this.emojisArray=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
-    let cardEmojis=[];
-    for(let i=0;i<this.pairs;i++){ cardEmojis.push(this.emojisArray[i%this.emojisArray.length]); cardEmojis.push(this.emojisArray[i%this.emojisArray.length]); }
-    Phaser.Utils.Array.Shuffle(cardEmojis);
-
-    this.cards=[];
-    this.selected=null;
-
-    const cols=4; 
-    const startX=200,startY=150,spacingX=100,spacingY=100;
-    for(let i=0;i<cardEmojis.length;i++){
-      const row=Math.floor(i/cols),col=i%cols;
-      const card=this.add.text(startX+col*spacingX,startY+row*spacingY,'❓',{fontSize:'48px'}).setOrigin(0.5).setInteractive();
-      card.emoji=cardEmojis[i]; card.revealed=false;
-      card.on('pointerdown',()=>this.revealCard(card));
-      this.cards.push(card);
+    constructor() { super('MainGame'); }
+    init(data) { this.levelIndex = data.level; }
+    preload() {
+        this.load.audio('bgm', 'https://actions.google.com/sounds/v1/ambiences/underwater_bubbles.ogg');
+        this.load.audio('match', 'https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
     }
+    create() {
+        // background
+        this.cameras.main.setBackgroundColor('#FFF9C4');
 
-    this.timerEvent=this.time.addEvent({delay:1000,loop:true,callback:()=>{
-      this.timeLeft--; this.timerText.setText('Time: '+this.timeLeft);
-      if(this.timeLeft<=0)this.endGame();
-    }});
-  }
+        // music
+        this.bgm = this.sound.add('bgm', { loop:true, volume:0.2 });
+        if(!this.bgm.isPlaying) this.bgm.play();
+        this.matchSound = this.sound.add('match');
 
-  revealCard(card){
-    if(card.revealed || this.selected===card) return;
-    card.setText(card.emoji); this.sound.play('match');
-    if(!this.selected){ this.selected=card; }
-    else{
-      if(this.selected.emoji===card.emoji){
-        this.selected=null;
-        this.matched++; this.score++; this.scoreText.setText('Found: '+this.score);
-        if(this.matched===this.cards.length/2){
-          if(this.level===1) this.scene.start('LevelTransition',{level:2});
-          else this.endGame(true);
+        // level config
+        this.level = LEVELS[this.levelIndex];
+        this.emojisList = this.level.emojis.concat(this.level.emojis); // duplicates for matching
+        Phaser.Utils.Array.Shuffle(this.emojisList);
+        this.timeLeft = this.level.time;
+        this.selected = [];
+        this.foundCount = 0;
+
+        // display timer
+        const style = { font: "32px Arial", color:"#333", fontStyle:"bold" };
+        this.timerText = this.add.text(650, 20, `Time: ${this.timeLeft}s`, style);
+        this.scoreText = this.add.text(20, 20, `Found: ${this.foundCount}`, style);
+
+        // create card grid
+        this.cards = [];
+        const gridX = 100, gridY = 100, spacing = 100;
+        const cols = 4;
+        for(let i=0;i<this.emojisList.length;i++){
+            const row = Math.floor(i/cols);
+            const col = i%cols;
+            const card = this.add.text(gridX + col*spacing, gridY + row*spacing, "❓", { font:"64px Arial", color:"#555", backgroundColor:"#FFF", padding:{x:10,y:10}, align:"center" })
+                .setOrigin(0.5)
+                .setInteractive();
+            card.emoji = this.emojisList[i];
+            card.flipped = false;
+            card.on('pointerdown', () => this.flipCard(card));
+            this.cards.push(card);
         }
-      } else{
-        const first=this.selected; this.selected=null;
-        this.time.delayedCall(800,()=>{first.setText('❓');card.setText('❓');},[],this);
-      }
-    }
-  }
 
-  endGame(win=false){
-    this.timerEvent.remove();
-    const overlay=this.add.rectangle(400,300,800,600,0x000000,0.5);
-    this.add.text(400,250,win?'Level Complete!':'Time Over!',{fontSize:'48px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    const btn=this.add.rectangle(400,350,300,70,0xFF6347).setOrigin(0.5).setInteractive({useHandCursor:true});
-    this.add.text(400,350,'Restart',{fontSize:'32px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    btn.on('pointerover',()=>btn.setFillStyle(0xFF4500));
-    btn.on('pointerout',()=>btn.setFillStyle(0xFF6347));
-    btn.on('pointerdown',()=>{ this.scene.start('MainMenu'); this.sound.play('click'); });
-  }
+        // timer event
+        this.timeEvent = this.time.addEvent({ delay: 1000, callback: this.tick, callbackScope: this, loop: true });
+    }
+
+    flipCard(card){
+        if(card.flipped || this.selected.length >=2) return;
+        card.setText(card.emoji);
+        card.flipped = true;
+        this.selected.push(card);
+
+        if(this.selected.length===2){
+            this.time.delayedCall(500, () => {
+                if(this.selected[0].emoji === this.selected[1].emoji){
+                    this.selected.forEach(c => c.setVisible(false));
+                    this.matchSound.play();
+                    this.foundCount++;
+                    this.scoreText.setText(`Found: ${this.foundCount}`);
+                    if(this.foundCount === this.level.emojis.length){
+                        this.levelComplete();
+                    }
+                } else {
+                    this.selected.forEach(c => { c.setText("❓"); c.flipped=false; });
+                }
+                this.selected = [];
+            });
+        }
+    }
+
+    tick(){
+        this.timeLeft--;
+        this.timerText.setText(`Time: ${this.timeLeft}s`);
+        if(this.timeLeft<=0){
+            this.gameOver();
+        }
+    }
+
+    levelComplete(){
+        this.timeEvent.remove(false);
+        const style = { font: "48px Arial", color:"#fff", fontStyle:"bold", backgroundColor:"#4CAF50", padding:{x:20,y:20}, align:"center" };
+        const msg = this.add.text(400, 300, `Félicitations !\nJouez le niveau ${this.levelIndex+2}`, style).setOrigin(0.5);
+        if(this.levelIndex+1 < LEVELS.length){
+            const btn = this.add.text(400, 450, `Start Level ${this.levelIndex+2}`, { font: "32px Arial", color: "#fff", backgroundColor:"#FF5722", padding:{x:20,y:10}, borderRadius:10 })
+                .setOrigin(0.5)
+                .setInteractive();
+            btn.on('pointerdown', () => this.scene.start('MainGame',{level:this.levelIndex+1}));
+        }
+    }
+
+    gameOver(){
+        this.timeEvent.remove(false);
+        const style = { font: "48px Arial", color:"#fff", fontStyle:"bold", backgroundColor:"#F44336", padding:{x:20,y:20}, align:"center" };
+        const msg = this.add.text(400, 300, "Temps écoulé !\nRecommencez ?", style).setOrigin(0.5);
+        const btn = this.add.text(400, 450, `Rejouer Niveau ${this.levelIndex+1}`, { font: "32px Arial", color: "#fff", backgroundColor:"#FF5722", padding:{x:20,y:10}, borderRadius:10 })
+            .setOrigin(0.5)
+            .setInteractive();
+        btn.on('pointerdown', () => this.scene.start('MainGame',{level:this.levelIndex}));
+    }
 }
 
-const config = { type: Phaser.AUTO, width:800, height:600, parent:document.body, scene:[MainMenu,LevelTransition,MainGame] };
-new Phaser.Game(config);
+// ------------- CONFIG ----------------
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    parent: 'phaser-example',
+    scene: [ Boot, MainMenu, MainGame ]
+};
+
+const game = new Phaser.Game(config);
+
 </script>
 </body>
 </html>

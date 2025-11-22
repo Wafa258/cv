@@ -18,7 +18,7 @@ class MainMenu extends Phaser.Scene {
     preload() { this.load.audio('click', 'https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg'); }
     create() {
         this.add.rectangle(400,300,800,600,0x87CEFA); // fond bleu ciel
-        this.add.text(400,150,'🎮 Emoji Match 🎮',{fontSize:'50px', color:'#008080', fontStyle:'bold'}).setOrigin(0.5);
+        this.add.text(400,150,'🎮 Emoji Match 🎮',{fontSize:'40px', color:'#008080', fontStyle:'bold'}).setOrigin(0.5);
 
         // Bouton start
         const btn = this.add.rectangle(400,400,300,70,0xFF6347).setInteractive({useHandCursor:true});

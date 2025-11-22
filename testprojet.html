@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Emoji Match</title>
-
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.85.0/dist/phaser.min.js"></script>
-
     <style>
         body { margin: 0; background: #000; }
         canvas { display: block; margin: auto; }
@@ -18,11 +16,8 @@
 // BOOT SCENE
 // =========================
 class Boot extends Phaser.Scene {
-    constructor () {
-        super('Boot');
-    }
-
-    create () {
+    constructor() { super('Boot'); }
+    create() {
         this.registry.set('highscore', 0);
         this.scene.start('Preloader');
     }
@@ -32,40 +27,23 @@ class Boot extends Phaser.Scene {
 // PRELOADER SCENE
 // =========================
 class Preloader extends Phaser.Scene {
-    constructor () {
-        super('Preloader');
-        this.loadText;
-    }
-
-    preload () {
-        this.load.setBaseURL('https://cdn.phaserfiles.com/v385');
-
-        this.loadText = this.add.text(400, 360, 'Loading ...', {
-            fontFamily: 'Arial', fontSize: 64, color: '#e3f2ed'
-        });
-        this.loadText.setOrigin(0.5);
-        this.loadText.setStroke('#203c5b', 6);
-        this.loadText.setShadow(2, 2, '#2d2d2d', 4, true, false);
-
+    constructor() { super('Preloader'); }
+    preload() {
+        this.load.setBaseURL('./'); // On prend la racine du dépôt
         this.load.setPath('assets/games/emoji-match/');
-        this.load.image(['background', 'logo']);
-        this.load.atlas('emojis', 'emojis.png', 'emojis.json');
 
-        this.load.setPath('assets/games/emoji-match/sounds/');
-        this.load.audio('music', [ 'music.ogg', 'music.m4a', 'music.mp3' ]);
-        this.load.audio('countdown', [ 'countdown.ogg', 'countdown.m4a', 'countdown.mp3' ]);
-        this.load.audio('match', [ 'match.ogg', 'match.m4a', 'match.mp3' ]);
+        // Images
+        this.load.image(['background','logo']);
+        this.load.atlas('emojis','emojis.png','emojis.json');
+
+        // Sons
+        this.load.audio('music',['music.mp3','music.ogg']);
+        this.load.audio('countdown',['countdown.mp3','countdown.ogg']);
+        this.load.audio('match',['match.mp3','match.ogg']);
     }
-
-    create () {
-        if (this.sound.locked) {
-            this.loadText.setText('Click to Start');
-            this.input.once('pointerdown', () => {
-                this.scene.start('MainMenu');
-            });
-        } else {
-            this.scene.start('MainMenu');
-        }
+    create() {
+        // Contournement du problème "Click to Start"
+        this.scene.start('MainMenu');
     }
 }
 
@@ -73,39 +51,10 @@ class Preloader extends Phaser.Scene {
 // MAIN MENU SCENE
 // =========================
 class MainMenu extends Phaser.Scene {
-    constructor () {
-        super('MainMenu');
-        this.music;
-    }
-
-    create () {
-        let background = this.add.image(400, 300, 'background');
-        this.tweens.add({ targets: background, alpha: { from: 0, to: 1 }, duration: 1000 });
-
-        const fontStyle = {
-            fontFamily: 'Arial',
-            fontSize: 48,
-            color: '#ffffff',
-            fontStyle: 'bold',
-            padding: 16,
-            shadow: {
-                color: '#000000',
-                fill: true,
-                offsetX: 2,
-                offsetY: 2,
-                blur: 4
-            }
-        };
-
-        this.add.text(20, 20, 'High Score: ' + this.registry.get('highscore'), fontStyle);
-
-        let logo = this.add.image(400, -200, 'logo');
-
-        if (!this.music) {
-            this.music = this.sound.play('music', { loop: true });
-        }
-
-        this.tweens.add({ targets: logo, y: 300, ease: 'bounce.out', duration: 1200 });
+    constructor() { super('MainMenu'); this.music=null; }
+    create() {
+        let bg = this.add.image(400,300,'background') || this.add.rectangle(400,300,800,600,0x008eb0);
+        let logo = this.add.image(400,150,'logo') || this.add.text(300,150,'Emoji Match',{fontSize:'48px',fill:'#fff'});
 
         this.input.once('pointerdown', () => {
             this.scene.start('MainGame');
@@ -117,233 +66,123 @@ class MainMenu extends Phaser.Scene {
 // MAIN GAME SCENE
 // =========================
 class MainGame extends Phaser.Scene {
-    constructor () {
+    constructor() {
         super('MainGame');
-
-        this.emojis;
-        this.circle1;
-        this.circle2;
-
-        this.child1;
-        this.child2;
-
-        this.selectedEmoji = null;
-        this.matched = false;
-
-        this.score = 0;
-        this.highscore = 0;
-        this.scoreText;
-
-        this.timer;
-        this.timerText;
+        this.emojis=null;
+        this.circle1=null;
+        this.circle2=null;
+        this.child1=null;
+        this.child2=null;
+        this.selectedEmoji=null;
+        this.matched=false;
+        this.score=0;
+        this.highscore=0;
+        this.scoreText=null;
+        this.timer=null;
+        this.timerText=null;
     }
 
-    create () {
-        this.add.image(400, 300, 'background');
+    create() {
+        this.add.image(400,300,'background') || this.add.rectangle(400,300,800,600,0x008eb0);
 
-        this.circle1 = this.add.circle(0, 0, 42).setStrokeStyle(3, 0xf8960e);
-        this.circle2 = this.add.circle(0, 0, 42).setStrokeStyle(3, 0x00ff00);
-        this.circle1.setVisible(false);
-        this.circle2.setVisible(false);
+        this.circle1=this.add.circle(0,0,42).setStrokeStyle(3,0xf8960e).setVisible(false);
+        this.circle2=this.add.circle(0,0,42).setStrokeStyle(3,0x00ff00).setVisible(false);
 
-        this.emojis = this.add.group({
-            key: 'emojis',
-            frameQuantity: 1,
-            repeat: 15,
-            gridAlign: {
-                width: 4,
-                height: 4,
-                cellWidth: 90,
-                cellHeight: 90,
-                x: 280,
-                y: 200
-            }
-        });
+        // Emoji group avec placeholder si atlas manquant
+        this.emojis=this.add.group();
+        for(let i=0;i<16;i++){
+            let emoji=this.add.rectangle(0,0,64,64,0xffff00).setInteractive();
+            emoji.frame={name:'smile'+(i+1)};
+            this.emojis.add(emoji);
+        }
 
-        const fontStyle = {
-            fontFamily: 'Arial',
-            fontSize: 48,
-            color: '#ffffff',
-            fontStyle: 'bold',
-            padding: 16,
-            shadow: {
-                color: '#000000',
-                fill: true,
-                offsetX: 2,
-                offsetY: 2,
-                blur: 4
-            }
-        };
+        const fontStyle={fontFamily:'Arial',fontSize:48,color:'#ffffff',fontStyle:'bold',padding:16,shadow:{color:'#000',fill:true,offsetX:2,offsetY:2,blur:4}};
+        this.timerText=this.add.text(20,20,'30:00',fontStyle);
+        this.scoreText=this.add.text(530,20,'Found: 0',fontStyle);
 
-        this.timerText = this.add.text(20, 20, '30:00', fontStyle);
-        this.scoreText = this.add.text(530, 20, 'Found: 0', fontStyle);
+        this.input.on('gameobjectdown', this.selectEmoji,this);
+        this.input.once('pointerdown', this.start,this);
 
-        let children = this.emojis.getChildren();
-        children.forEach(child => child.setInteractive());
-
-        this.input.on('gameobjectdown', this.selectEmoji, this);
-        this.input.once('pointerdown', this.start, this);
-
-        this.highscore = this.registry.get('highscore');
+        this.highscore=this.registry.get('highscore');
 
         this.arrangeGrid();
     }
 
-    start () {
-        this.score = 0;
-        this.matched = false;
+    start() { this.score=0; this.matched=false; this.timer=this.time.addEvent({delay:30000,callback:this.gameOver,callbackScope:this}); }
 
-        this.timer = this.time.addEvent({ delay: 30000, callback: this.gameOver, callbackScope: this });
-
-        this.sound.play('countdown', { delay: 27 });
-    }
-
-    selectEmoji (pointer, emoji) {
-        if (this.matched) return;
-
-        if (!this.selectedEmoji) {
-            this.circle1.setPosition(emoji.x, emoji.y);
-            this.circle1.setVisible(true);
-            this.selectedEmoji = emoji;
-        } else if (emoji !== this.selectedEmoji) {
-            if (emoji.frame.name === this.selectedEmoji.frame.name) {
-                this.circle1.setStrokeStyle(3, 0x00ff00);
-                this.circle2.setPosition(emoji.x, emoji.y);
-                this.circle2.setVisible(true);
-
-                this.tweens.add({
-                    targets: [ this.child1, this.child2 ],
-                    scale: 1.4,
-                    angle: '-=30',
-                    yoyo: true,
-                    ease: 'sine.inout',
-                    duration: 200,
-                    completeDelay: 200,
-                    onComplete: () => this.newRound()
-                });
-
-                this.sound.play('match');
-            } else {
-                this.circle1.setPosition(emoji.x, emoji.y);
-                this.circle1.setVisible(true);
-                this.selectedEmoji = emoji;
+    selectEmoji(pointer,emoji){
+        if(this.matched) return;
+        if(!this.selectedEmoji){ this.circle1.setPosition(emoji.x,emoji.y).setVisible(true); this.selectedEmoji=emoji; }
+        else if(emoji!==this.selectedEmoji){
+            if(emoji.frame.name===this.selectedEmoji.frame.name){
+                this.circle1.setStrokeStyle(3,0x00ff00);
+                this.circle2.setPosition(emoji.x,emoji.y).setVisible(true);
+                this.matched=true;
+                this.newRound();
+            }else{
+                this.circle1.setPosition(emoji.x,emoji.y).setVisible(true);
+                this.selectedEmoji=emoji;
             }
         }
     }
 
-    newRound () {
-        this.matched = false;
+    newRound(){
+        this.matched=false;
         this.score++;
-
-        this.scoreText.setText('Found: ' + this.score);
-
-        this.circle1.setStrokeStyle(3, 0xf8960e);
-        this.circle1.setVisible(false);
+        this.scoreText.setText('Found: '+this.score);
+        this.circle1.setStrokeStyle(3,0xf8960e).setVisible(false);
         this.circle2.setVisible(false);
-
-        this.tweens.add({
-            targets: this.emojis.getChildren(),
-            scale: 0,
-            ease: 'power2',
-            duration: 600,
-            delay: this.tweens.stagger(100, { grid: [ 4, 4 ], from: 'center' }),
-            onComplete: () => this.arrangeGrid()
-        });
     }
 
-    arrangeGrid () {
-        let frames = Phaser.Utils.Array.NumberArray(1, 40);
-        let selected = Phaser.Utils.Array.NumberArray(0, 15);
-        let children = this.emojis.getChildren();
-
-        for (let i = 0; i < 16; i++) {
-            let frame = Phaser.Utils.Array.RemoveRandomElement(frames);
-            children[i].setFrame('smile' + frame);
-        }
-
-        let index1 = Phaser.Utils.Array.RemoveRandomElement(selected);
-        let index2 = Phaser.Utils.Array.RemoveRandomElement(selected);
-
-        this.child1 = children[index1];
-        this.child2 = children[index2];
-
-        this.child2.setFrame(this.child1.frame.name);
-
-        this.selectedEmoji = null;
-
-        this.tweens.add({
-            targets: children,
-            scale: { start: 0, from: 0, to: 1 },
-            ease: 'bounce.out',
-            duration: 600,
-            delay: this.tweens.stagger(100, { grid: [ 4, 4 ], from: 'center' })
-        });
-    }
-
-    update () {
-        if (this.timer) {
-            if (this.timer.getProgress() === 1) {
-                this.timerText.setText('00:00');
-            } else {
-                const remaining = (30 - this.timer.getElapsedSeconds()).toPrecision(4);
-                const pos = remaining.indexOf('.');
-
-                let seconds = remaining.substring(0, pos);
-                let ms = remaining.substr(pos + 1, 2);
-
-                seconds = Phaser.Utils.String.Pad(seconds, 2, '0', 1);
-
-                this.timerText.setText(seconds + ':' + ms);
+    arrangeGrid(){
+        let children=this.emojis.getChildren();
+        let positions=[];
+        for(let y=200;y<200+360;y+=90){
+            for(let x=280;x<280+360;x+=90){
+                positions.push({x:x,y:y});
             }
         }
+        children.forEach((c,i)=>{c.setPosition(positions[i].x,positions[i].y);});
+        let index1=Math.floor(Math.random()*16);
+        let index2=Math.floor(Math.random()*16);
+        while(index2===index1) index2=Math.floor(Math.random()*16);
+        this.child1=children[index1];
+        this.child2=children[index2];
+        this.child2.frame.name=this.child1.frame.name;
+        this.selectedEmoji=null;
     }
 
-    gameOver () {
-        this.circle1
-            .setStrokeStyle(4, 0xfc29a6)
-            .setPosition(this.child1.x, this.child1.y)
-            .setVisible(true);
-
-        this.circle2
-            .setStrokeStyle(4, 0xfc29a6)
-            .setPosition(this.child2.x, this.child2.y)
-            .setVisible(true);
-
-        this.input.off('gameobjectdown', this.selectEmoji, this);
-
-        if (this.score > this.highscore) {
-            this.registry.set('highscore', this.score);
+    update(){
+        if(this.timer){
+            let remaining=(30-this.timer.getElapsedSeconds()).toPrecision(4);
+            let pos=remaining.indexOf('.');
+            let seconds=remaining.substring(0,pos);
+            let ms=remaining.substr(pos+1,2);
+            seconds=Phaser.Utils.String.Pad(seconds,2,'0',1);
+            this.timerText.setText(seconds+':'+ms);
         }
+    }
 
-        this.tweens.add({
-            targets: [ this.circle1, this.circle2 ],
-            alpha: 0,
-            yoyo: true,
-            repeat: 2,
-            duration: 250,
-            ease: 'sine.inout',
-            onComplete: () => {
-                this.input.once('pointerdown', () => {
-                    this.scene.start('MainMenu');
-                });
-            }
-        });
+    gameOver(){
+        this.circle1.setStrokeStyle(4,0xfc29a6).setVisible(true).setPosition(this.child1.x,this.child1.y);
+        this.circle2.setStrokeStyle(4,0xfc29a6).setVisible(true).setPosition(this.child2.x,this.child2.y);
+        if(this.score>this.highscore) this.registry.set('highscore',this.score);
+        this.input.once('pointerdown',()=>{this.scene.start('MainMenu');});
     }
 }
 
 // =========================
-// GAME CONFIG
+// CONFIG
 // =========================
-const config = {
+const config={
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    backgroundColor: '#008eb0',
-    scene: [ Boot, Preloader, MainMenu, MainGame ]
+    width:800,
+    height:600,
+    backgroundColor:'#008eb0',
+    scene:[Boot,Preloader,MainMenu,MainGame]
 };
 
-let game = new Phaser.Game(config);
-
+let game=new Phaser.Game(config);
 </script>
 
 </body>

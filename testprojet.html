@@ -7,7 +7,7 @@
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb, #a1c4fd);
+    background: linear-gradient(135deg, #ffecd2, #fcb69f);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -29,89 +29,87 @@
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 <script type="module">
 
+// ---------------- Boot ----------------
 class Boot extends Phaser.Scene {
     constructor() { super('Boot'); }
-    create() { this.registry.set('highscore',0); this.scene.start('Preloader'); }
+    create() { 
+        this.registry.set('highscore', 0); 
+        this.scene.start('Preloader'); 
+    }
 }
 
+// ---------------- Preloader ----------------
 class Preloader extends Phaser.Scene {
     constructor(){ super('Preloader'); }
     preload(){
-        this.loadText = this.add.text(400,300,'Loading ...',{ fontFamily:'Arial', fontSize:32, color:'#ffffff'}).setOrigin(0.5);
+        this.loadText = this.add.text(400,300,'Loading ...',{ fontFamily:'Arial', fontSize:32, color:'#333'}).setOrigin(0.5);
 
-        this.load.image('background','https://i.ibb.co/3R7SxwG/emoji-bg.png'); 
-        this.load.image('logo','https://i.ibb.co/yPzKzLr/emoji-logo.png');     
+        // Sons en ligne
         this.load.audio('music',['https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3']);
         this.load.audio('countdown',['https://www.soundjay.com/button/beep-07.mp3']);
         this.load.audio('match',['https://www.soundjay.com/button/beep-10.mp3']);
     }
     create(){
-        // On passe directement à l'écran d'accueil
         this.scene.start('MainMenu');
     }
 }
 
+// ---------------- MainMenu ----------------
 class MainMenu extends Phaser.Scene {
     constructor(){ super('MainMenu'); this.music=null; }
     create(){
-        let background=this.add.image(400,300,'background').setAlpha(0);
-        this.tweens.add({ targets: background, alpha: 1, duration: 1000 });
-        let logo=this.add.image(400,-200,'logo');
-        this.tweens.add({ targets: logo, y: 200, ease:'bounce.out', duration:1200 });
+        this.cameras.main.setBackgroundColor('#ffecd2');
 
         if(!this.music) this.music=this.sound.add('music',{loop:true, volume:0.5});
 
-        const fontStyle={fontFamily:'Arial', fontSize:32, color:'#333'};
-        this.add.text(20,20,'High Score: '+this.registry.get('highscore'),fontStyle);
+        this.startText = this.add.text(400,300,'Click to Start',{fontSize:'32px', color:'#333'}).setOrigin(0.5).setInteractive();
+        this.highScoreText = this.add.text(400,250,'High Score: '+this.registry.get('highscore'),{fontSize:'24px', color:'#333'}).setOrigin(0.5);
 
-        // Écran Click to Start entièrement cliquable
-        this.startText = this.add.text(400,500,'Click to Start',{fontSize:'32px', color:'#333'}).setOrigin(0.5).setInteractive();
         this.startText.on('pointerdown', ()=>{
-            if(!this.music.isPlaying) this.music.play(); // musique jouée au clic
+            if(!this.music.isPlaying) this.music.play();
             this.scene.start('MainGame');
         });
     }
 }
 
+// ---------------- MainGame ----------------
 class MainGame extends Phaser.Scene {
     constructor() {
         super('MainGame');
-        this.emojis=this.circle1=this.circle2=this.child1=this.child2=null;
-        this.selectedEmoji=null; this.matched=false;
+        this.emojis=this.selectedEmoji=null;
+        this.matched=false;
         this.score=0; this.highscore=0;
         this.scoreText=this.timer=this.timerText=null;
     }
 
     create(){
-        this.add.image(400,300,'background');
-        this.circle1=this.add.circle(0,0,42).setStrokeStyle(3,0xf8960e).setVisible(false);
-        this.circle2=this.add.circle(0,0,42).setStrokeStyle(3,0x00ff00).setVisible(false);
+        this.cameras.main.setBackgroundColor('#fcb69f');
 
         const baseEmojis=['😀','😎','🎯','🎲','🕹️','🤖','🐶','🍕','⚽','🌟'];
         let selectedEmojis=[];
-        for(let i=0;i<8;i++){ let e=Phaser.Utils.Array.RemoveRandomElement(baseEmojis.slice()); selectedEmojis.push(e,e);}
+        for(let i=0;i<8;i++){
+            let e=Phaser.Utils.Array.RemoveRandomElement(baseEmojis.slice());
+            selectedEmojis.push(e,e);
+        }
         Phaser.Utils.Array.Shuffle(selectedEmojis);
 
         this.emojis=[];
         for(let i=0;i<16;i++){
-            let x=280+(i%4)*90; let y=200+Math.floor(i/4)*90;
+            let x=200+(i%4)*120;
+            let y=150+Math.floor(i/4)*120;
             let text=this.add.text(x,y,selectedEmojis[i],{fontSize:'64px', fontFamily:'Arial'}).setOrigin(0.5).setInteractive();
-            text.emoji=selectedEmojis[i]; text.revealed=false;
+            text.emoji=selectedEmojis[i];
+            text.revealed=false;
             this.emojis.push(text);
         }
 
         const fontStyle={fontFamily:'Arial', fontSize:32, color:'#333'};
-        this.scoreText=this.add.text(530,20,'Found: 0',fontStyle);
-        this.timerText=this.add.text(20,20,'30:00',fontStyle);
+        this.scoreText=this.add.text(600,50,'Found: 0',fontStyle);
+        this.timerText=this.add.text(50,50,'30:00',fontStyle);
 
         this.input.on('gameobjectdown', this.selectEmoji, this);
-        this.input.once('pointerdown', this.start, this);
 
         this.highscore=this.registry.get('highscore')||0;
-    }
-
-    start(){
-        this.score=0; this.matched=false;
         this.timer=this.time.addEvent({delay:30000, callback:this.gameOver, callbackScope:this});
         this.sound.play('countdown');
     }
@@ -119,34 +117,33 @@ class MainGame extends Phaser.Scene {
     selectEmoji(pointer, emoji){
         if(this.matched) return;
         if(!this.selectedEmoji){
-            this.circle1.setPosition(emoji.x, emoji.y).setVisible(true);
             this.selectedEmoji=emoji;
+            emoji.setStyle({backgroundColor:'#ffffff'});
         } else if(emoji!==this.selectedEmoji){
             if(emoji.emoji===this.selectedEmoji.emoji){
-                this.circle1.setStrokeStyle(3,0x00ff00);
-                this.circle2.setPosition(emoji.x,emoji.y).setVisible(true);
+                emoji.setStyle({backgroundColor:'#00ff00'});
+                this.selectedEmoji.setStyle({backgroundColor:'#00ff00'});
                 this.sound.play('match');
                 this.matched=true;
                 this.score++; this.scoreText.setText('Found: '+this.score);
                 this.time.delayedCall(600, ()=>{
-                    this.circle1.setVisible(false); this.circle2.setVisible(false);
+                    emoji.setStyle({backgroundColor:null});
+                    this.selectedEmoji.setStyle({backgroundColor:null});
                     this.matched=false; this.selectedEmoji=null;
                 });
-            } else { this.circle1.setPosition(emoji.x,emoji.y); this.selectedEmoji=emoji; }
+            } else {
+                this.selectedEmoji.setStyle({backgroundColor:null});
+                this.selectedEmoji=emoji;
+                emoji.setStyle({backgroundColor:'#ffffff'});
+            }
         }
     }
 
     update(){
         if(this.timer){
-            if(this.timer.getProgress()===1){ this.timerText.setText('00:00'); }
-            else{
-                const remaining=(30-this.timer.getElapsedSeconds()).toPrecision(4);
-                const pos=remaining.indexOf('.');
-                let seconds=remaining.substring(0,pos);
-                let ms=remaining.substr(pos+1,2);
-                seconds=Phaser.Utils.String.Pad(seconds,2,'0',1);
-                this.timerText.setText(seconds+':'+ms);
-            }
+            const remaining=(30-this.timer.getElapsedSeconds()).toFixed(0);
+            let seconds = remaining.padStart(2,'0');
+            this.timerText.setText(seconds+':00');
         }
     }
 
@@ -157,6 +154,7 @@ class MainGame extends Phaser.Scene {
     }
 }
 
+// ---------------- Main ----------------
 const config = {
     type: Phaser.AUTO,
     width: 800,

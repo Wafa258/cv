@@ -8,11 +8,11 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #ffd54f, #ff8a65, #4fc3f7);
+    background: linear-gradient(135deg, #ffd54f, #ff8a65, #4fc3f7, #81c784);
     height: 100vh;
 }
 #game-container {
@@ -37,9 +37,8 @@ class BootScene extends Phaser.Scene {
 class PreloaderScene extends Phaser.Scene {
     constructor() { super('Preloader'); }
     preload() {
-        this.loadText = this.add.text(400,300,'Loading ...',{ fontSize:'48px', color:'#000'}).setOrigin(0.5);
-        this.load.audio('match','https://freesound.org/data/previews/341/341695_62440-lq.mp3');
-        this.load.audio('start','https://freesound.org/data/previews/256/256113_4486188-lq.mp3');
+        this.add.text(400,300,'Loading ...',{ fontSize:'48px', color:'#000'}).setOrigin(0.5);
+        // Pas de sons pour l'instant
     }
     create() { this.scene.start('MainMenu'); }
 }
@@ -48,28 +47,39 @@ class MainMenuScene extends Phaser.Scene {
     constructor() { super('MainMenu'); }
     create() {
         this.add.text(400,200,'Emoji Match!',{ fontSize:'64px', color:'#000', fontStyle:'bold' }).setOrigin(0.5);
+
         const startBtn = this.add.text(400,400,'Start Level 1',{
-            fontSize:'32px',color:'#000',backgroundColor:'#ffd54f',padding:{x:20,y:10}
+            fontSize:'32px',
+            color:'#fff',
+            backgroundColor:'#ff5722',
+            padding:{x:20,y:10},
+            fontStyle:'bold'
         }).setOrigin(0.5).setInteractive({useHandCursor:true});
-        startBtn.on('pointerdown',()=>{ this.sound.play('start'); this.scene.start('GameScene',{level:1}); });
+
+        startBtn.on('pointerdown',()=>{ this.scene.start('GameScene',{level:1}); });
     }
 }
 
 class GameScene extends Phaser.Scene {
     constructor() { super('GameScene'); }
 
-    init(data){ this.level=data.level; this.timeLimit=this.level===1?30:60; }
+    init(data){ 
+        this.level=data.level; 
+        this.timeLimit=this.level===1?30:60; 
+    }
 
     create() {
-        // fond joyeux
-        let graphics = this.add.graphics();
-        graphics.fillGradientStyle(0xffeb3b,0xff8a65,0x4fc3f7,0x81c784,1);
-        graphics.fillRect(0,0,800,600);
+        // Fond simple pour le jeu
+        this.add.rectangle(400,300,800,600,0xfff9c4);
 
         // Score et timer
         this.score=0;
-        this.timerText=this.add.text(20,20,`Time: ${this.timeLimit}`,{ fontSize:'40px',color:'#000',stroke:'#fff',strokeThickness:6, backgroundColor:'rgba(255,255,255,0.3)', padding:{x:10,y:5} });
-        this.scoreText=this.add.text(550,20,`Found: 0`,{ fontSize:'40px',color:'#000',stroke:'#fff',strokeThickness:6, backgroundColor:'rgba(255,255,255,0.3)', padding:{x:10,y:5} });
+        this.timerText=this.add.text(20,20,`Time: ${this.timeLimit}`,{ 
+            fontSize:'40px',color:'#000',stroke:'#fff',strokeThickness:6, backgroundColor:'rgba(255,255,255,0.5)', padding:{x:10,y:5} 
+        });
+        this.scoreText=this.add.text(550,20,`Found: 0`,{ 
+            fontSize:'40px',color:'#000',stroke:'#fff',strokeThickness:6, backgroundColor:'rgba(255,255,255,0.5)', padding:{x:10,y:5} 
+        });
 
         // Création de la grille
         const emojisList=['😀','😂','😍','😎','🤩','😜','😢','😡','🥳','🤯','😇','😱','🤖','👻','💩','🎃','🐶','🐱','🦊','🐸','🐵','🦄'];
@@ -83,7 +93,7 @@ class GameScene extends Phaser.Scene {
             for(let j=0;j<gridSize;j++){
                 let index=i*gridSize+j;
                 let emoji=this.add.text(startX+j*spacing,startY+i*spacing,pairedEmojis[index],{ fontSize:'64px' }).setOrigin(0.5).setInteractive();
-                emoji.selected=false; emoji.index=index;
+                emoji.selected=false; 
                 this.emojisGroup.push(emoji);
             }
         }
@@ -97,14 +107,20 @@ class GameScene extends Phaser.Scene {
     selectEmoji(pointer,emoji){
         if(emoji.selected) return;
         emoji.setStyle({ backgroundColor:'#fff59d' });
-        if(!this.firstSelection){ this.firstSelection=emoji; }
+        if(!this.firstSelection){ 
+            this.firstSelection=emoji; 
+        }
         else{
             if(emoji.text===this.firstSelection.text && emoji!==this.firstSelection){
-                this.sound.play('match');
-                emoji.selected=true; this.firstSelection.selected=true;
-                this.score++; this.scoreText.setText(`Found: ${this.score}`);
+                emoji.selected=true; 
+                this.firstSelection.selected=true;
+                this.score++; 
+                this.scoreText.setText(`Found: ${this.score}`);
             } else{
-                this.time.delayedCall(500,()=>{ emoji.setStyle({backgroundColor:null}); this.firstSelection.setStyle({backgroundColor:null}); });
+                this.time.delayedCall(500,()=>{
+                    emoji.setStyle({backgroundColor:null}); 
+                    this.firstSelection.setStyle({backgroundColor:null}); 
+                });
             }
             this.firstSelection=null;
             if(this.score===this.emojisGroup.length/2){
@@ -118,14 +134,29 @@ class GameScene extends Phaser.Scene {
 
     showRestartButton(text){
         this.emojisGroup.forEach(e=>e.disableInteractive());
-        const btn=this.add.text(400,500,text,{ fontSize:'32px',color:'#000',backgroundColor:'#ffd54f',padding:{x:20,y:10} }).setOrigin(0.5).setInteractive({useHandCursor:true});
+        const btn=this.add.text(400,500,text,{ 
+            fontSize:'32px',
+            color:'#fff',
+            backgroundColor:'#4caf50',
+            padding:{x:20,y:10},
+            fontStyle:'bold'
+        }).setOrigin(0.5).setInteractive({useHandCursor:true});
         btn.on('pointerdown',()=>{ this.scene.start('MainMenu'); });
     }
 
-    update(){ this.timerText.setText(`Time: ${Math.ceil(this.timerEvent.getRemainingSeconds())}`); }
+    update(){ 
+        this.timerText.setText(`Time: ${Math.ceil(this.timerEvent.getRemainingSeconds())}`); 
+    }
 }
 
-const config={ type: Phaser.AUTO, width:800, height:600, parent:'game-container', scene:[BootScene,PreloaderScene,MainMenuScene,GameScene] };
+const config={
+    type: Phaser.AUTO,
+    width:800,
+    height:600,
+    parent:'game-container',
+    scene:[BootScene,PreloaderScene,MainMenuScene,GameScene]
+};
+
 new Phaser.Game(config);
 
 </script>

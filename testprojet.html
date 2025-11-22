@@ -29,34 +29,28 @@
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 <script type="module">
 
-// ------------------ Boot.js ------------------
 class Boot extends Phaser.Scene {
     constructor() { super('Boot'); }
     create() { this.registry.set('highscore',0); this.scene.start('Preloader'); }
 }
 
-// ------------------ Preloader.js ------------------
 class Preloader extends Phaser.Scene {
     constructor(){ super('Preloader'); }
     preload(){
         this.loadText = this.add.text(400,300,'Loading ...',{ fontFamily:'Arial', fontSize:32, color:'#ffffff'}).setOrigin(0.5);
 
-        // Images en ligne
         this.load.image('background','https://i.ibb.co/3R7SxwG/emoji-bg.png'); 
         this.load.image('logo','https://i.ibb.co/yPzKzLr/emoji-logo.png');     
-
-        // Sons en ligne
         this.load.audio('music',['https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3']);
         this.load.audio('countdown',['https://www.soundjay.com/button/beep-07.mp3']);
         this.load.audio('match',['https://www.soundjay.com/button/beep-10.mp3']);
     }
     create(){
-        // Pas de blocage sur le son
+        // On passe directement à l'écran d'accueil
         this.scene.start('MainMenu');
     }
 }
 
-// ------------------ MainMenu.js ------------------
 class MainMenu extends Phaser.Scene {
     constructor(){ super('MainMenu'); this.music=null; }
     create(){
@@ -64,21 +58,21 @@ class MainMenu extends Phaser.Scene {
         this.tweens.add({ targets: background, alpha: 1, duration: 1000 });
         let logo=this.add.image(400,-200,'logo');
         this.tweens.add({ targets: logo, y: 200, ease:'bounce.out', duration:1200 });
-        
+
         if(!this.music) this.music=this.sound.add('music',{loop:true, volume:0.5});
 
         const fontStyle={fontFamily:'Arial', fontSize:32, color:'#333'};
         this.add.text(20,20,'High Score: '+this.registry.get('highscore'),fontStyle);
 
-        // Lancement du jeu au clic et lecture de la musique
-        this.input.once('pointerdown', ()=>{
-            if(!this.music.isPlaying) this.music.play();
+        // Écran Click to Start entièrement cliquable
+        this.startText = this.add.text(400,500,'Click to Start',{fontSize:'32px', color:'#333'}).setOrigin(0.5).setInteractive();
+        this.startText.on('pointerdown', ()=>{
+            if(!this.music.isPlaying) this.music.play(); // musique jouée au clic
             this.scene.start('MainGame');
         });
     }
 }
 
-// ------------------ Game.js ------------------
 class MainGame extends Phaser.Scene {
     constructor() {
         super('MainGame');
@@ -93,7 +87,6 @@ class MainGame extends Phaser.Scene {
         this.circle1=this.add.circle(0,0,42).setStrokeStyle(3,0xf8960e).setVisible(false);
         this.circle2=this.add.circle(0,0,42).setStrokeStyle(3,0x00ff00).setVisible(false);
 
-        // Emojis Unicode
         const baseEmojis=['😀','😎','🎯','🎲','🕹️','🤖','🐶','🍕','⚽','🌟'];
         let selectedEmojis=[];
         for(let i=0;i<8;i++){ let e=Phaser.Utils.Array.RemoveRandomElement(baseEmojis.slice()); selectedEmojis.push(e,e);}
@@ -164,7 +157,6 @@ class MainGame extends Phaser.Scene {
     }
 }
 
-// ------------------ main.js ------------------
 const config = {
     type: Phaser.AUTO,
     width: 800,

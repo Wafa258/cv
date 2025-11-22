@@ -42,8 +42,8 @@ class Preloader extends Phaser.Scene {
         this.loadText = this.add.text(400,300,'Loading ...',{ fontFamily:'Arial', fontSize:32, color:'#ffffff'}).setOrigin(0.5);
 
         // Images en ligne
-        this.load.image('background','https://i.ibb.co/3R7SxwG/emoji-bg.png'); // fond
-        this.load.image('logo','https://i.ibb.co/yPzKzLr/emoji-logo.png');     // logo
+        this.load.image('background','https://i.ibb.co/3R7SxwG/emoji-bg.png'); 
+        this.load.image('logo','https://i.ibb.co/yPzKzLr/emoji-logo.png');     
 
         // Sons en ligne
         this.load.audio('music',['https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3']);
@@ -51,12 +51,8 @@ class Preloader extends Phaser.Scene {
         this.load.audio('match',['https://www.soundjay.com/button/beep-10.mp3']);
     }
     create(){
-        if(this.sound.locked){
-            this.loadText.setText('Click to Start');
-            this.input.once('pointerdown',()=>{ this.scene.start('MainMenu'); });
-        } else {
-            this.scene.start('MainMenu');
-        }
+        // Pas de blocage sur le son
+        this.scene.start('MainMenu');
     }
 }
 
@@ -68,11 +64,17 @@ class MainMenu extends Phaser.Scene {
         this.tweens.add({ targets: background, alpha: 1, duration: 1000 });
         let logo=this.add.image(400,-200,'logo');
         this.tweens.add({ targets: logo, y: 200, ease:'bounce.out', duration:1200 });
+        
         if(!this.music) this.music=this.sound.add('music',{loop:true, volume:0.5});
-        if(!this.music.isPlaying) this.music.play();
+
         const fontStyle={fontFamily:'Arial', fontSize:32, color:'#333'};
         this.add.text(20,20,'High Score: '+this.registry.get('highscore'),fontStyle);
-        this.input.once('pointerdown',()=>{ this.scene.start('MainGame'); });
+
+        // Lancement du jeu au clic et lecture de la musique
+        this.input.once('pointerdown', ()=>{
+            if(!this.music.isPlaying) this.music.play();
+            this.scene.start('MainGame');
+        });
     }
 }
 
@@ -105,7 +107,7 @@ class MainGame extends Phaser.Scene {
             this.emojis.push(text);
         }
 
-        const fontStyle={fontFamily:'Arial', fontSize:'32px', color:'#333'};
+        const fontStyle={fontFamily:'Arial', fontSize:32, color:'#333'};
         this.scoreText=this.add.text(530,20,'Found: 0',fontStyle);
         this.timerText=this.add.text(20,20,'30:00',fontStyle);
 

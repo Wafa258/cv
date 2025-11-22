@@ -1,164 +1,205 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Emoji Match Game</title>
-<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
-<style>
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #ffd54f, #ff8a65, #4fc3f7, #81c784);
-    height: 100vh;
-}
-#game-container {
-    width: 800px;
-    height: 600px;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Emoji Match Amélioré</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #89CFF0, #A0E7E5); /* dégradé bleu-menthe */
+      height: 100vh;
+    }
+    #game-container {
+      width: 800px;
+      height: 600px;
+      position: relative;
+    }
+    .btn-css {
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      background: linear-gradient(45deg, #42a5f5, #478ed1); /* bleu moderne */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-css:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+  </style>
 </head>
 <body>
-<div id="game-container"></div>
-<script>
+  <div id="game-container"></div>
 
-class BootScene extends Phaser.Scene {
+  <script>
+  class BootScene extends Phaser.Scene {
     constructor() { super('Boot'); }
     create() {
-        this.registry.set('highscore', 0);
-        this.registry.set('level', 1);
-        this.scene.start('Preloader');
+      this.registry.set('level', 1);
+      this.scene.start('MainMenu');
     }
-}
+  }
 
-class PreloaderScene extends Phaser.Scene {
-    constructor() { super('Preloader'); }
-    preload() {
-        this.add.text(400,300,'Loading ...',{ fontSize:'48px', color:'#000'}).setOrigin(0.5);
-        // Pas de sons pour l'instant
-    }
-    create() { this.scene.start('MainMenu'); }
-}
-
-class MainMenuScene extends Phaser.Scene {
+  class MainMenu extends Phaser.Scene {
     constructor() { super('MainMenu'); }
     create() {
-        this.add.text(400,200,'Emoji Match!',{ fontSize:'64px', color:'#000', fontStyle:'bold' }).setOrigin(0.5);
+      // Fond bleu clair via Phaser (un rectangle)
+      this.add.rectangle(400, 300, 800, 600, 0x89CFF0);
 
-        const startBtn = this.add.text(400,400,'Start Level 1',{
-            fontSize:'32px',
-            color:'#fff',
-            backgroundColor:'#ff5722',
-            padding:{x:20,y:10},
-            fontStyle:'bold'
-        }).setOrigin(0.5).setInteractive({useHandCursor:true});
+      // Titre
+      this.add.text(400, 200, 'Emoji Match', { fontSize: '64px', color: '#fff' }).setOrigin(0.5);
 
-        startBtn.on('pointerdown',()=>{ this.scene.start('GameScene',{level:1}); });
+      // Bouton Start (on recrée un “bouton” Phaser + style CSS)
+      const btn = this.add.text(400, 400, 'Start Level 1', {
+        fontSize: '32px', color: '#fff', backgroundColor: '#42a5f5',
+        padding: { x: 20, y: 10 }, align: 'center'
+      })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+
+      // On applique un style CSS-like sur le bouton
+      btn.setPadding(20, 10, 20, 10);
+      btn.setStyle({ backgroundColor: null }); // on enlève le bg Phaser brut
+      // On dessine un autre rectangle “derrière” pour faire le gradient + ombre
+      let btnBg = this.add.rectangle(btn.x, btn.y, btn.width + 40, btn.height + 20, 0xffffff);
+      btnBg.setFillStyle(0x42a5f5, 1);
+      btnBg.setStrokeStyle(2, 0x1e88e5);
+      btnBg.setInteractive({ useHandCursor: true });
+      btnBg.on('pointerdown', () => {
+        this.scene.start('Game', { level: 1 });
+      });
+      btnBg.on('pointerover', () => {
+        btnBg.setScale(1.05);
+      });
+      btnBg.on('pointerout', () => {
+        btnBg.setScale(1);
+      });
+      // Mettre le texte du bouton au-dessus
+      btn.setDepth(1);
+
+      // On peut aussi ajouter le texte “Start Level 2” plus tard quand débloqué, etc.
     }
-}
+  }
 
-class GameScene extends Phaser.Scene {
-    constructor() { super('GameScene'); }
-
-    init(data){ 
-        this.level=data.level; 
-        this.timeLimit=this.level===1?30:60; 
+  class Game extends Phaser.Scene {
+    constructor() { super('Game'); }
+    init(data) {
+      this.level = data.level;
+      this.timeLimit = (this.level === 1) ? 60 : 90;
     }
-
     create() {
-        // Fond simple pour le jeu
-        this.add.rectangle(400,300,800,600,0xfff9c4);
+      // Fond du jeu (rectangle coloré, pas noir)
+      this.add.rectangle(400, 300, 800, 600, 0xE1F5FE);
 
-        // Score et timer
-        this.score=0;
-        this.timerText=this.add.text(20,20,`Time: ${this.timeLimit}`,{ 
-            fontSize:'40px',color:'#000',stroke:'#fff',strokeThickness:6, backgroundColor:'rgba(255,255,255,0.5)', padding:{x:10,y:5} 
-        });
-        this.scoreText=this.add.text(550,20,`Found: 0`,{ 
-            fontSize:'40px',color:'#000',stroke:'#fff',strokeThickness:6, backgroundColor:'rgba(255,255,255,0.5)', padding:{x:10,y:5} 
-        });
+      // Timer et score lisibles
+      this.score = 0;
+      this.timerText = this.add.text(20, 20, `Time: ${this.timeLimit}`, {
+        fontSize: '40px', color: '#000', stroke: '#fff', strokeThickness: 6,
+        backgroundColor: 'rgba(255,255,255,0.5)', padding: { x: 10, y: 5 }
+      });
+      this.scoreText = this.add.text(550, 20, `Found: 0`, {
+        fontSize: '40px', color: '#000', stroke: '#fff', strokeThickness: 6,
+        backgroundColor: 'rgba(255,255,255,0.5)', padding: { x: 10, y: 5 }
+      });
 
-        // Création de la grille
-        const emojisList=['😀','😂','😍','😎','🤩','😜','😢','😡','🥳','🤯','😇','😱','🤖','👻','💩','🎃','🐶','🐱','🦊','🐸','🐵','🦄'];
-        let gridSize=4, spacing=100, startX=200, startY=150;
-        let selectedPairs=Phaser.Utils.Array.Shuffle(emojisList).slice(0,gridSize*gridSize/2);
-        let pairedEmojis=[...selectedPairs,...selectedPairs];
-        Phaser.Utils.Array.Shuffle(pairedEmojis);
+      // Création des cartes emoji
+      let emojis = ['😀','😎','🎯','🎲','🤖','🐶','🍕','⭐'];
+      let pairs = [...emojis, ...emojis];
+      Phaser.Utils.Array.Shuffle(pairs);
 
-        this.emojisGroup=[];
-        for(let i=0;i<gridSize;i++){
-            for(let j=0;j<gridSize;j++){
-                let index=i*gridSize+j;
-                let emoji=this.add.text(startX+j*spacing,startY+i*spacing,pairedEmojis[index],{ fontSize:'64px' }).setOrigin(0.5).setInteractive();
-                emoji.selected=false; 
-                this.emojisGroup.push(emoji);
-            }
+      this.cards = [];
+      const cols = 4, rows = 4;
+      const spacingX = 150, spacingY = 120;
+      const startX = 200, startY = 180;
+
+      for (let i = 0; i < cols * rows; i++) {
+        let x = startX + (i % cols) * spacingX;
+        let y = startY + Math.floor(i / cols) * spacingY;
+        // Le “cadre” de la carte
+        let frame = this.add.rectangle(x, y, 120, 100, 0xffffff).setStrokeStyle(4, 0x42a5f5);
+        // L’emoji cachée
+        let card = this.add.text(x, y, '❓', { fontSize: '64px', color: '#000' })
+          .setOrigin(0.5)
+          .setInteractive();
+        card.emoji = pairs[i];
+        card.revealed = false;
+        card.frame = frame;
+        this.cards.push(card);
+      }
+
+      this.first = null;
+      this.input.on('gameobjectdown', (pointer, card) => {
+        if (card.revealed) return;
+        card.setText(card.emoji);
+        card.revealed = true;
+        // Agrandir ou souligner la frame
+        card.frame.setStrokeStyle(4, 0xFFEB3B);
+        if (!this.first) {
+          this.first = card;
+        } else {
+          if (this.first.emoji === card.emoji) {
+            this.score++;
+            this.scoreText.setText(`Found: ${this.score}`);
+          } else {
+            // revenir après un délai
+            this.time.delayedCall(600, () => {
+              card.setText('❓');
+              card.revealed = false;
+              card.frame.setStrokeStyle(4, 0x42a5f5);
+
+              this.first.setText('❓');
+              this.first.revealed = false;
+              this.first.frame.setStrokeStyle(4, 0x42a5f5);
+
+              this.first = null;
+            });
+            return;
+          }
+          this.first = null;
         }
+      });
 
-        this.firstSelection=null;
-        this.input.on('gameobjectdown',this.selectEmoji,this);
-
-        this.timerEvent=this.time.addEvent({ delay:this.timeLimit*1000, callback:this.timeOver, callbackScope:this });
+      // Timer
+      this.timerEvent = this.time.addEvent({
+        delay: this.timeLimit * 1000,
+        callback: () => this.timeOver(),
+        callbackScope: this
+      });
     }
 
-    selectEmoji(pointer,emoji){
-        if(emoji.selected) return;
-        emoji.setStyle({ backgroundColor:'#fff59d' });
-        if(!this.firstSelection){ 
-            this.firstSelection=emoji; 
-        }
-        else{
-            if(emoji.text===this.firstSelection.text && emoji!==this.firstSelection){
-                emoji.selected=true; 
-                this.firstSelection.selected=true;
-                this.score++; 
-                this.scoreText.setText(`Found: ${this.score}`);
-            } else{
-                this.time.delayedCall(500,()=>{
-                    emoji.setStyle({backgroundColor:null}); 
-                    this.firstSelection.setStyle({backgroundColor:null}); 
-                });
-            }
-            this.firstSelection=null;
-            if(this.score===this.emojisGroup.length/2){
-                if(this.level===1){ this.scene.start('GameScene',{level:2}); }
-                else{ this.showRestartButton('You Win! Play Again'); }
-            }
-        }
+    timeOver() {
+      const btn = this.add.text(400, 500, 'Start Again', {
+        fontSize: '32px', color: '#fff', backgroundColor: '#2962FF', padding: { x: 20, y: 10 }
+      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      btn.on('pointerdown', () => this.scene.start('MainMenu'));
     }
 
-    timeOver(){ this.showRestartButton('Time Over! Try Again'); }
-
-    showRestartButton(text){
-        this.emojisGroup.forEach(e=>e.disableInteractive());
-        const btn=this.add.text(400,500,text,{ 
-            fontSize:'32px',
-            color:'#fff',
-            backgroundColor:'#4caf50',
-            padding:{x:20,y:10},
-            fontStyle:'bold'
-        }).setOrigin(0.5).setInteractive({useHandCursor:true});
-        btn.on('pointerdown',()=>{ this.scene.start('MainMenu'); });
+    update() {
+      let rem = Math.ceil(this.timerEvent.getRemainingSeconds());
+      this.timerText.setText(`Time: ${rem}`);
     }
+  }
 
-    update(){ 
-        this.timerText.setText(`Time: ${Math.ceil(this.timerEvent.getRemainingSeconds())}`); 
-    }
-}
-
-const config={
+  const config = {
     type: Phaser.AUTO,
-    width:800,
-    height:600,
-    parent:'game-container',
-    scene:[BootScene,PreloaderScene,MainMenuScene,GameScene]
-};
+    width: 800,
+    height: 600,
+    parent: 'game-container',
+    scene: [BootScene, MainMenu, Game]
+  };
 
-new Phaser.Game(config);
+  new Phaser.Game(config);
 
-</script>
+  </script>
 </body>
 </html>

@@ -2,210 +2,171 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Emoji Match - Multi-Level Amélioré</title>
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #ff9a9e, #fad0c4, #a1c4fd);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-h1 {
-  color: #333;
-  margin-top: 20px;
-  text-align: center;
-  text-shadow: 2px 2px #fff7;
-}
-#game-container {
-  margin-top: 20px;
-}
-
-/* Boutons modernes */
-.phaser-btn {
-  padding: 14px 28px;
-  font-size: 22px;
-  margin-top: 20px;
-  cursor: pointer;
-  border: none;
-  border-radius: 20px;
-  background: linear-gradient(45deg, #ffafbd, #ffc3a0);
-  color: #fff;
-  font-weight: bold;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.phaser-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-}
-
-/* Cadre des cartes */
-.card-frame {
-  background-color: #fff0; /* transparent pour fond */
-  padding: 10px;
-  border-radius: 12px;
-  border: 3px solid #ffd700; /* couleur joyeuse dorée */
-}
-</style>
+<title>Emoji Match Game</title>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ffd54f, #ff8a65, #4fc3f7);
+    height: 100vh;
+  }
+  #game-container {
+    width: 800px;
+    height: 600px;
+  }
+  .btn {
+    font-family: Arial;
+    font-size: 24px;
+    background: linear-gradient(45deg, #ffeb3b, #ff8a65);
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    text-align: center;
+  }
+  .btn:hover {
+    background: linear-gradient(45deg, #ffb74d, #ff5252);
+  }
+</style>
 </head>
 <body>
-<h1>🎉 Emoji Match Multi-Level 🎉</h1>
 <div id="game-container"></div>
-
 <script>
-let config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    parent: 'game-container',
-    scene: { preload, create, update }
-};
 
-let game = new Phaser.Game(config);
+// ----- SCENES -----
 
-let cards = [], firstCard = null, canClick = true;
-let matches = 0, scoreText, timerText;
-let timerEvent;
-let level = 1;
-let emojis = ['😀','😎','🎯','🎲','🕹️','🤖','🐶','🍕','🍔','🌈','⭐','🍩','⚡','💎','🎵','🍉'];
-let gridConfig = {1:{cols:4, rows:4, time:60}, 2:{cols:5, rows:4, time:90}};
-let totalPairs;
-
-function preload(){}
-
-function create() {
-    startLevel(this, level);
+class BootScene extends Phaser.Scene {
+    constructor() { super('Boot'); }
+    create() {
+        this.registry.set('highscore', 0);
+        this.registry.set('level', 1);
+        this.scene.start('Preloader');
+    }
 }
 
-function startLevel(scene, lvl){
-    scene.children.removeAll();
-    cards=[]; firstCard=null; matches=0; canClick=true;
+class PreloaderScene extends Phaser.Scene {
+    constructor() { super('Preloader'); }
+    preload() {
+        this.loadText = this.add.text(400, 300, 'Loading ...', { fontSize: '48px', color: '#000' }).setOrigin(0.5);
+        this.load.audio('match', 'https://freesound.org/data/previews/341/341695_62440-lq.mp3');
+        this.load.audio('start', 'https://freesound.org/data/previews/256/256113_4486188-lq.mp3');
+    }
+    create() {
+        this.scene.start('MainMenu');
+    }
+}
 
-    let cols = gridConfig[lvl].cols;
-    let rows = gridConfig[lvl].rows;
-    let levelTime = gridConfig[lvl].time;
-    totalPairs = Math.min(emojis.length, Math.floor(cols*rows/2));
+class MainMenuScene extends Phaser.Scene {
+    constructor() { super('MainMenu'); }
+    create() {
+        this.add.text(400, 200, 'Emoji Match!', { fontSize: '64px', color: '#000', fontStyle: 'bold' }).setOrigin(0.5);
 
-    scoreText = scene.add.text(20,20,'Found: 0',{fontSize:'28px',color:'#333'});
-    timerText = scene.add.text(650,20,levelTime,{fontSize:'28px',color:'#333'});
+        const startBtn = this.add.text(400, 400, 'Start Level 1', {
+            fontSize: '32px',
+            color: '#000',
+            backgroundColor: '#ffd54f',
+            padding: {x:20,y:10},
+            align:'center'
+        }).setOrigin(0.5).setInteractive({useHandCursor:true});
 
-    // Timer
-    timerEvent = scene.time.addEvent({delay:levelTime*1000, callback:timeOver, callbackScope:scene});
+        startBtn.on('pointerdown', () => {
+            this.sound.play('start');
+            this.scene.start('GameScene', { level: 1 });
+        });
+    }
+}
 
-    // Prepare deck
-    let deck = emojis.slice(0,totalPairs);
-    deck = [...deck,...deck];
-    Phaser.Utils.Array.Shuffle(deck);
+class GameScene extends Phaser.Scene {
+    constructor() { super('GameScene'); }
 
-    let spacingX = 120, spacingY = 120;
-    let startX = (800 - spacingX*cols)/2 + spacingX/2;
-    let startY = 120;
+    init(data) { this.level = data.level; this.timeLimit = this.level===1?30:60; }
 
-    for(let i=0;i<cols*rows;i++){
-        let x = startX + (i%cols)*spacingX;
-        let y = startY + Math.floor(i/cols)*spacingY;
-        let card = scene.add.text(x,y,'❓',{fontSize:'64px',align:'center',padding:{x:10,y:10},backgroundColor:'#fff0',style:{border:'3px solid #ffd700',borderRadius:'12px'}}).setOrigin(0.5).setInteractive();
-        card.emoji = deck[i];
-        card.revealed = false;
+    create() {
+        // Fond joyeux dégradé
+        let graphics = this.add.graphics();
+        graphics.fillGradientStyle(0xffeb3b,0xff8a65,0x4fc3f7,0x81c784,1);
+        graphics.fillRect(0,0,800,600);
 
-        let circle = scene.add.circle(x,y,45,0xffff00,0).setStrokeStyle(3,0xff69b4); // contour rose
-        circle.setVisible(false);
-        card.circle = circle;
+        // Score & Timer lisibles
+        this.score = 0;
+        this.timerText = this.add.text(20, 20, `Time: ${this.timeLimit}`, {
+            fontSize:'40px', color:'#000', fontStyle:'bold',
+            stroke:'#ffffff', strokeThickness:6,
+            padding:{x:10,y:5}, backgroundColor:'rgba(255,255,255,0.3)'
+        });
+        this.scoreText = this.add.text(550, 20, `Found: 0`, {
+            fontSize:'40px', color:'#000', fontStyle:'bold',
+            stroke:'#ffffff', strokeThickness:6,
+            padding:{x:10,y:5}, backgroundColor:'rgba(255,255,255,0.3)'
+        });
 
-        cards.push(card);
+        // Grille emojis
+        const emojisList = ['😀','😂','😍','😎','🤩','😜','😢','😡','🥳','🤯','😇','😱','🤖','👻','💩','🎃','🐶','🐱','🦊','🐸','🐵','🦄'];
+        let gridSize = 4, spacing = 100, startX = 200, startY = 150;
+        let selectedPairs = Phaser.Utils.Array.Shuffle(emojisList).slice(0, gridSize*gridSize/2);
+        let pairedEmojis = [...selectedPairs, ...selectedPairs];
+        Phaser.Utils.Array.Shuffle(pairedEmojis);
+
+        this.emojisGroup = [];
+        for(let i=0;i<gridSize;i++){
+            for(let j=0;j<gridSize;j++){
+                let index = i*gridSize+j;
+                let emoji = this.add.text(startX+j*spacing, startY+i*spacing, pairedEmojis[index], { fontSize:'64px' }).setOrigin(0.5).setInteractive();
+                emoji.selected = false; emoji.index = index;
+                this.emojisGroup.push(emoji);
+            }
+        }
+
+        this.firstSelection = null;
+        this.input.on('gameobjectdown', this.selectEmoji, this);
+
+        // Timer
+        this.timerEvent = this.time.addEvent({ delay:this.timeLimit*1000, callback:this.timeOver, callbackScope:this });
     }
 
-    scene.input.on('gameobjectdown', function(pointer, card){
-        if(!canClick || card.revealed) return;
-        revealCard(card);
-    });
-}
-
-function revealCard(card){
-    card.setText(card.emoji);
-    card.revealed = true;
-    card.circle.setVisible(true);
-
-    if(!firstCard){
-        firstCard = card;
-    } else {
-        canClick=false;
-        if(firstCard.emoji === card.emoji){
-            beepGood();
-            matches++;
-            scoreText.setText('Found: '+matches);
-            firstCard.circle.setStrokeStyle(3,0x00ff00);
-            card.circle.setStrokeStyle(3,0x00ff00);
-            setTimeout(()=>{firstCard=null; canClick=true; checkLevelComplete();},500);
-        } else {
-            beepBad();
-            setTimeout(()=>{
-                firstCard.setText('❓'); firstCard.revealed=false; firstCard.circle.setVisible(false);
-                card.setText('❓'); card.revealed=false; card.circle.setVisible(false);
-                firstCard=null; canClick=true;
-            },600);
+    selectEmoji(pointer, emoji) {
+        if(emoji.selected) return;
+        emoji.setStyle({ backgroundColor:'#fff59d' });
+        if(!this.firstSelection) { this.firstSelection = emoji; }
+        else {
+            if(emoji.text===this.firstSelection.text && emoji!==this.firstSelection) {
+                this.sound.play('match');
+                emoji.selected=true; this.firstSelection.selected=true;
+                this.score++; this.scoreText.setText(`Found: ${this.score}`);
+            } else {
+                this.time.delayedCall(500,()=>{ emoji.setStyle({backgroundColor:null}); this.firstSelection.setStyle({backgroundColor:null}); });
+            }
+            this.firstSelection=null;
+            if(this.score===this.emojisGroup.length/2){
+                if(this.level===1){ this.scene.start('GameScene',{level:2}); }
+                else{ this.showRestartButton('You Win! Play Again'); }
+            }
         }
     }
-}
 
-function update(){
-    if(timerEvent){
-        let remaining = (timerEvent.delay - timerEvent.getElapsed())/1000;
-        remaining = Math.ceil(remaining);
-        timerText.setText(remaining.toString().padStart(2,'0'));
+    timeOver() { this.showRestartButton('Time Over! Try Again'); }
+
+    showRestartButton(text){
+        this.emojisGroup.forEach(e=>e.disableInteractive());
+        const btn = this.add.text(400,500,text,{
+            fontSize:'32px',color:'#000',backgroundColor:'#ffd54f',padding:{x:20,y:10}
+        }).setOrigin(0.5).setInteractive({useHandCursor:true});
+        btn.on('pointerdown',()=>{ this.scene.start('MainMenu'); });
     }
+
+    update(){ this.timerText.setText(`Time: ${Math.ceil(this.timerEvent.getRemainingSeconds())}`); }
 }
 
-function timeOver(){
-    let scene = game.scene.scenes[0];
-    canClick=false;
-    let btn = scene.add.text(400,550,'Start Again',{fontSize:'28px',color:'#fff',backgroundColor:'#ff6b6b',padding:{x:20,y:12}}).setOrigin(0.5).setInteractive();
-    btn.setData('class','phaser-btn');
-    btn.on('pointerdown',()=>startLevel(scene,level));
-}
+// ----- CONFIG DU JEU -----
+const config = { type: Phaser.AUTO, width:800, height:600, parent:'game-container', scene:[BootScene,PreloaderScene,MainMenuScene,GameScene] };
+new Phaser.Game(config);
 
-function checkLevelComplete(){
-    if(matches >= totalPairs){
-        let scene = game.scene.scenes[0];
-        canClick=false;
-        if(level<2){
-            let btn = scene.add.text(400,550,'Next Level',{fontSize:'28px',color:'#fff',backgroundColor:'#ff6b6b',padding:{x:20,y:12}}).setOrigin(0.5).setInteractive();
-            btn.setData('class','phaser-btn');
-            btn.on('pointerdown',()=>{
-                level++;
-                startLevel(scene,level);
-            });
-        } else {
-            let btn = scene.add.text(400,550,'You Won! Restart',{fontSize:'28px',color:'#fff',backgroundColor:'#ff6b6b',padding:{x:20,y:12}}).setOrigin(0.5).setInteractive();
-            btn.setData('class','phaser-btn');
-            btn.on('pointerdown',()=>startLevel(scene,level));
-        }
-    }
-}
-
-// Sons Web Audio
-function beepGood(){
-    let ctx = new (window.AudioContext||window.webkitAudioContext)();
-    let o = ctx.createOscillator();
-    let g = ctx.createGain();
-    o.type='square';
-    o.frequency.setValueAtTime(600,ctx.currentTime);
-    o.connect(g); g.connect(ctx.destination);
-    o.start(0); g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime+0.1);
-}
-
-function beepBad(){
-    let ctx = new (window.AudioContext||window.webkitAudioContext)();
-    let o = ctx.createOscillator();
-    let g = ctx.createGain();
-    o.type='square';
-    o.frequency.setValueAtTime(200,ctx.currentTime);
-    o.connect(g); g.connect(ctx.destination);
-    o.start(0); g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime+0.2);
-}
 </script>
 </body>
 </html>

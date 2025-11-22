@@ -5,41 +5,25 @@
 <title>Emoji Match Game</title>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 <style>
-  body {
+body {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     display: flex;
     justify-content: center;
     align-items: center;
     background: linear-gradient(135deg, #ffd54f, #ff8a65, #4fc3f7);
     height: 100vh;
-  }
-  #game-container {
+}
+#game-container {
     width: 800px;
     height: 600px;
-  }
-  .btn {
-    font-family: Arial;
-    font-size: 24px;
-    background: linear-gradient(45deg, #ffeb3b, #ff8a65);
-    color: #000;
-    padding: 10px 20px;
-    border-radius: 12px;
-    cursor: pointer;
-    user-select: none;
-    text-align: center;
-  }
-  .btn:hover {
-    background: linear-gradient(45deg, #ffb74d, #ff5252);
-  }
+}
 </style>
 </head>
 <body>
 <div id="game-container"></div>
 <script>
-
-// ----- SCENES -----
 
 class BootScene extends Phaser.Scene {
     constructor() { super('Boot'); }
@@ -53,93 +37,73 @@ class BootScene extends Phaser.Scene {
 class PreloaderScene extends Phaser.Scene {
     constructor() { super('Preloader'); }
     preload() {
-        this.loadText = this.add.text(400, 300, 'Loading ...', { fontSize: '48px', color: '#000' }).setOrigin(0.5);
-        this.load.audio('match', 'https://freesound.org/data/previews/341/341695_62440-lq.mp3');
-        this.load.audio('start', 'https://freesound.org/data/previews/256/256113_4486188-lq.mp3');
+        this.loadText = this.add.text(400,300,'Loading ...',{ fontSize:'48px', color:'#000'}).setOrigin(0.5);
+        this.load.audio('match','https://freesound.org/data/previews/341/341695_62440-lq.mp3');
+        this.load.audio('start','https://freesound.org/data/previews/256/256113_4486188-lq.mp3');
     }
-    create() {
-        this.scene.start('MainMenu');
-    }
+    create() { this.scene.start('MainMenu'); }
 }
 
 class MainMenuScene extends Phaser.Scene {
     constructor() { super('MainMenu'); }
     create() {
-        this.add.text(400, 200, 'Emoji Match!', { fontSize: '64px', color: '#000', fontStyle: 'bold' }).setOrigin(0.5);
-
-        const startBtn = this.add.text(400, 400, 'Start Level 1', {
-            fontSize: '32px',
-            color: '#000',
-            backgroundColor: '#ffd54f',
-            padding: {x:20,y:10},
-            align:'center'
+        this.add.text(400,200,'Emoji Match!',{ fontSize:'64px', color:'#000', fontStyle:'bold' }).setOrigin(0.5);
+        const startBtn = this.add.text(400,400,'Start Level 1',{
+            fontSize:'32px',color:'#000',backgroundColor:'#ffd54f',padding:{x:20,y:10}
         }).setOrigin(0.5).setInteractive({useHandCursor:true});
-
-        startBtn.on('pointerdown', () => {
-            this.sound.play('start');
-            this.scene.start('GameScene', { level: 1 });
-        });
+        startBtn.on('pointerdown',()=>{ this.sound.play('start'); this.scene.start('GameScene',{level:1}); });
     }
 }
 
 class GameScene extends Phaser.Scene {
     constructor() { super('GameScene'); }
 
-    init(data) { this.level = data.level; this.timeLimit = this.level===1?30:60; }
+    init(data){ this.level=data.level; this.timeLimit=this.level===1?30:60; }
 
     create() {
-        // Fond joyeux dégradé
+        // fond joyeux
         let graphics = this.add.graphics();
         graphics.fillGradientStyle(0xffeb3b,0xff8a65,0x4fc3f7,0x81c784,1);
         graphics.fillRect(0,0,800,600);
 
-        // Score & Timer lisibles
-        this.score = 0;
-        this.timerText = this.add.text(20, 20, `Time: ${this.timeLimit}`, {
-            fontSize:'40px', color:'#000', fontStyle:'bold',
-            stroke:'#ffffff', strokeThickness:6,
-            padding:{x:10,y:5}, backgroundColor:'rgba(255,255,255,0.3)'
-        });
-        this.scoreText = this.add.text(550, 20, `Found: 0`, {
-            fontSize:'40px', color:'#000', fontStyle:'bold',
-            stroke:'#ffffff', strokeThickness:6,
-            padding:{x:10,y:5}, backgroundColor:'rgba(255,255,255,0.3)'
-        });
+        // Score et timer
+        this.score=0;
+        this.timerText=this.add.text(20,20,`Time: ${this.timeLimit}`,{ fontSize:'40px',color:'#000',stroke:'#fff',strokeThickness:6, backgroundColor:'rgba(255,255,255,0.3)', padding:{x:10,y:5} });
+        this.scoreText=this.add.text(550,20,`Found: 0`,{ fontSize:'40px',color:'#000',stroke:'#fff',strokeThickness:6, backgroundColor:'rgba(255,255,255,0.3)', padding:{x:10,y:5} });
 
-        // Grille emojis
-        const emojisList = ['😀','😂','😍','😎','🤩','😜','😢','😡','🥳','🤯','😇','😱','🤖','👻','💩','🎃','🐶','🐱','🦊','🐸','🐵','🦄'];
-        let gridSize = 4, spacing = 100, startX = 200, startY = 150;
-        let selectedPairs = Phaser.Utils.Array.Shuffle(emojisList).slice(0, gridSize*gridSize/2);
-        let pairedEmojis = [...selectedPairs, ...selectedPairs];
+        // Création de la grille
+        const emojisList=['😀','😂','😍','😎','🤩','😜','😢','😡','🥳','🤯','😇','😱','🤖','👻','💩','🎃','🐶','🐱','🦊','🐸','🐵','🦄'];
+        let gridSize=4, spacing=100, startX=200, startY=150;
+        let selectedPairs=Phaser.Utils.Array.Shuffle(emojisList).slice(0,gridSize*gridSize/2);
+        let pairedEmojis=[...selectedPairs,...selectedPairs];
         Phaser.Utils.Array.Shuffle(pairedEmojis);
 
-        this.emojisGroup = [];
+        this.emojisGroup=[];
         for(let i=0;i<gridSize;i++){
             for(let j=0;j<gridSize;j++){
-                let index = i*gridSize+j;
-                let emoji = this.add.text(startX+j*spacing, startY+i*spacing, pairedEmojis[index], { fontSize:'64px' }).setOrigin(0.5).setInteractive();
-                emoji.selected = false; emoji.index = index;
+                let index=i*gridSize+j;
+                let emoji=this.add.text(startX+j*spacing,startY+i*spacing,pairedEmojis[index],{ fontSize:'64px' }).setOrigin(0.5).setInteractive();
+                emoji.selected=false; emoji.index=index;
                 this.emojisGroup.push(emoji);
             }
         }
 
-        this.firstSelection = null;
-        this.input.on('gameobjectdown', this.selectEmoji, this);
+        this.firstSelection=null;
+        this.input.on('gameobjectdown',this.selectEmoji,this);
 
-        // Timer
-        this.timerEvent = this.time.addEvent({ delay:this.timeLimit*1000, callback:this.timeOver, callbackScope:this });
+        this.timerEvent=this.time.addEvent({ delay:this.timeLimit*1000, callback:this.timeOver, callbackScope:this });
     }
 
-    selectEmoji(pointer, emoji) {
+    selectEmoji(pointer,emoji){
         if(emoji.selected) return;
         emoji.setStyle({ backgroundColor:'#fff59d' });
-        if(!this.firstSelection) { this.firstSelection = emoji; }
-        else {
-            if(emoji.text===this.firstSelection.text && emoji!==this.firstSelection) {
+        if(!this.firstSelection){ this.firstSelection=emoji; }
+        else{
+            if(emoji.text===this.firstSelection.text && emoji!==this.firstSelection){
                 this.sound.play('match');
                 emoji.selected=true; this.firstSelection.selected=true;
                 this.score++; this.scoreText.setText(`Found: ${this.score}`);
-            } else {
+            } else{
                 this.time.delayedCall(500,()=>{ emoji.setStyle({backgroundColor:null}); this.firstSelection.setStyle({backgroundColor:null}); });
             }
             this.firstSelection=null;
@@ -150,21 +114,18 @@ class GameScene extends Phaser.Scene {
         }
     }
 
-    timeOver() { this.showRestartButton('Time Over! Try Again'); }
+    timeOver(){ this.showRestartButton('Time Over! Try Again'); }
 
     showRestartButton(text){
         this.emojisGroup.forEach(e=>e.disableInteractive());
-        const btn = this.add.text(400,500,text,{
-            fontSize:'32px',color:'#000',backgroundColor:'#ffd54f',padding:{x:20,y:10}
-        }).setOrigin(0.5).setInteractive({useHandCursor:true});
+        const btn=this.add.text(400,500,text,{ fontSize:'32px',color:'#000',backgroundColor:'#ffd54f',padding:{x:20,y:10} }).setOrigin(0.5).setInteractive({useHandCursor:true});
         btn.on('pointerdown',()=>{ this.scene.start('MainMenu'); });
     }
 
     update(){ this.timerText.setText(`Time: ${Math.ceil(this.timerEvent.getRemainingSeconds())}`); }
 }
 
-// ----- CONFIG DU JEU -----
-const config = { type: Phaser.AUTO, width:800, height:600, parent:'game-container', scene:[BootScene,PreloaderScene,MainMenuScene,GameScene] };
+const config={ type: Phaser.AUTO, width:800, height:600, parent:'game-container', scene:[BootScene,PreloaderScene,MainMenuScene,GameScene] };
 new Phaser.Game(config);
 
 </script>

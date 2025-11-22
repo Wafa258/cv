@@ -33,6 +33,27 @@ class MainMenu extends Phaser.Scene {
     }
 }
 
+class LevelTransition extends Phaser.Scene {
+    constructor(){ super('LevelTransition'); }
+    init(data){ this.nextLevel=data.level||2; }
+    preload(){ this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg'); }
+    create(){
+        this.add.rectangle(400,300,800,600,0xFFD700); // fond doré
+        this.add.text(400,250,'Félicitations !',{fontSize:'48px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
+        this.add.text(400,320,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'32px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
+
+        const btn = this.add.rectangle(400,400,300,70,0xFF6347).setOrigin(0.5).setInteractive({useHandCursor:true});
+        const txt = this.add.text(400,400,'Level '+this.nextLevel,{fontSize:'32px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+
+        btn.on('pointerover',()=>btn.setFillStyle(0xFF4500));
+        btn.on('pointerout',()=>btn.setFillStyle(0xFF6347));
+        btn.on('pointerdown', ()=>{
+            this.sound.play('click');
+            this.scene.start('MainGame',{level:this.nextLevel});
+        });
+    }
+}
+
 class MainGame extends Phaser.Scene {
     constructor() { super('MainGame'); }
     init(data){ this.level = data.level || 1; }
@@ -43,24 +64,25 @@ class MainGame extends Phaser.Scene {
     create() {
         this.add.rectangle(400,300,800,600,0xFFFFE0); // fond jaune clair
 
-        // --- TEMPS AUGMENTÉ ---
-        this.timeLeft = this.level===1?60:90; // <- ici
+        // --- TEMPS ET PAIRES ---
+        if(this.level===1){ this.timeLeft=60; this.pairs=8; }
+        else{ this.timeLeft=90; this.pairs=12; }
+
         this.score = 0;
         this.timerText = this.add.text(20,20,'Time: '+this.timeLeft,{fontSize:'32px',color:'#333',fontStyle:'bold'});
         this.scoreText = this.add.text(550,20,'Found: '+this.score,{fontSize:'32px',color:'#333',fontStyle:'bold'});
 
         // Emojis
-        this.emojisArray=['😀','😎','😍','😂','🥰','😜','🤩','😇'];
-        this.pairs = this.level===1?8:12;
-        this.cards=[];
+        this.emojisArray=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
         let cardEmojis=[];
         for(let i=0;i<this.pairs;i++){ cardEmojis.push(this.emojisArray[i%this.emojisArray.length]); cardEmojis.push(this.emojisArray[i%this.emojisArray.length]); }
         Phaser.Utils.Array.Shuffle(cardEmojis);
 
+        this.cards=[];
         this.selected=null; this.matched=0;
-        const startX=200,startY=150,spacingX=100,spacingY=100;
+        const cols=4; const startX=200,startY=150,spacingX=100,spacingY=100;
         for(let i=0;i<cardEmojis.length;i++){
-            const row=Math.floor(i/4),col=i%4;
+            const row=Math.floor(i/cols),col=i%cols;
             const card=this.add.text(startX+col*spacingX,startY+row*spacingY,'❓',{fontSize:'64px'}).setOrigin(0.5).setInteractive();
             card.emoji=cardEmojis[i]; card.revealed=false;
             card.on('pointerdown',()=>this.revealCard(card));
@@ -82,7 +104,10 @@ class MainGame extends Phaser.Scene {
             if(this.selected.emoji===card.emoji){
                 this.selected=null;
                 this.matched++; this.score++; this.scoreText.setText('Found: '+this.score);
-                if(this.matched===this.cards.length/2)this.endGame(true);
+                if(this.matched===this.cards.length/2){
+                    if(this.level===1)this.scene.start('LevelTransition',{level:2});
+                    else this.endGame(true);
+                }
             } else{
                 const first=this.selected; this.selected=null;
                 this.time.delayedCall(800,()=>{first.setText('❓');card.setText('❓');},[],this);
@@ -95,7 +120,6 @@ class MainGame extends Phaser.Scene {
         const overlay=this.add.rectangle(400,300,800,600,0x000000,0.5);
         const msgText=this.add.text(400,250,win?'Level Complete!':'Time Over!',{fontSize:'48px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
 
-        // Bouton restart
         const btnBg=this.add.rectangle(400,350,300,70,0xFF6347).setOrigin(0.5).setInteractive({useHandCursor:true});
         const btnText=this.add.text(400,350,'Restart',{fontSize:'32px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
         btnBg.on('pointerover',()=>btnBg.setFillStyle(0xFF4500));
@@ -110,7 +134,7 @@ const config = {
     width: 800,
     height: 600,
     parent: document.body,
-    scene: [MainMenu,MainGame]
+    scene: [MainMenu,LevelTransition,MainGame]
 };
 
 // --- START GAME ---

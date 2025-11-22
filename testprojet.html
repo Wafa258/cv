@@ -43,7 +43,8 @@ class MainGame extends Phaser.Scene {
     create() {
         this.add.rectangle(400,300,800,600,0xFFFFE0); // fond jaune clair
 
-        this.timeLeft = this.level===1?30:60;
+        // --- TEMPS AUGMENTÉ ---
+        this.timeLeft = this.level===1?60:90; // <- ici
         this.score = 0;
         this.timerText = this.add.text(20,20,'Time: '+this.timeLeft,{fontSize:'32px',color:'#333',fontStyle:'bold'});
         this.scoreText = this.add.text(550,20,'Found: '+this.score,{fontSize:'32px',color:'#333',fontStyle:'bold'});

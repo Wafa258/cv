@@ -1,189 +1,72 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Emoji Match</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.85.0/dist/phaser.min.js"></script>
-    <style>
-        body { margin: 0; background: #000; }
-        canvas { display: block; margin: auto; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Emoji Match - Exemple</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb, #a1c4fd); display:flex; flex-direction:column; align-items:center; }
+    h1 { color:#333; margin-top:20px; text-align:center; }
+  </style>
 </head>
 <body>
+  <h1>🎮 Emoji Match 🎮</h1>
+  <div id="phaser-example"></div>
 
-<script>
-// =========================
-// BOOT SCENE
-// =========================
-class Boot extends Phaser.Scene {
-    constructor() { super('Boot'); }
+  <script>
+class MainGame extends Phaser.Scene {
+    constructor() { super('MainGame'); }
     create() {
-        this.registry.set('highscore', 0);
-        this.scene.start('Preloader');
-    }
-}
+        this.add.text(400, 50, 'Cliquez sur deux emojis identiques', { font: '24px Arial', fill: '#333' }).setOrigin(0.5);
 
-// =========================
-// PRELOADER SCENE
-// =========================
-class Preloader extends Phaser.Scene {
-    constructor() { super('Preloader'); }
-    preload() {
-        this.load.setBaseURL('./'); // On prend la racine du dépôt
-        this.load.setPath('assets/games/emoji-match/');
+        this.emojis = ['😀','😎','🎯','🎲','🕹️','😀','😎','🎯','🎲','🕹️','😀','😎','🎯','🎲','🕹️','😀'];
+        Phaser.Utils.Array.Shuffle(this.emojis);
 
-        // Images
-        this.load.image(['background','logo']);
-        this.load.atlas('emojis','emojis.png','emojis.json');
+        this.tiles = [];
+        for(let i=0;i<16;i++){
+            let x = 150 + (i%4)*130;
+            let y = 120 + Math.floor(i/4)*130;
+            let tile = this.add.text(x, y, this.emojis[i], { font: '64px Arial', fill:'#000' }).setInteractive().setOrigin(0.5);
+            tile.revealed = false;
+            tile.emoji = this.emojis[i];
+            this.tiles.push(tile);
+        }
 
-        // Sons
-        this.load.audio('music',['music.mp3','music.ogg']);
-        this.load.audio('countdown',['countdown.mp3','countdown.ogg']);
-        this.load.audio('match',['match.mp3','match.ogg']);
-    }
-    create() {
-        // Contournement du problème "Click to Start"
-        this.scene.start('MainMenu');
-    }
-}
-
-// =========================
-// MAIN MENU SCENE
-// =========================
-class MainMenu extends Phaser.Scene {
-    constructor() { super('MainMenu'); this.music=null; }
-    create() {
-        let bg = this.add.image(400,300,'background') || this.add.rectangle(400,300,800,600,0x008eb0);
-        let logo = this.add.image(400,150,'logo') || this.add.text(300,150,'Emoji Match',{fontSize:'48px',fill:'#fff'});
-
-        this.input.once('pointerdown', () => {
-            this.scene.start('MainGame');
+        this.first = null;
+        this.input.on('gameobjectdown', (pointer, obj)=>{
+            if(obj.revealed) return;
+            obj.revealed = true;
+            obj.setStyle({ fill:'#f00' });
+            if(!this.first) {
+                this.first = obj;
+            } else {
+                if(this.first.emoji === obj.emoji){
+                    // paire trouvée
+                } else {
+                    this.time.delayedCall(500, ()=>{
+                        this.first.setStyle({ fill:'#000' });
+                        obj.setStyle({ fill:'#000' });
+                        this.first.revealed = false;
+                        obj.revealed = false;
+                        this.first = null;
+                    });
+                }
+                this.first = null;
+            }
         });
     }
 }
 
-// =========================
-// MAIN GAME SCENE
-// =========================
-class MainGame extends Phaser.Scene {
-    constructor() {
-        super('MainGame');
-        this.emojis=null;
-        this.circle1=null;
-        this.circle2=null;
-        this.child1=null;
-        this.child2=null;
-        this.selectedEmoji=null;
-        this.matched=false;
-        this.score=0;
-        this.highscore=0;
-        this.scoreText=null;
-        this.timer=null;
-        this.timerText=null;
-    }
-
-    create() {
-        this.add.image(400,300,'background') || this.add.rectangle(400,300,800,600,0x008eb0);
-
-        this.circle1=this.add.circle(0,0,42).setStrokeStyle(3,0xf8960e).setVisible(false);
-        this.circle2=this.add.circle(0,0,42).setStrokeStyle(3,0x00ff00).setVisible(false);
-
-        // Emoji group avec placeholder si atlas manquant
-        this.emojis=this.add.group();
-        for(let i=0;i<16;i++){
-            let emoji=this.add.rectangle(0,0,64,64,0xffff00).setInteractive();
-            emoji.frame={name:'smile'+(i+1)};
-            this.emojis.add(emoji);
-        }
-
-        const fontStyle={fontFamily:'Arial',fontSize:48,color:'#ffffff',fontStyle:'bold',padding:16,shadow:{color:'#000',fill:true,offsetX:2,offsetY:2,blur:4}};
-        this.timerText=this.add.text(20,20,'30:00',fontStyle);
-        this.scoreText=this.add.text(530,20,'Found: 0',fontStyle);
-
-        this.input.on('gameobjectdown', this.selectEmoji,this);
-        this.input.once('pointerdown', this.start,this);
-
-        this.highscore=this.registry.get('highscore');
-
-        this.arrangeGrid();
-    }
-
-    start() { this.score=0; this.matched=false; this.timer=this.time.addEvent({delay:30000,callback:this.gameOver,callbackScope:this}); }
-
-    selectEmoji(pointer,emoji){
-        if(this.matched) return;
-        if(!this.selectedEmoji){ this.circle1.setPosition(emoji.x,emoji.y).setVisible(true); this.selectedEmoji=emoji; }
-        else if(emoji!==this.selectedEmoji){
-            if(emoji.frame.name===this.selectedEmoji.frame.name){
-                this.circle1.setStrokeStyle(3,0x00ff00);
-                this.circle2.setPosition(emoji.x,emoji.y).setVisible(true);
-                this.matched=true;
-                this.newRound();
-            }else{
-                this.circle1.setPosition(emoji.x,emoji.y).setVisible(true);
-                this.selectedEmoji=emoji;
-            }
-        }
-    }
-
-    newRound(){
-        this.matched=false;
-        this.score++;
-        this.scoreText.setText('Found: '+this.score);
-        this.circle1.setStrokeStyle(3,0xf8960e).setVisible(false);
-        this.circle2.setVisible(false);
-    }
-
-    arrangeGrid(){
-        let children=this.emojis.getChildren();
-        let positions=[];
-        for(let y=200;y<200+360;y+=90){
-            for(let x=280;x<280+360;x+=90){
-                positions.push({x:x,y:y});
-            }
-        }
-        children.forEach((c,i)=>{c.setPosition(positions[i].x,positions[i].y);});
-        let index1=Math.floor(Math.random()*16);
-        let index2=Math.floor(Math.random()*16);
-        while(index2===index1) index2=Math.floor(Math.random()*16);
-        this.child1=children[index1];
-        this.child2=children[index2];
-        this.child2.frame.name=this.child1.frame.name;
-        this.selectedEmoji=null;
-    }
-
-    update(){
-        if(this.timer){
-            let remaining=(30-this.timer.getElapsedSeconds()).toPrecision(4);
-            let pos=remaining.indexOf('.');
-            let seconds=remaining.substring(0,pos);
-            let ms=remaining.substr(pos+1,2);
-            seconds=Phaser.Utils.String.Pad(seconds,2,'0',1);
-            this.timerText.setText(seconds+':'+ms);
-        }
-    }
-
-    gameOver(){
-        this.circle1.setStrokeStyle(4,0xfc29a6).setVisible(true).setPosition(this.child1.x,this.child1.y);
-        this.circle2.setStrokeStyle(4,0xfc29a6).setVisible(true).setPosition(this.child2.x,this.child2.y);
-        if(this.score>this.highscore) this.registry.set('highscore',this.score);
-        this.input.once('pointerdown',()=>{this.scene.start('MainMenu');});
-    }
-}
-
-// =========================
-// CONFIG
-// =========================
-const config={
+const config = {
     type: Phaser.AUTO,
-    width:800,
-    height:600,
-    backgroundColor:'#008eb0',
-    scene:[Boot,Preloader,MainMenu,MainGame]
+    width: 800,
+    height: 600,
+    parent: 'phaser-example',
+    backgroundColor: 0xffffff,
+    scene: [ MainGame ]
 };
 
-let game=new Phaser.Game(config);
-</script>
-
+new Phaser.Game(config);
+  </script>
 </body>
 </html>

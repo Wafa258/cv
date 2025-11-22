@@ -2,17 +2,17 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Emoji Match Amélioré</title>
+  <title>Emoji Match</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
   <style>
     body {
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #FFD700, #FF8C00); /* fond joyeux dégradé orange/jaune */
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #89CFF0, #A0E7E5); /* dégradé bleu-menthe */
       height: 100vh;
     }
     #game-container {
@@ -20,29 +20,13 @@
       height: 600px;
       position: relative;
     }
-    .btn-css {
-      font-size: 24px;
-      font-weight: bold;
-      color: #fff;
-      padding: 12px 30px;
-      border: none;
-      border-radius: 15px;
-      cursor: pointer;
-      background: linear-gradient(45deg, #42a5f5, #478ed1); /* bleu moderne */
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .btn-css:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-    }
   </style>
 </head>
 <body>
   <div id="game-container"></div>
 
   <script>
-  class BootScene extends Phaser.Scene {
+  class Boot extends Phaser.Scene {
     constructor() { super('Boot'); }
     create() {
       this.registry.set('level', 1);
@@ -53,66 +37,38 @@
   class MainMenu extends Phaser.Scene {
     constructor() { super('MainMenu'); }
     create() {
-      // Fond bleu clair via Phaser (un rectangle)
-      this.add.rectangle(400, 300, 800, 600, 0x89CFF0);
-
-      // Titre
-      this.add.text(400, 200, 'Emoji Match', { fontSize: '64px', color: '#fff' }).setOrigin(0.5);
-
-      // Bouton Start (on recrée un “bouton” Phaser + style CSS)
+      // Fond du menu
+      this.add.rectangle(400, 300, 800, 600, 0xFFF8DC); // fond crème pour contraste
+      // Titre original
+      this.add.text(400, 150, 'Emoji Match', { fontSize: '64px', color: '#FF4500', fontStyle: 'bold' }).setOrigin(0.5);
+      // Bouton start modernisé
       const btn = this.add.text(400, 400, 'Start Level 1', {
-        fontSize: '32px', color: '#fff', backgroundColor: '#42a5f5',
-        padding: { x: 20, y: 10 }, align: 'center'
-      })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true });
+        fontSize: '32px',
+        color: '#fff',
+        backgroundColor: '#FF6347',
+        padding: { x: 20, y: 10 },
+        align: 'center',
+        fixedWidth: 200
+      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-      // On applique un style CSS-like sur le bouton
-      btn.setPadding(20, 10, 20, 10);
-      btn.setStyle({ backgroundColor: null }); // on enlève le bg Phaser brut
-      // On dessine un autre rectangle “derrière” pour faire le gradient + ombre
-      let btnBg = this.add.rectangle(btn.x, btn.y, btn.width + 40, btn.height + 20, 0xffffff);
-      btnBg.setFillStyle(0x42a5f5, 1);
-      btnBg.setStrokeStyle(2, 0x1e88e5);
-      btnBg.setInteractive({ useHandCursor: true });
-      btnBg.on('pointerdown', () => {
+      btn.on('pointerdown', () => {
         this.scene.start('Game', { level: 1 });
       });
-      btnBg.on('pointerover', () => {
-        btnBg.setScale(1.05);
-      });
-      btnBg.on('pointerout', () => {
-        btnBg.setScale(1);
-      });
-      // Mettre le texte du bouton au-dessus
-      btn.setDepth(1);
-
-      // On peut aussi ajouter le texte “Start Level 2” plus tard quand débloqué, etc.
     }
   }
 
   class Game extends Phaser.Scene {
     constructor() { super('Game'); }
-    init(data) {
-      this.level = data.level;
-      this.timeLimit = (this.level === 1) ? 60 : 90;
-    }
+    init(data) { this.level = data.level; this.timeLimit = (this.level === 1 ? 60 : 90); }
     create() {
-      // Fond du jeu (rectangle coloré, pas noir)
-      this.add.rectangle(400, 300, 800, 600, 0xE1F5FE);
-
-      // Timer et score lisibles
+      // Fond joyeux contrasté
+      this.add.rectangle(400, 300, 800, 600, 0x87CEEB); // fond bleu ciel
+      // Timer et score visibles
       this.score = 0;
-      this.timerText = this.add.text(20, 20, `Time: ${this.timeLimit}`, {
-        fontSize: '40px', color: '#000', stroke: '#fff', strokeThickness: 6,
-        backgroundColor: 'rgba(255,255,255,0.5)', padding: { x: 10, y: 5 }
-      });
-      this.scoreText = this.add.text(550, 20, `Found: 0`, {
-        fontSize: '40px', color: '#000', stroke: '#fff', strokeThickness: 6,
-        backgroundColor: 'rgba(255,255,255,0.5)', padding: { x: 10, y: 5 }
-      });
+      this.timerText = this.add.text(20, 20, `Time: ${this.timeLimit}`, { fontSize: '40px', color: '#000', stroke: '#fff', strokeThickness: 6 });
+      this.scoreText = this.add.text(550, 20, `Found: 0`, { fontSize: '40px', color: '#000', stroke: '#fff', strokeThickness: 6 });
 
-      // Création des cartes emoji
+      // Emojis Unicode
       let emojis = ['😀','😎','🎯','🎲','🤖','🐶','🍕','⭐'];
       let pairs = [...emojis, ...emojis];
       Phaser.Utils.Array.Shuffle(pairs);
@@ -125,12 +81,8 @@
       for (let i = 0; i < cols * rows; i++) {
         let x = startX + (i % cols) * spacingX;
         let y = startY + Math.floor(i / cols) * spacingY;
-        // Le “cadre” de la carte
-        let frame = this.add.rectangle(x, y, 120, 100, 0xffffff).setStrokeStyle(4, 0x42a5f5);
-        // L’emoji cachée
-        let card = this.add.text(x, y, '❓', { fontSize: '64px', color: '#000' })
-          .setOrigin(0.5)
-          .setInteractive();
+        let frame = this.add.rectangle(x, y, 120, 100, 0xffffff).setStrokeStyle(4, 0xFF8C00);
+        let card = this.add.text(x, y, '❓', { fontSize: '64px', color: '#000' }).setOrigin(0.5).setInteractive();
         card.emoji = pairs[i];
         card.revealed = false;
         card.frame = frame;
@@ -142,8 +94,7 @@
         if (card.revealed) return;
         card.setText(card.emoji);
         card.revealed = true;
-        // Agrandir ou souligner la frame
-        card.frame.setStrokeStyle(4, 0xFFEB3B);
+        card.frame.setStrokeStyle(4, 0x32CD32); // vert pour carte révélée
         if (!this.first) {
           this.first = card;
         } else {
@@ -151,16 +102,13 @@
             this.score++;
             this.scoreText.setText(`Found: ${this.score}`);
           } else {
-            // revenir après un délai
             this.time.delayedCall(600, () => {
               card.setText('❓');
               card.revealed = false;
-              card.frame.setStrokeStyle(4, 0x42a5f5);
-
+              card.frame.setStrokeStyle(4, 0xFF8C00);
               this.first.setText('❓');
               this.first.revealed = false;
-              this.first.frame.setStrokeStyle(4, 0x42a5f5);
-
+              this.first.frame.setStrokeStyle(4, 0xFF8C00);
               this.first = null;
             });
             return;
@@ -169,7 +117,6 @@
         }
       });
 
-      // Timer
       this.timerEvent = this.time.addEvent({
         delay: this.timeLimit * 1000,
         callback: () => this.timeOver(),
@@ -179,8 +126,12 @@
 
     timeOver() {
       const btn = this.add.text(400, 500, 'Start Again', {
-        fontSize: '32px', color: '#fff', backgroundColor: '#2962FF', padding: { x: 20, y: 10 }
+        fontSize: '32px',
+        color: '#fff',
+        backgroundColor: '#FF4500',
+        padding: { x: 20, y: 10 }
       }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
       btn.on('pointerdown', () => this.scene.start('MainMenu'));
     }
 
@@ -195,11 +146,10 @@
     width: 800,
     height: 600,
     parent: 'game-container',
-    scene: [BootScene, MainMenu, Game]
+    scene: [Boot, MainMenu, Game]
   };
 
   new Phaser.Game(config);
-
   </script>
 </body>
 </html>

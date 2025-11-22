@@ -7,7 +7,7 @@
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #ffecd2, #fcb69f);
+    background: linear-gradient(135deg, #fffae5, #ffb3ba);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -37,7 +37,7 @@ class Boot extends Phaser.Scene {
 class Preloader extends Phaser.Scene {
     constructor(){ super('Preloader'); }
     preload(){
-        this.loadText = this.add.text(400,300,'Loading...',{fontSize:'48px',color:'#fff'}).setOrigin(0.5);
+        this.loadText = this.add.text(400,300,'Loading...',{fontSize:'48px',color:'#333'}).setOrigin(0.5);
         // Sons libres via URL
         this.load.audio('music','https://actions.google.com/sounds/v1/ambiences/party.ogg');
         this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
@@ -54,7 +54,7 @@ class Preloader extends Phaser.Scene {
 class MainMenu extends Phaser.Scene {
     constructor(){ super('MainMenu'); }
     create(){
-        const bg = this.add.rectangle(400,300,800,600,0xffecd2);
+        const bg = this.add.rectangle(400,300,800,600,0xfffae5);
         const logo = this.add.text(400,-100,'Emoji Match',{fontSize:'64px',color:'#333'}).setOrigin(0.5);
 
         this.tweens.add({targets:logo,y:150,ease:'bounce.out',duration:1200});
@@ -64,6 +64,7 @@ class MainMenu extends Phaser.Scene {
             this.music.play(); 
         }
 
+        this.add.text(400,400,'Click to Start',{fontSize:'32px',color:'#333'}).setOrigin(0.5);
         this.input.once('pointerdown',()=>{ this.scene.start('MainGame'); });
     }
 }

@@ -29,92 +29,107 @@
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 <script type="module">
 
+class Boot extends Phaser.Scene {
+    constructor(){ super('Boot'); }
+    create(){ this.registry.set('highscore',0); this.scene.start('Preloader'); }
+}
+
+class Preloader extends Phaser.Scene {
+    constructor(){ super('Preloader'); }
+    preload(){
+        this.loadText = this.add.text(400,300,'Loading...',{fontSize:'48px',color:'#fff'}).setOrigin(0.5);
+        // Sons libres via URL
+        this.load.audio('music','https://actions.google.com/sounds/v1/ambiences/party.ogg');
+        this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+        this.load.audio('countdown','https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+    }
+    create(){
+        if(this.sound.locked){
+            this.loadText.setText('Click to Start');
+            this.input.once('pointerdown',()=>{this.scene.start('MainMenu');});
+        } else { this.scene.start('MainMenu'); }
+    }
+}
+
 class MainMenu extends Phaser.Scene {
     constructor(){ super('MainMenu'); }
     create(){
-        this.cameras.main.setBackgroundColor('#ffecd2');
+        const bg = this.add.rectangle(400,300,800,600,0xffecd2);
+        const logo = this.add.text(400,-100,'Emoji Match',{fontSize:'64px',color:'#333'}).setOrigin(0.5);
 
-        this.startText = this.add.text(400,300,'Click to Start',{fontSize:'32px', color:'#333'}).setOrigin(0.5).setInteractive();
-        this.startText.on('pointerdown', ()=>{
-            this.scene.start('MainGame');
-        });
+        this.tweens.add({targets:logo,y:150,ease:'bounce.out',duration:1200});
+
+        if(!this.music){ this.music=this.sound.add('music',{loop:true}); this.music.play(); }
+
+        this.input.once('pointerdown',()=>{ this.scene.start('MainGame'); });
     }
 }
 
 class MainGame extends Phaser.Scene {
-    constructor() {
-        super('MainGame');
-        this.cards = [];
+    constructor(){ super('MainGame'); }
+    create(){
+        this.emojis = [];
         this.firstCard = null;
         this.canClick = true;
         this.matches = 0;
-    }
+        this.scoreText = this.add.text(20,20,'Found: 0',{fontSize:'28px',color:'#333'});
+        this.timerText = this.add.text(650,20,'30',{fontSize:'28px',color:'#333'});
 
-    create(){
-        // fond animé simple (dégradé)
-        this.cameras.main.setBackgroundColor('#fcb69f');
+        const emojiList=['😀','😎','🎯','🎲','🕹️','🤖','🐶','🍕'];
+        let deck = [...emojiList,...emojiList];
+        Phaser.Utils.Array.Shuffle(deck);
 
-        // emojis
-        const baseEmojis=['😀','😎','🎯','🎲','🕹️','🤖','🐶','🍕'];
-        let selectedEmojis=[];
-        for(let i=0;i<8;i++){
-            selectedEmojis.push(baseEmojis[i],baseEmojis[i]); // paire
-        }
-        Phaser.Utils.Array.Shuffle(selectedEmojis);
+        let startX=200, startY=150, spacing=120;
+        this.circles=[];
 
-        // grille 4x4
-        let startX = 200, startY = 150, spacing = 120;
         for(let i=0;i<16;i++){
             let x = startX + (i%4)*spacing;
             let y = startY + Math.floor(i/4)*spacing;
+
             let card = this.add.text(x,y,'❓',{fontSize:'64px',backgroundColor:'#fff',padding:{x:10,y:10},align:'center'}).setOrigin(0.5).setInteractive();
-            card.emoji = selectedEmojis[i];
-            card.revealed = false;
-            this.cards.push(card);
+            card.emoji = deck[i];
+            card.revealed=false;
+            this.emojis.push(card);
+
+            let circle = this.add.circle(x,y,45,0xffffff,0).setStrokeStyle(3,0xf8960e);
+            circle.setVisible(false);
+            this.circles.push(circle);
         }
 
-        this.input.on('gameobjectdown', this.onCardClicked, this);
-
-        // Score text
-        this.scoreText = this.add.text(50,50,'Found: 0',{fontSize:'28px',color:'#333'});
+        this.input.on('gameobjectdown',this.selectCard,this);
 
         // Timer 30s
-        this.timer = this.time.addEvent({delay:30000, callback:this.gameOver, callbackScope:this});
-        this.timerText = this.add.text(650,50,'30',{fontSize:'28px',color:'#333'});
+        this.timer = this.time.addEvent({delay:30000,callback:this.gameOver,callbackScope:this});
+        this.sound.play('countdown',{delay:0});
     }
 
-    onCardClicked(pointer, card){
+    selectCard(pointer, card){
         if(!this.canClick || card.revealed) return;
 
         card.setText(card.emoji);
-        card.setStyle({backgroundColor:'#ffff88'});
-        card.revealed = true;
+        card.revealed=true;
+
+        let index = this.emojis.indexOf(card);
+        this.circles[index].setVisible(true);
 
         if(!this.firstCard){
             this.firstCard = card;
         } else {
-            this.canClick = false;
+            this.canClick=false;
             if(this.firstCard.emoji === card.emoji){
-                // paire trouvée
-                card.setStyle({backgroundColor:'#00ff00'});
-                this.firstCard.setStyle({backgroundColor:'#00ff00'});
+                this.sound.play('match');
+                this.circles[this.emojis.indexOf(this.firstCard)].setStrokeStyle(3,0x00ff00);
+                this.circles[index].setStrokeStyle(3,0x00ff00);
                 this.matches++;
                 this.scoreText.setText('Found: '+this.matches);
-                this.time.delayedCall(500, ()=>{
-                    this.firstCard = null;
-                    this.canClick = true;
-                });
+                this.time.delayedCall(500,()=>{this.firstCard=null;this.canClick=true;});
             } else {
-                // pas de correspondance
-                this.time.delayedCall(600, ()=>{
-                    card.setText('❓');
-                    card.setStyle({backgroundColor:'#fff'});
-                    card.revealed = false;
-                    this.firstCard.setText('❓');
-                    this.firstCard.setStyle({backgroundColor:'#fff'});
-                    this.firstCard.revealed = false;
-                    this.firstCard = null;
-                    this.canClick = true;
+                this.time.delayedCall(600,()=>{
+                    card.setText('❓'); card.revealed=false;
+                    this.firstCard.setText('❓'); this.firstCard.revealed=false;
+                    this.circles[index].setVisible(false);
+                    this.circles[this.emojis.indexOf(this.firstCard)].setVisible(false);
+                    this.firstCard=null; this.canClick=true;
                 });
             }
         }
@@ -122,26 +137,25 @@ class MainGame extends Phaser.Scene {
 
     update(){
         if(this.timer){
-            const remaining = (30 - this.timer.getElapsedSeconds()).toFixed(0);
+            const remaining=(30-this.timer.getElapsedSeconds()).toFixed(0);
             this.timerText.setText(remaining.padStart(2,'0'));
         }
     }
 
     gameOver(){
-        this.input.off('gameobjectdown',this.onCardClicked,this);
-        this.add.text(400,550,'Game Over! Click to Restart',{fontSize:'28px',color:'#333'}).setOrigin(0.5).setInteractive().on('pointerdown',()=>{
-            this.scene.start('MainMenu');
-        });
+        this.input.off('gameobjectdown',this.selectCard,this);
+        this.add.text(400,550,'Game Over! Click to Restart',{fontSize:'28px',color:'#333'}).setOrigin(0.5).setInteractive().on('pointerdown',()=>{this.scene.start('MainMenu');});
     }
 }
 
-const config = {
+const config={
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    parent: 'phaser-example',
-    scene:[MainMenu, MainGame]
+    parent:'phaser-example',
+    scene:[Boot,Preloader,MainMenu,MainGame]
 };
+
 new Phaser.Game(config);
 
 </script>

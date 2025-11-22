@@ -2,11 +2,11 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Emoji Match</title>
+<title>Emoji Match - Multi-Level</title>
 <style>
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #fffae5, #ffb3ba);
   display: flex;
   flex-direction: column;
@@ -20,11 +20,24 @@ h1 {
 #game-container {
   margin-top: 20px;
 }
+button {
+  padding: 10px 20px;
+  font-size: 24px;
+  margin-top: 20px;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  background: #ffd700;
+  color: #333;
+}
+button:hover {
+  background: #ffa500;
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 </head>
 <body>
-<h1>🎉 Emoji Match 🎉</h1>
+<h1>🎉 Emoji Match Multi-Level 🎉</h1>
 <div id="game-container"></div>
 
 <script>
@@ -33,105 +46,145 @@ let config = {
     width: 800,
     height: 600,
     parent: 'game-container',
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
+    scene: { preload, create, update }
 };
 
 let game = new Phaser.Game(config);
-let cards = [];
-let firstCard = null;
-let canClick = true;
-let matches = 0;
-let scoreText, timerText;
-let timerEvent;
-let emojis = ['😀','😎','🎯','🎲','🕹️','🤖','🐶','🍕'];
 
-function preload() {}
+let cards = [], firstCard = null, canClick = true;
+let matches = 0, scoreText, timerText;
+let timerEvent;
+let level = 1;
+let emojis = ['😀','😎','🎯','🎲','🕹️','🤖','🐶','🍕','🍔','🌈','⭐','🍩','⚡','💎','🎵','🍉'];
+let gridConfig = {1:{cols:4, rows:4},2:{cols:5, rows:4}};
+let totalPairs;
+
+function preload(){}
 
 function create() {
-    scoreText = this.add.text(20,20,'Found: 0',{fontSize:'28px',color:'#333'});
-    timerText = this.add.text(650,20,'30',{fontSize:'28px',color:'#333'});
-
-    // Créer la grille 4x4
-    let deck = [...emojis,...emojis];
-    Phaser.Utils.Array.Shuffle(deck);
-
-    let startX = 200, startY = 150, spacing = 120;
-
-    for(let i=0;i<16;i++){
-        let x = startX + (i%4)*spacing;
-        let y = startY + Math.floor(i/4)*spacing;
-        let card = this.add.text(x,y,'❓',{fontSize:'64px',backgroundColor:'#fff',padding:{x:10,y:10},align:'center'}).setOrigin(0.5).setInteractive();
-        card.emoji = deck[i];
-        card.revealed = false;
-        cards.push(card);
-
-        let circle = this.add.circle(x,y,45,0xffffff,0).setStrokeStyle(3,0xf8960e);
-        circle.setVisible(false);
-        card.circle = circle;
-    }
-
-    this.input.on('gameobjectdown', function(pointer, card){
-        if(!canClick || card.revealed) return;
-
-        card.setText(card.emoji);
-        card.revealed = true;
-        card.circle.setVisible(true);
-
-        if(!firstCard){
-            firstCard = card;
-        } else {
-            canClick=false;
-            if(firstCard.emoji === card.emoji){
-                beep();
-                matches++;
-                scoreText.setText('Found: '+matches);
-                firstCard.circle.setStrokeStyle(3,0x00ff00);
-                card.circle.setStrokeStyle(3,0x00ff00);
-                setTimeout(()=>{firstCard=null; canClick=true;},500);
-            } else {
-                setTimeout(()=>{
-                    firstCard.setText('❓'); firstCard.revealed=false; firstCard.circle.setVisible(false);
-                    card.setText('❓'); card.revealed=false; card.circle.setVisible(false);
-                    firstCard=null; canClick=true;
-                },600);
-            }
-        }
-    });
-
-    // Timer 30s
-    timerEvent = this.time.addEvent({delay:30000, callback:gameOver, callbackScope:this});
+    startLevel(this, level);
 }
 
-// Générer un petit bip sans fichier audio
-function beep(){
-    let ctx = new (window.AudioContext||window.webkitAudioContext)();
-    let o = ctx.createOscillator();
-    let g = ctx.createGain();
-    o.type='square';
-    o.connect(g);
-    g.connect(ctx.destination);
-    o.start(0);
-    g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime+0.1);
+function startLevel(scene, lvl){
+    scene.children.removeAll();
+    cards=[]; firstCard=null; matches=0; canClick=true;
+
+    let cols = gridConfig[lvl].cols;
+    let rows = gridConfig[lvl].rows;
+    totalPairs = Math.min(emojis.length, Math.floor(cols*rows/2));
+
+    scoreText = scene.add.text(20,20,'Found: 0',{fontSize:'28px',color:'#333'});
+    timerText = scene.add.text(650,20,'60',{fontSize:'28px',color:'#333'});
+
+    // Timer 60s
+    timerEvent = scene.time.addEvent({delay:60000, callback:timeOver, callbackScope:scene});
+
+    // Prepare deck
+    let deck = emojis.slice(0,totalPairs);
+    deck = [...deck,...deck];
+    Phaser.Utils.Array.Shuffle(deck);
+
+    let spacingX = 120, spacingY = 120;
+    let startX = (800 - spacingX*cols)/2 + spacingX/2;
+    let startY = 120;
+
+    for(let i=0;i<cols*rows;i++){
+        let x = startX + (i%cols)*spacingX;
+        let y = startY + Math.floor(i/cols)*spacingY;
+        let card = scene.add.text(x,y,'❓',{fontSize:'64px',backgroundColor:'#fff',padding:{x:10,y:10},align:'center'}).setOrigin(0.5).setInteractive();
+        card.emoji = deck[i];
+        card.revealed = false;
+
+        let circle = scene.add.circle(x,y,45,0xffffff,0).setStrokeStyle(3,0xf8960e);
+        circle.setVisible(false);
+        card.circle = circle;
+
+        cards.push(card);
+    }
+
+    scene.input.on('gameobjectdown', function(pointer, card){
+        if(!canClick || card.revealed) return;
+        revealCard(card);
+    });
+}
+
+function revealCard(card){
+    card.setText(card.emoji);
+    card.revealed = true;
+    card.circle.setVisible(true);
+
+    if(!firstCard){
+        firstCard = card;
+    } else {
+        canClick=false;
+        if(firstCard.emoji === card.emoji){
+            beepGood();
+            matches++;
+            scoreText.setText('Found: '+matches);
+            firstCard.circle.setStrokeStyle(3,0x00ff00);
+            card.circle.setStrokeStyle(3,0x00ff00);
+            setTimeout(()=>{firstCard=null; canClick=true; checkLevelComplete();},500);
+        } else {
+            beepBad();
+            setTimeout(()=>{
+                firstCard.setText('❓'); firstCard.revealed=false; firstCard.circle.setVisible(false);
+                card.setText('❓'); card.revealed=false; card.circle.setVisible(false);
+                firstCard=null; canClick=true;
+            },600);
+        }
+    }
 }
 
 function update(){
     if(timerEvent){
-        const remaining=(30-timerEvent.getElapsedSeconds()).toFixed(0);
+        const remaining=(60-timerEvent.getElapsedSeconds()).toFixed(0);
         timerText.setText(remaining.padStart(2,'0'));
     }
 }
 
-function gameOver(){
-    game.scene.scenes[0].input.off('gameobjectdown');
+function timeOver(){
     let scene = game.scene.scenes[0];
-    scene.add.text(400,550,'Game Over! Click to Restart',{fontSize:'28px',color:'#333'}).setOrigin(0.5).setInteractive().on('pointerdown',()=>{
-        game.scene.restart();
-        cards=[]; firstCard=null; matches=0; canClick=true;
-    });
+    canClick=false;
+    let btn = scene.add.text(400,550,'Start Again',{fontSize:'28px',color:'#333',backgroundColor:'#ffd700',padding:{x:10,y:10}}).setOrigin(0.5).setInteractive();
+    btn.on('pointerdown',()=>startLevel(scene,level));
+}
+
+function checkLevelComplete(){
+    if(matches >= totalPairs){
+        let scene = game.scene.scenes[0];
+        canClick=false;
+        if(level<2){
+            let btn = scene.add.text(400,550,'Next Level',{fontSize:'28px',color:'#333',backgroundColor:'#ffd700',padding:{x:10,y:10}}).setOrigin(0.5).setInteractive();
+            btn.on('pointerdown',()=>{
+                level++;
+                startLevel(scene,level);
+            });
+        } else {
+            let btn = scene.add.text(400,550,'You Won! Restart',{fontSize:'28px',color:'#333',backgroundColor:'#ffd700',padding:{x:10,y:10}}).setOrigin(0.5).setInteractive();
+            btn.on('pointerdown',()=>startLevel(scene,level));
+        }
+    }
+}
+
+// Sons générés Web Audio
+function beepGood(){
+    let ctx = new (window.AudioContext||window.webkitAudioContext)();
+    let o = ctx.createOscillator();
+    let g = ctx.createGain();
+    o.type='square';
+    o.frequency.setValueAtTime(600,ctx.currentTime);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(0); g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime+0.1);
+}
+
+function beepBad(){
+    let ctx = new (window.AudioContext||window.webkitAudioContext)();
+    let o = ctx.createOscillator();
+    let g = ctx.createGain();
+    o.type='square';
+    o.frequency.setValueAtTime(200,ctx.currentTime);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(0); g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime+0.2);
 }
 </script>
 </body>

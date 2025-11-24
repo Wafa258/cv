@@ -38,7 +38,7 @@ class LevelTransition extends Phaser.Scene {
     init(data){ this.nextLevel=data.level||2; }
     preload(){ this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg'); }
     create(){
-        this.add.rectangle(400,300,1200,600,0xFFD700); // fond doré
+        this.add.rectangle(400,300,800,600,0xFFD700); // fond doré
         this.add.text(400,250,'Félicitations !',{fontSize:'48px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
         this.add.text(400,320,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'32px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
 

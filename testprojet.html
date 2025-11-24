@@ -104,6 +104,7 @@ class MainGame extends Phaser.Scene {
             if(this.selected.emoji===card.emoji){
                 this.selected=null;
                 this.matched++; this.score++; this.scoreText.setText('Found: '+this.score);
+                this.sound.play('click'); //ap
                 if(this.matched===this.cards.length/2){
                     if(this.level===1)this.scene.start('LevelTransition',{level:2});
                     else this.endGame(true);

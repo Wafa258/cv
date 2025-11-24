@@ -80,7 +80,7 @@ class MainGame extends Phaser.Scene {
 
         this.cards=[];
         this.selected=null; this.matched=0;
-        const cols=4; const startX=200,startY=150,spacingX=100,spacingY=100;
+        const cols=4; const startX=200,startY=150,spacingX=200,spacingY=200;
         for(let i=0;i<cardEmojis.length;i++){
             const row=Math.floor(i/cols),col=i%cols;
             const card=this.add.text(startX+col*spacingX,startY+row*spacingY,'❓',{fontSize:'64px'}).setOrigin(0.5).setInteractive();

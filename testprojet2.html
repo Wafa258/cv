@@ -1,48 +1,176 @@
-create(){
-    this.add.rectangle(400,300,800,600,0xFFFFE0); // fond jaune clair
-
-    // SCORE ET TIME
-    this.score = 0;
-    this.timeLeft = this.level===1 ? 60 : 90;
-    this.pairs = this.level===1 ? 8 : 12;
-
-    this.timerText = this.add.text(20, 20, 'Time: ' + this.timeLeft, {fontSize:'32px', color:'#333', fontStyle:'bold'}).setDepth(5);
-    this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, {fontSize:'32px', color:'#333', fontStyle:'bold'}).setDepth(5);
-
-    // Emojis (inchangés)
-    this.emojis=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
-    let list=[];
-    for(let i=0;i<this.pairs;i++){
-        list.push(this.emojis[i]);
-        list.push(this.emojis[i]);
-    }
-    Phaser.Utils.Array.Shuffle(list);
-
-    // Création cartes
-    this.cards=[];
-    this.selected=null;
-    this.matched=0;
-    const cols=4, startX=200, startY=150, spX=120, spY=120;
-    for(let i=0;i<list.length;i++){
-        const row = Math.floor(i/cols), col = i%cols;
-        const card=this.add.text(startX+col*spX,startY+row*spY+5,'❓',{
-            fontSize:'58px',
-            fontFamily:'Arial',
-            padding:{top:10,bottom:10}
-        }).setOrigin(0.5).setInteractive().setDepth(4); // cartes derrière le score
-        card.emoji = list[i];
-        card.on('pointerdown', ()=> this.revealCard(card));
-        this.cards.push(card);
-    }
-
-    // TIMER
-    this.timerEvent = this.time.addEvent({
-        delay:1000,
-        loop:true,
-        callback: ()=>{
-            this.timeLeft--;
-            this.timerText.setText('Time: '+this.timeLeft);
-            if(this.timeLeft<=0) this.endGame();
-        }
-    });
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>🎮 Emoji Match 🎮</title>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+<style>
+body {
+    margin: 0;
+    background: #f0f8ff;
 }
+canvas {
+    display: block;
+    margin: 0 auto;
+    border: 2px solid #000;
+}
+</style>
+</head>
+<body>
+
+<script>
+class MainMenu extends Phaser.Scene {
+    constructor() { super('MainMenu'); }
+
+    preload() {
+        this.load.audio('click', 'https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
+    }
+
+    create() {
+        // Fond violet
+        this.add.rectangle(400, 300, 800, 600, 0xc0428a);
+
+        // Titre
+        this.add.text(400, 150, '🎮 Emoji Match 🎮', {
+            fontSize: '40px',
+            color: '#FFFFFF',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        // Bouton START
+        const btn = this.add.rectangle(400, 400, 300, 70, 0xFF6347).setInteractive({ useHandCursor: true });
+        const btnText = this.add.text(400, 400, 'Start Level 1', {
+            fontSize: '32px',
+            color: '#FFF',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        btn.setDepth(1);
+        btnText.setDepth(2);
+
+        btn.on('pointerover', () => btn.setFillStyle(0xFF4500));
+        btn.on('pointerout', () => btn.setFillStyle(0xFF6347));
+        btn.on('pointerdown', () => {
+            this.sound.play('click');
+            this.scene.start('MainGame', { level: 1 });
+        });
+    }
+}
+
+class LevelTransition extends Phaser.Scene {
+    constructor(){ super('LevelTransition'); }
+    init(data){ this.nextLevel=data.level||2; }
+    preload(){ this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg'); }
+    create(){
+        this.add.rectangle(400,300,800,600,0xFFD700); // fond doré
+        this.add.text(400,250,'Félicitations !',{fontSize:'48px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
+        this.add.text(400,320,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'32px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
+
+        const btn = this.add.rectangle(400,400,300,70,0xFF6347).setOrigin(0.5).setInteractive({useHandCursor:true});
+        const txt = this.add.text(400,400,'Level '+this.nextLevel,{fontSize:'32px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+
+        btn.on('pointerover',()=>btn.setFillStyle(0xFF4500));
+        btn.on('pointerout',()=>btn.setFillStyle(0xFF6347));
+        btn.on('pointerdown', ()=>{
+            this.sound.play('click');
+            this.scene.start('MainGame',{level:this.nextLevel});
+        });
+    }
+}
+
+class MainGame extends Phaser.Scene {
+    constructor() { super('MainGame'); }
+    init(data){ this.level = data.level || 1; }
+    preload() { 
+        this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
+        this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/pop.ogg');
+    }
+    create() {
+        this.add.rectangle(400,300,800,600,0xFFFFE0); // fond jaune clair
+
+        // SCORE ET TIMER
+        this.score = 0;
+        this.timeLeft = this.level===1 ? 60 : 90;
+        this.pairs = this.level===1 ? 8 : 12;
+
+        this.timerText = this.add.text(20, 20, 'Time: ' + this.timeLeft, {fontSize:'32px', color:'#333', fontStyle:'bold'}).setDepth(5);
+        this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, {fontSize:'32px', color:'#333', fontStyle:'bold'}).setDepth(5);
+
+        // Emojis
+        this.emojis=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
+        let cardEmojis=[];
+        for(let i=0;i<this.pairs;i++){ cardEmojis.push(this.emojis[i%this.emojis.length]); cardEmojis.push(this.emojis[i%this.emojis.length]); }
+        Phaser.Utils.Array.Shuffle(cardEmojis);
+
+        // Création cartes
+        this.cards=[];
+        this.selected=null; this.matched=0;
+        const cols=4, startX=200, startY=150, spacingX=120, spacingY=120;
+        for(let i=0;i<cardEmojis.length;i++){
+            const row=Math.floor(i/cols), col=i%cols;
+            const card=this.add.text(startX+col*spacingX,startY+row*spacingY+5,'❓',{
+                fontSize:'58px',
+                fontFamily:'Arial',
+                padding:{top:10,bottom:10}
+            }).setOrigin(0.5).setInteractive().setDepth(4);
+            card.emoji=cardEmojis[i];
+            card.revealed=false;
+            card.on('pointerdown',()=>this.revealCard(card));
+            this.cards.push(card);
+        }
+
+        // Timer
+        this.timerEvent=this.time.addEvent({delay:1000,loop:true,callback:()=>{
+            this.timeLeft--; this.timerText.setText('Time: '+this.timeLeft);
+            if(this.timeLeft<=0)this.endGame();
+        }});
+    }
+
+    revealCard(card){
+        if(card.revealed||this.selected===card)return;
+        card.setText(card.emoji);
+        if(!this.selected){ this.selected=card; } 
+        else{
+            if(this.selected.emoji===card.emoji){
+                this.selected=null;
+                this.matched++; this.score++; this.scoreText.setText('Found: '+this.score);
+                this.sound.play('click');
+                if(this.matched===this.cards.length/2){
+                    if(this.level===1)this.scene.start('LevelTransition',{level:2});
+                    else this.endGame(true);
+                }
+            } else{
+                const first=this.selected; this.selected=null;
+                this.time.delayedCall(800,()=>{first.setText('❓');card.setText('❓');},[],this);
+                this.sound.play('match');
+            }
+        }
+    }
+
+    endGame(win=false){
+        this.timerEvent.remove();
+        const overlay=this.add.rectangle(400,300,800,600,0x000000,0.5);
+        this.add.text(400,250,win?'Level Complete!':'Time Over!',{fontSize:'48px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+
+        const btnBg=this.add.rectangle(400,350,300,70,0xFF6347).setOrigin(0.5).setInteractive({useHandCursor:true});
+        const btnText=this.add.text(400,350,'Restart',{fontSize:'32px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+        btnBg.on('pointerover',()=>btnBg.setFillStyle(0xFF4500));
+        btnBg.on('pointerout',()=>btnBg.setFillStyle(0xFF6347));
+        btnBg.on('pointerdown',()=>{ this.scene.start('MainMenu'); this.sound.play('click'); });
+    }
+}
+
+// --- CONFIG ---
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    parent: document.body,
+    scene: [MainMenu,LevelTransition,MainGame]
+};
+
+// --- START GAME ---
+new Phaser.Game(config);
+</script>
+</body>
+</html>

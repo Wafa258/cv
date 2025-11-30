@@ -25,12 +25,6 @@ class MainMenu extends Phaser.Scene {
     }
 
     create() {
-        // Lancer musique de fond si pas déjà
-        if (!this.game.bgMusic) {
-            this.game.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.4 });
-            this.game.bgMusic.once('decode', () => { this.game.bgMusic.play(); });
-        }
-
         // Fond violet
         this.add.rectangle(400, 300, 800, 600, 0xc0428a);
 
@@ -49,11 +43,17 @@ class MainMenu extends Phaser.Scene {
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        btn.setDepth(1); btnText.setDepth(2);
+        btn.setDepth(1); 
+        btnText.setDepth(2);
 
         btn.on('pointerover', ()=> btn.setFillStyle(0xFF4500));
         btn.on('pointerout', ()=> btn.setFillStyle(0xFF6347));
         btn.on('pointerdown', ()=>{
+            // Lancer la musique après le premier clic
+            if (!this.game.bgMusic) {
+                this.game.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.4 });
+                this.game.bgMusic.play();
+            }
             this.sound.play('click');
             this.scene.start('MainGame', { level: 1 });
         });

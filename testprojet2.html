@@ -18,17 +18,12 @@ class MainMenu extends Phaser.Scene {
 
     preload() {
         this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-        this.load.audio('bgMusic', 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_35fc9da8f6.mp3?filename=background-music-free-12764.mp3');
     }
 
     create() {
-        // Fond violet
         this.add.rectangle(400, 300, 800, 600, 0xc0428a);
-
-        // Titre
         this.add.text(400, 150, '🎮 Emoji Match 🎮', { fontSize: '40px', color: '#FFF', fontStyle: 'bold' }).setOrigin(0.5);
 
-        // Bouton START
         const btn = this.add.rectangle(400, 400, 300, 70, 0xFF6347).setInteractive({ useHandCursor: true });
         const btnText = this.add.text(400, 400, 'Start Level 1', { fontSize: '32px', color: '#FFF', fontStyle: 'bold' }).setOrigin(0.5);
         btn.setDepth(1); btnText.setDepth(2);
@@ -38,18 +33,6 @@ class MainMenu extends Phaser.Scene {
         btn.on('pointerdown', ()=>{
             this.sound.play('click');
             this.scene.start('MainGame', { level: 1 });
-        });
-
-        // Icône musique
-        const musicIcon = this.add.text(750, 30, '🔊', { fontSize: '32px', color: '#FFF' }).setInteractive({ useHandCursor: true }).setOrigin(0.5);
-        musicIcon.on('pointerdown', ()=>{
-            if (!this.game.bgMusic) {
-                this.game.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.4 });
-                this.game.bgMusic.play();
-            } else {
-                if (this.game.bgMusic.isPlaying) this.game.bgMusic.pause();
-                else this.game.bgMusic.resume();
-            }
         });
     }
 }
@@ -92,14 +75,12 @@ class MainGame extends Phaser.Scene {
     create() {
         this.add.rectangle(400,300,800,600,0xFFFFE0);
 
-        // Score et timer
         this.score = 0;
         this.timeLeft = this.level===1 ? 60 : 90;
         this.pairs = this.level===1 ? 8 : 12;
         this.timerText = this.add.text(20, 20, 'Time: '+this.timeLeft,{fontSize:'32px',color:'#333',fontStyle:'bold'}).setDepth(5);
         this.scoreText = this.add.text(550, 20, 'Found: '+this.score,{fontSize:'32px',color:'#333',fontStyle:'bold'}).setDepth(5);
 
-        // Emojis
         this.emojis = ['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
         let cardEmojis = [];
         for(let i=0;i<this.pairs;i++){
@@ -127,8 +108,10 @@ class MainGame extends Phaser.Scene {
             this.cards.push(card);
         }
 
-        // Icône musique
-        const musicIcon = this.add.text(750, 30, '🔊', { fontSize: '32px', color: '#333' }).setInteractive({useHandCursor:true}).setOrigin(0.5).setDepth(6);
+        // Icône musique uniquement dans le jeu
+        const musicIcon = this.add.text(750, 30, '🔊', { fontSize: '32px', color: '#333' })
+            .setInteractive({useHandCursor:true}).setOrigin(0.5).setDepth(6);
+
         musicIcon.on('pointerdown', ()=>{
             if (!this.game.bgMusic) {
                 this.game.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.4 });
@@ -174,7 +157,6 @@ class MainGame extends Phaser.Scene {
     endGame(win=false){
         this.timerEvent.remove();
         this.add.rectangle(400,300,800,600,0x000000,0.5);
-
         this.add.text(400,250, win?'Level Complete!':'Time Over!', { fontSize:'48px', color:'#FFF', fontStyle:'bold'}).setOrigin(0.5).setDepth(10);
 
         const btnBg = this.add.rectangle(400,350,300,70,0xFF6347).setInteractive({useHandCursor:true}).setDepth(11);

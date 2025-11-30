@@ -17,10 +17,7 @@ class MainMenu extends Phaser.Scene {
     constructor() { super('MainMenu'); }
 
     preload() {
-        // Sons
         this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-        this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/pop.ogg');
-        // Musique libre de droits
         this.load.audio('bgMusic', 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_35fc9da8f6.mp3?filename=background-music-free-12764.mp3');
     }
 
@@ -29,35 +26,30 @@ class MainMenu extends Phaser.Scene {
         this.add.rectangle(400, 300, 800, 600, 0xc0428a);
 
         // Titre
-        this.add.text(400, 150, '🎮 Emoji Match 🎮', {
-            fontSize: '40px',
-            color: '#FFFFFF',
-            fontStyle: 'bold'
-        }).setOrigin(0.5);
+        this.add.text(400, 150, '🎮 Emoji Match 🎮', { fontSize: '40px', color: '#FFF', fontStyle: 'bold' }).setOrigin(0.5);
 
         // Bouton START
         const btn = this.add.rectangle(400, 400, 300, 70, 0xFF6347).setInteractive({ useHandCursor: true });
-        const btnText = this.add.text(400, 400, 'Start Level 1', {
-            fontSize: '32px',
-            color: '#FFF',
-            fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        btn.setDepth(1); 
-        btnText.setDepth(2);
+        const btnText = this.add.text(400, 400, 'Start Level 1', { fontSize: '32px', color: '#FFF', fontStyle: 'bold' }).setOrigin(0.5);
+        btn.setDepth(1); btnText.setDepth(2);
 
         btn.on('pointerover', ()=> btn.setFillStyle(0xFF4500));
         btn.on('pointerout', ()=> btn.setFillStyle(0xFF6347));
-
         btn.on('pointerdown', ()=>{
-            // Jouer musique immédiatement après clic
+            this.sound.play('click');
+            this.scene.start('MainGame', { level: 1 });
+        });
+
+        // Icône musique
+        const musicIcon = this.add.text(750, 30, '🔊', { fontSize: '32px', color: '#FFF' }).setInteractive({ useHandCursor: true }).setOrigin(0.5);
+        musicIcon.on('pointerdown', ()=>{
             if (!this.game.bgMusic) {
                 this.game.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.4 });
                 this.game.bgMusic.play();
+            } else {
+                if (this.game.bgMusic.isPlaying) this.game.bgMusic.pause();
+                else this.game.bgMusic.resume();
             }
-
-            this.sound.play('click');
-            this.scene.start('MainGame', { level: 1 });
         });
     }
 }
@@ -94,6 +86,7 @@ class MainGame extends Phaser.Scene {
     preload() {
         this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
         this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/pop.ogg');
+        this.load.audio('bgMusic', 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_35fc9da8f6.mp3?filename=background-music-free-12764.mp3');
     }
 
     create() {
@@ -133,6 +126,18 @@ class MainGame extends Phaser.Scene {
             card.on('pointerdown',()=>this.revealCard(card));
             this.cards.push(card);
         }
+
+        // Icône musique
+        const musicIcon = this.add.text(750, 30, '🔊', { fontSize: '32px', color: '#333' }).setInteractive({useHandCursor:true}).setOrigin(0.5).setDepth(6);
+        musicIcon.on('pointerdown', ()=>{
+            if (!this.game.bgMusic) {
+                this.game.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.4 });
+                this.game.bgMusic.play();
+            } else {
+                if (this.game.bgMusic.isPlaying) this.game.bgMusic.pause();
+                else this.game.bgMusic.resume();
+            }
+        });
 
         // Timer
         this.timerEvent = this.time.addEvent({delay:1000, loop:true, callback:()=>{

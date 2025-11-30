@@ -129,7 +129,7 @@ class MainGame extends Phaser.Scene {
 
       if (!this.game.bgMusic) {
         this.game.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.4 });
-       // this.game.bgMusic.play();
+        this.game.bgMusic.play();
       } else {
         if (this.game.bgMusic.isPlaying) this.game.bgMusic.pause();
         else this.game.bgMusic.resume();

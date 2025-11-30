@@ -6,15 +6,14 @@
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 
 <style>
-    body { 
-        margin: 0; 
+    body {
+        margin: 0;
         background: #f0f8ff;
-        overflow: hidden;      /* IMPORTANT – empêche les décalages */
     }
-    canvas { 
+    canvas {
         border: 2px solid #000;
-        display: block;        /* IMPORTANT – empêche le centrage incorrect */
-        margin: 0 auto; 
+        display: block;
+        margin: 0 auto; /* centre ton jeu */
     }
 </style>
 </head>
@@ -67,9 +66,7 @@ class LevelTransition extends Phaser.Scene {
         this.add.text(400,250,'Félicitations !',{fontSize:'48px',color:'#FF4500'}).setOrigin(0.5);
         this.add.text(400,320,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'32px',color:'#000'}).setOrigin(0.5);
 
-        const btn=this.add.rectangle(400,400,300,70,0xFF6347)
-             .setInteractive({ useHandCursor:true });
-
+        const btn=this.add.rectangle(400,400,300,70,0xFF6347).setInteractive({ useHandCursor:true });
         this.add.text(400,400,'Level '+this.nextLevel,{fontSize:'32px',color:'#FFF'}).setOrigin(0.5);
 
         btn.on('pointerdown',()=>{
@@ -155,7 +152,7 @@ class MainGame extends Phaser.Scene {
     }
 
     revealCard(card){
-        if(this.selected===card) return;
+        if(this.selected===card || card.revealed) return;
 
         card.setText(card.emoji);
 
@@ -221,4 +218,3 @@ new Phaser.Game(config);
 </script>
 </body>
 </html>
-

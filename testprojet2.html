@@ -6,15 +6,15 @@
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 
 <style>
-    body {
-        margin: 0;
-        background: #f0f8ff;
-    }
-    canvas {
-        display: block;
-        margin: 0 auto;
-        border: 2px solid #000;
-    }
+body {
+    margin: 0;
+    background: #f0f8ff;
+}
+canvas {
+    display: block;
+    margin: 0 auto;
+    border: 2px solid #000;
+}
 </style>
 </head>
 <body>
@@ -24,36 +24,29 @@ class MainMenu extends Phaser.Scene {
     constructor() { super('MainMenu'); }
 
     preload() {
-        this.load.audio('click', 'https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-        this.load.audio('bgmusic', 'https://cdn.pixabay.com/audio/2022/03/15/audio_35fc9da8f6.mp3');
+        this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
     }
 
     create() {
-        // Fond violet
-        this.add.rectangle(400, 300, 800, 600, 0x8A2BE2);
+        // Fond violet exact
+        this.add.rectangle(400,300,800,600,0xc0428a);
 
         // Titre
-        this.add.text(400, 150, '🎮 Emoji Match 🎮', {
-            fontSize: '40px',
-            color: '#fff',
-            fontStyle: 'bold'
+        this.add.text(400,150,'🎮 Emoji Match 🎮',{
+            fontSize:'40px',
+            color:'#FFFFFF',
+            fontStyle:'bold'
         }).setOrigin(0.5);
-
-        // Musique
-        if (!this.bgmusic) {
-            this.bgmusic = this.sound.add('bgmusic', { loop: true, volume: 0.3 });
-            this.bgmusic.play();
-        }
 
         // Bouton START
-        const btn = this.add.rectangle(400, 400, 300, 70, 0xFF6347).setInteractive({ useHandCursor: true });
-        const btnText = this.add.text(400, 400, 'Start Level 1', {
-            fontSize: '32px',
-            color: '#fff',
-            fontStyle: 'bold'
+        const btn = this.add.rectangle(400,400,300,70,0xFF6347).setInteractive({useHandCursor:true});
+        const btnText = this.add.text(400,400,'Start Level 1',{
+            fontSize:'32px',
+            color:'#FFF',
+            fontStyle:'bold'
         }).setOrigin(0.5);
 
-        // Mettre le bouton au-dessus du reste
+        // Forcer la profondeur pour que le bouton apparaisse au-dessus
         btn.setDepth(1);
         btnText.setDepth(2);
 
@@ -62,9 +55,9 @@ class MainMenu extends Phaser.Scene {
         btn.on('pointerout', ()=> btn.setFillStyle(0xFF6347));
 
         // Click
-        btn.on('pointerdown', () => {
+        btn.on('pointerdown', ()=>{
             this.sound.play('click');
-            this.scene.start('MainGame', { level: 1 });
+            this.scene.start('MainGame',{level:1});
         });
     }
 }
@@ -79,12 +72,11 @@ class MainGame extends Phaser.Scene {
     }
 
     create(){
-        // Fond jaune
-        this.add.rectangle(400, 300, 800, 600, 0xFFFFE0);
+        this.add.rectangle(400,300,800,600,0xFFFFE0);
 
         this.score = 0;
-        this.timeLeft = this.level === 1 ? 60 : 90;
-        this.pairs = this.level === 1 ? 8 : 12;
+        this.timeLeft = this.level===1 ? 60 : 90;
+        this.pairs = this.level===1 ? 8 : 12;
 
         this.timerText = this.add.text(20,20,'Time: '+this.timeLeft,{fontSize:'32px'});
         this.scoreText = this.add.text(550,20,'Found: '+this.score,{fontSize:'32px'});
@@ -98,14 +90,14 @@ class MainGame extends Phaser.Scene {
         }
         Phaser.Utils.Array.Shuffle(list);
 
-        // Création cartes
+        // Cartes
         this.cards=[];
         this.selected=null;
         this.matched=0;
         const cols=4, startX=200, startY=150, spX=120, spY=120;
         for(let i=0;i<list.length;i++){
-            const row = Math.floor(i/cols), col = i%cols;
-            const card = this.add.text(startX+col*spX, startY+row*spY+5, '❓', {
+            const row=Math.floor(i/cols), col=i%cols;
+            const card=this.add.text(startX+col*spX,startY+row*spY+5,'❓',{
                 fontSize:'58px',
                 fontFamily:'Arial',
                 padding:{top:10,bottom:10}
@@ -122,7 +114,7 @@ class MainGame extends Phaser.Scene {
             callback: ()=>{
                 this.timeLeft--;
                 this.timerText.setText('Time: '+this.timeLeft);
-                if(this.timeLeft <= 0) this.endGame();
+                if(this.timeLeft<=0) this.endGame();
             }
         });
     }
@@ -154,7 +146,7 @@ class MainGame extends Phaser.Scene {
 
     endGame(){
         this.timerEvent.remove();
-        this.add.text(400,300,'Game Over',{fontSize:'48px', color:'#fff'}).setOrigin(0.5);
+        this.add.text(400,300,'Game Over',{fontSize:'48px',color:'#fff'}).setOrigin(0.5);
     }
 }
 

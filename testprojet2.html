@@ -48,12 +48,14 @@ class MainMenu extends Phaser.Scene {
 
         btn.on('pointerover', ()=> btn.setFillStyle(0xFF4500));
         btn.on('pointerout', ()=> btn.setFillStyle(0xFF6347));
+
         btn.on('pointerdown', ()=>{
-            // Lancer la musique après le premier clic
+            // Jouer musique immédiatement après clic
             if (!this.game.bgMusic) {
                 this.game.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.4 });
                 this.game.bgMusic.play();
             }
+
             this.sound.play('click');
             this.scene.start('MainGame', { level: 1 });
         });

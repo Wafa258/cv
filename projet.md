@@ -1,20 +1,16 @@
 # Objectifs du projet
-
 Le but de ce projet est de créer un jeu de mémoire (Memory Game) ludique et dynamique utilisant des emojis.
 
 # Fonctionnement du jeu
-
 Le jeu est composé de trois scènes principales :
 
 ## 1. Menu principal
-
 - Affichage du titre Emoji Match  
 - Bouton “Start Level 1”  
 - Effet sonore lors du clic  
 - Passage direct à la scène de jeu du niveau 1  
 
 ## 2. Jeu principal
-
 Chaque partie contient :
 
 ### Objectif  
@@ -40,7 +36,6 @@ Trouver toutes les paires avant la fin du temps.
 - Temps écoulé : affichage “Time Over” et bouton Restart  
 
 ## 3. Transition de niveau (LevelTransition)
-
 Lorsqu’un joueur termine le niveau 1 :
 
 - Message “Félicitations !”  
@@ -48,7 +43,6 @@ Lorsqu’un joueur termine le niveau 1 :
 - Son de clic  
 
 # Gestion du son
-
 Le jeu intègre :
 
 - un son de clic  

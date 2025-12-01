@@ -14,7 +14,6 @@ Le jeu est composé de trois scènes principales :
 ### Objectif  
 Trouver toutes les paires avant la fin du temps.
 
-Chaque partie contient :
 ### Caractéristiques du niveau  
 - Niveau 1 : 8 paires, 60 secondes  
 - Niveau 2 : 12 paires, 90 secondes  

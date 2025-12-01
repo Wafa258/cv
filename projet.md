@@ -2,6 +2,10 @@
 Le but de ce projet est de créer un jeu de mémoire (Memory Game) ludique et dynamique utilisant des emojis.
 
 # Fonctionnement du jeu
+Chaque fois qu’une paire est trouvée, elle reste visible et le score augmente. Le jeu est limité dans le temps : il faut essayer de trouver un maximum de paires avant la fin du chrono.
+  
+Le jeu affiche également le meilleur score atteint (highscore) et propose des animations et effets sonores pour rendre l’expérience plus amusante.
+
 Le jeu est composé de trois scènes principales :
 
 ## 1. Menu principal

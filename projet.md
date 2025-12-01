@@ -6,7 +6,7 @@ Fonctionnement du jeu
 
 Le jeu est composé de trois scènes principales :
 
-1️⃣ Menu principal
+1. Menu principal
 
 Affichage du titre Emoji Match
 
@@ -16,18 +16,21 @@ Effet sonore lors du clic
 
 Passage direct à la scène de jeu du niveau 1
 
-2️⃣ Jeu principal 
+2. Jeu principal
 
 Chaque partie contient :
 
-Objectif : trouver toutes les paires avant la fin du temps.
-🔹 Caractéristiques du niveau
+Objectif
 
-Niveau 1 → 8 paires, 60 secondes
+Trouver toutes les paires avant la fin du temps.
 
-Niveau 2 → 12 paires, 90 secondes
+Caractéristiques du niveau
 
-🔹 Logique du jeu
+Niveau 1 : 8 paires, 60 secondes
+
+Niveau 2 : 12 paires, 90 secondes
+
+Logique du jeu
 
 Les cartes sont affichées sous forme d’émojis cachés (“❓”).
 
@@ -35,24 +38,23 @@ Le joueur clique pour révéler une carte.
 
 Deux cartes révélées = comparaison :
 
-Même emoji → paire trouvée
+Même emoji : paire trouvée
 
-Emoji différent → cartes retournées après 0,8 sec
+Emoji différent : cartes retournées après 0,8 seconde
 
-🔹 Interface affichée
+Interface affichée
 
 Compteur de temps (Time)
 
 Score (Found)
 
-Icône 🔊 pour activer/mettre en pause la musique d’ambiance
+Icône pour activer ou mettre en pause la musique d’ambiance
 
-🔹 Fin du niveau
+Fin du niveau
 
-Temps écoulé
-→ Affichage “Time Over” + bouton Restart
+Temps écoulé : Affichage “Time Over” et bouton Restart
 
-3️⃣ Transition de niveau (LevelTransition)
+3. Transition de niveau (LevelTransition)
 
 Lorsqu’un joueur termine le niveau 1 :
 
@@ -62,7 +64,7 @@ Bouton “Level 2”
 
 Son de clic
 
-🎵 Gestion du son
+Gestion du son
 
 Le jeu intègre :
 
@@ -71,4 +73,3 @@ un son de clic
 un son lors d'une mauvaise paire
 
 une musique d’ambiance en boucle, activable via une icône
-

@@ -2,13 +2,9 @@
 
 Le but de ce projet est de créer un jeu de mémoire (Memory Game) ludique et dynamique utilisant des emojis.
 
----
-
 # Fonctionnement du jeu
 
 Le jeu est composé de trois scènes principales :
-
----
 
 ## 1. Menu principal
 
@@ -16,8 +12,6 @@ Le jeu est composé de trois scènes principales :
 - Bouton “Start Level 1”  
 - Effet sonore lors du clic  
 - Passage direct à la scène de jeu du niveau 1  
-
----
 
 ## 2. Jeu principal
 
@@ -45,8 +39,6 @@ Trouver toutes les paires avant la fin du temps.
 ### Fin du niveau  
 - Temps écoulé : affichage “Time Over” et bouton Restart  
 
----
-
 ## 3. Transition de niveau (LevelTransition)
 
 Lorsqu’un joueur termine le niveau 1 :
@@ -54,8 +46,6 @@ Lorsqu’un joueur termine le niveau 1 :
 - Message “Félicitations !”  
 - Bouton “Level 2”  
 - Son de clic  
-
----
 
 # Gestion du son
 

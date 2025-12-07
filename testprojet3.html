@@ -55,7 +55,7 @@ class LevelTransition extends Phaser.Scene {
 
   create(){
     this.add.rectangle(400,300,800,600,0xEA5EF2);
-    this.add.text(400,250,'Félicitations🥳​ !', { fontSize:'48px', color:'#FF4500', fontStyle:'bold' }).setOrigin(0.5);
+    this.add.text(400,250,'Félicitations🥳​', { fontSize:'48px', color:'#FF4500', fontStyle:'bold' }).setOrigin(0.5);
     this.add.text(400,320,'Jouez au niveau '+this.nextLevel+' !', { fontSize:'32px', color:'#000', fontStyle:'bold' }).setOrigin(0.5);
 
     const btn = this.add.rectangle(400,400,300,70,0xFF6347).setInteractive({ useHandCursor: true });

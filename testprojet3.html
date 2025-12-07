@@ -102,15 +102,24 @@ class MainGame extends Phaser.Scene {
     this.selected = null;
     this.matched = 0;
 
-    const cols = 4, startX = 250, startY = 100, spacingX = 100, spacingY = 100;
+    // 🔥 Nombre de colonnes selon le niveau
+    const cols = this.level === 1 ? 4 : 5; 
+    const startX = cols === 4 ? 250 : 200; // centre niveau 2
+    const startY = 100;
+    const spacingX = 100;
+    const spacingY = 100;
+
     for (let i = 0; i < cardEmojis.length; i++) {
-      const row = Math.floor(i / cols), col = i % cols;
+      const row = Math.floor(i / cols);
+      const col = i % cols;
+
       const card = this.add.text(
         startX + col * spacingX,
         startY + row * spacingY + 5,
         '❓',
         { fontSize: '58px', fontFamily: 'Arial', padding: { top: 10, bottom: 10 } }
       ).setOrigin(0.5).setInteractive().setDepth(4);
+
       card.emoji = cardEmojis[i];
       card.revealed = false;
       card.on('pointerdown', () => this.revealCard(card));
@@ -124,9 +133,7 @@ class MainGame extends Phaser.Scene {
       .setDepth(6);
 
     musicIcon.on('pointerdown', () => {
-      // Forcer le déblocage audio
       this.sound.unlock();
-
       if (!this.game.bgMusic) {
         this.game.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.4 });
         this.game.bgMusic.play();

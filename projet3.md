@@ -1,3 +1,4 @@
+# ✅ Améliorations apportées : 
 1️⃣ Timer amélioré
 
 Emoji ⏳ ajouté dès le départ devant le texte du timer.

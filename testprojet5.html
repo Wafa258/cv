@@ -12,6 +12,7 @@
 <body>
 
 <script>
+
 // ---------- Utilitaire pour créer un bouton ----------
 function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28px'){
   const container = scene.add.container(x, y);
@@ -42,20 +43,22 @@ class PreloadScene extends Phaser.Scene {
     this.load.audio('bgMusic','https://wafa258.github.io/cv/xmas.mp3');
 
     // Images cartes thème animaux
-    this.load.image('lion','https://i.imgur.com/1Y4C9H2.png');
-    this.load.image('dog','https://i.imgur.com/Jq3E4vJ.png');
-    this.load.image('cat','https://i.imgur.com/q7u0LhG.png');
-    this.load.image('elephant','https://i.imgur.com/4xP7W7U.png');
+    this.load.image('lion','https://cdn.pixabay.com/photo/2016/03/31/15/54/lion-1299620_1280.png');
+    this.load.image('dog','https://cdn.pixabay.com/photo/2014/04/03/10/32/dog-311592_1280.png');
+    this.load.image('cat','https://cdn.pixabay.com/photo/2017/02/20/18/03/cat-2083492_1280.png');
+    this.load.image('elephant','https://cdn.pixabay.com/photo/2017/02/01/22/02/elephant-2032548_1280.png');
 
     // Images cartes thème fruits
-    this.load.image('apple','https://i.imgur.com/o6xH7zR.png');
-    this.load.image('banana','https://i.imgur.com/4xBf7vX.png');
-    this.load.image('cherry','https://i.imgur.com/q4r9U5C.png');
+    this.load.image('apple','https://i.imgur.com/1An1bbZ.png');
+    this.load.image('banana','https://i.imgur.com/cwYrx2q.png');
+    this.load.image('cherry','https://i.imgur.com/5zQaoOW.png');
+    this.load.image('orange','https://i.imgur.com/6plMx7b.png');
 
-    // Images cartes thème célébrités
-    this.load.image('obama','https://i.imgur.com/XxT2KkI.png');
-    this.load.image('elon','https://i.imgur.com/3w1iWKU.png');
-    this.load.image('beyonce','https://i.imgur.com/0x8Pj7K.png');
+    // Images cartes thème célébrités (icônes stylisées)
+    this.load.image('star1','https://i.imgur.com/3Njp5lu.png');
+    this.load.image('star2','https://i.imgur.com/1kQLP1I.png');
+    this.load.image('star3','https://i.imgur.com/u4pSo3c.png');
+    this.load.image('star4','https://i.imgur.com/64OWx4L.png');
 
     // Image dos de carte
     this.load.image('backCard','https://i.imgur.com/NrJ6F7r.png');
@@ -67,12 +70,13 @@ class MainMenu extends Phaser.Scene {
   constructor(){ super('MainMenu'); }
   create(){
     this.add.rectangle(450,300,900,600,0xE800F0);
-    this.add.text(450,80,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+    this.add.text(450,60,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
 
     // Texte thème
-    this.add.text(450,140,'Choisis ton thème :',{fontSize:'24px',color:'#fff'}).setOrigin(0.5);
+    this.add.text(450,120,'Choisis ton thème :',{fontSize:'24px',color:'#fff'}).setOrigin(0.5);
 
     // Définir thèmes
+    this.selectedTheme = null;
     const themes = [
       {name:'Emoji',data:'emoji'},
       {name:'Animaux',data:'animals'},
@@ -80,9 +84,9 @@ class MainMenu extends Phaser.Scene {
       {name:'Célébrités',data:'celebs'}
     ];
 
-    // Espacement et position des boutons
+    // Espacement et position des boutons thème
     const startX = 180;
-    const startY = 200;
+    const startY = 180;
     const spacingX = 300;
     const spacingY = 100;
 
@@ -92,10 +96,24 @@ class MainMenu extends Phaser.Scene {
       const x = startX + col * spacingX;
       const y = startY + row * spacingY;
 
-      createButton(this, x, y, t.name, '#fff', 0xFF6347, ()=>{
+      const btn = createButton(this, x, y, t.name, '#fff', 0xFF6347, ()=>{
         this.sound.play('click');
-        this.scene.start('MainGame',{level:1, theme:t.data});
+        this.selectedTheme = t.data;
+        // Mettre en surbrillance le bouton choisi
+        this.children.list.forEach(c=>{
+          if(c.list && c.list[0] && c.list[0].fillColor!==undefined) c.list[0].setFillStyle(0xFF6347,0.8);
+        });
+        btn.list[0].setFillStyle(0x00FF00,0.8);
       });
+    });
+
+    // Bouton Start Level 1
+    createButton(this,450,420,'Start Level 1','#FFFFFF',0x0000FF,()=>{
+      if(!this.selectedTheme){
+        alert('Veuillez choisir un thème avant de commencer !');
+        return;
+      }
+      this.scene.start('MainGame',{level:1, theme:this.selectedTheme});
     });
   }
 }
@@ -157,9 +175,9 @@ class MainGame extends Phaser.Scene {
     } else if(this.theme==='animals'){
       this.cardEmojis=['lion','dog','cat','elephant'];
     } else if(this.theme==='fruits'){
-      this.cardEmojis=['apple','banana','cherry'];
+      this.cardEmojis=['apple','banana','cherry','orange'];
     } else if(this.theme==='celebs'){
-      this.cardEmojis=['obama','elon','beyonce'];
+      this.cardEmojis=['star1','star2','star3','star4'];
     }
 
     // Créer les paires et mélanger

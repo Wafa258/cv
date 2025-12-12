@@ -1,10 +1,10 @@
 # Projet de Codage
 Projet inspiré par le site Phaser
 
-# Objectifs du projet
+## Objectifs du projet
 Le but de ce projet est de créer un jeu de mémoire (Memory Game) ludique et dynamique utilisant des emojis.
 
-# Técchnologies utilisées : 
+## Técchnologies utilisées : 
 ✅ 1. HTML, il sert à :
 Définir la structure principale (<!DOCTYPE html>, <html>, <head>, <body>…).
 Intégrer le script du jeu Phaser.
@@ -28,7 +28,7 @@ Il gère :
 7. les transitions entre les scènes
 
 
-# Fonctionnement du jeu
+## Fonctionnement du jeu
 Emoji Match est un jeu de mémoire où le joueur doit retrouver des paires d’emojis identiques dans une grille.
 La grille contient 16 emojis disposés aléatoirement, et le but est de cliquer sur deux emojis pour découvrir s’ils forment une paire.
 Chaque fois qu’une paire est trouvée, elle reste visible et le score augmente.

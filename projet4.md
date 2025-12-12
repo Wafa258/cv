@@ -1,7 +1,7 @@
 # ✅ Améliorations apportées : 
 
-### 1. Ajout d'un 3ème niveau 
-{ time: 120, pairs: 15 }
+### 1. Ajout d'un 3ème niveau plus difficile
+time: 120, pairs: 15
 
 ### 2. Animation spécifique pour les bonnes paires 
 Pop / tween scale quand deux cartes matchent, pour donner une sensation de récompense.

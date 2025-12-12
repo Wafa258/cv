@@ -24,6 +24,7 @@ function createButton(scene, x, y, width, height, color, text, callback) {
   const btn = scene.add.rectangle(x, y, width, height, color).setInteractive({ useHandCursor:true });
   const btnText = scene.add.text(x, y, text, { fontSize:'28px', color:'#FFF', fontStyle:'bold' }).setOrigin(0.5);
 
+  // Hover moderne
   btn.on('pointerover', () => {
     scene.tweens.add({
       targets: btn,
@@ -114,8 +115,11 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    // Icône pause/restart
-    const pauseIcon = this.add.text(750,70,'⏸️',{fontSize:'24px',color:'#333'}).setInteractive({useHandCursor:true}).setOrigin(0.5).setDepth(6);
+    // Icône pause/restart modernisée
+    const pauseIcon = this.add.rectangle(750,70,60,40,0x00BFFF).setInteractive({useHandCursor:true}).setDepth(6);
+    const pauseText = this.add.text(750,70,'⏸️',{fontSize:'20px',color:'#FFF'}).setOrigin(0.5).setDepth(7);
+    pauseIcon.on('pointerover',()=>pauseIcon.setFillStyle(0x0099FF));
+    pauseIcon.on('pointerout',()=>pauseIcon.setFillStyle(0x00BFFF));
     pauseIcon.on('pointerdown',() => {
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this});
@@ -130,8 +134,8 @@ class MainGame extends Phaser.Scene {
     this.cards=[];
     const cols = Math.ceil(Math.sqrt(this.pairs*2));
     const rows = Math.ceil((this.pairs*2)/cols);
-    const spacingX = Math.min(80, 800/cols); // réduit l'espacement max à 80
-    const spacingY = Math.min(80, 400/rows);
+    const spacingX = Math.min(90, 700/cols); 
+    const spacingY = Math.min(90, 350/rows);
     const offsetX = (800 - spacingX*(cols-1))/2;
     const offsetY = (400 - spacingY*(rows-1))/2 + 80;
 
@@ -159,7 +163,6 @@ class MainGame extends Phaser.Scene {
     if(card.revealed||this.selected===card) return;
     card.setText(card.emoji);
     card.revealed=true;
-    this.tweens.add({targets:card,scale:{from:0.9,to:1.1},duration:200,ease:'Back',yoyo:true});
 
     if(!this.selected){
       this.selected=card;
@@ -177,7 +180,7 @@ class MainGame extends Phaser.Scene {
           this.endLevel();
         }
       } else {
-        // Mauvaise paire : juste remettre ❓
+        // Mauvaise paire : juste remettre ❓ après 500ms
         const first=this.selected; this.selected=null;
         this.time.delayedCall(500,()=>{
           first.setText('❓'); first.revealed=false;

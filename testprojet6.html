@@ -151,7 +151,7 @@ class MainGame extends Phaser.Scene {
     this.add.text(450,70, themeIcons[this.theme], {fontSize:'48px'}).setOrigin(0.5);
 
     // Lune mode nuit (plus grande)
-    this.moonIcon = this.add.text(800,70,'🌙',{fontSize:'36px'}).setOrigin(0.5).setInteractive();
+    this.moonIcon = this.add.text(800,100,'🌙',{fontSize:'46px'}).setOrigin(0.5).setInteractive();
     this.moonIcon.on('pointerdown',()=>{
       nightMode = !nightMode;
       this.updateNightMode();

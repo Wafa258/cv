@@ -24,7 +24,6 @@ Trouver toutes les paires avant la fin du temps.
 ### Interface affichée  
 - Compteur de temps (Time)  
 - Score (Found)  
-- Icône pour activer ou mettre en pause la musique d’ambiance  
 
 ### Fin du niveau  
 - Temps écoulé : affichage “Time Over” et bouton Restart  

@@ -1,3 +1,6 @@
+# Projet de Codage
+Projet inspiré par le site Phaser
+
 # Objectifs du projet
 Le but de ce projet est de créer un jeu de mémoire (Memory Game) ludique et dynamique utilisant des emojis.
 

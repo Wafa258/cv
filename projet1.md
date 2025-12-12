@@ -12,14 +12,7 @@ Trouver toutes les paires avant la fin du temps.
 
 ### Caractéristiques du niveau  
 - Niveau 1 : 8 paires, 60 secondes  
-- Niveau 2 : 12 paires, 90 secondes  
-
-### Logique du jeu  
-- Les cartes sont affichées sous forme d’émojis cachés (“❓”).  
-- Le joueur clique pour révéler une carte.  
-- Deux cartes révélées = comparaison :  
-  - Même emoji : paire trouvée  
-  - Emoji différent : cartes retournées après 0,8 seconde  
+- Niveau 2 : 12 paires, 90 secondes   
 
 ### Interface affichée  
 - Compteur de temps (Time)  

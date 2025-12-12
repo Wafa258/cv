@@ -104,7 +104,7 @@ class MainGame extends Phaser.Scene {
     this.pauseText.on('pointerover',()=>this.pauseText.setColor('#FF85C1'));
     this.pauseText.on('pointerout',()=>this.pauseText.setColor('#F2509B'));
 
-    // Création des cartes avec l'ancien placement
+    
     this.emojis=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
     let cardEmojis=[];
     for(let i=0;i<this.pairs;i++) cardEmojis.push(this.emojis[i%this.emojis.length],this.emojis[i%this.emojis.length]);

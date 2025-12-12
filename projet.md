@@ -33,5 +33,3 @@ Emoji Match est un jeu de mémoire où le joueur doit retrouver des paires d’e
 La grille contient 16 emojis disposés aléatoirement, et le but est de cliquer sur deux emojis pour découvrir s’ils forment une paire.
 Chaque fois qu’une paire est trouvée, elle reste visible et le score augmente.
 Le jeu est limité dans le temps : il faut essayer de trouver un maximum de paires avant la fin du chrono.
-
-oucle, activable via une icône  

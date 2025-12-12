@@ -16,7 +16,7 @@
 const levels = [
   { time: 60, pairs: 8, cols: 4 },
   { time: 90, pairs: 12, cols: 4 },
-  { time: 120, pairs: 15, cols: 5 } // futur niveau 3
+  { time: 120, pairs: 15, cols: 5 }
 ];
 
 // === Fonction utilitaire pour créer un bouton ===
@@ -90,23 +90,20 @@ class MainGame extends Phaser.Scene {
   init(data){ this.level = data.level || 1; }
 
   create(){
-    // Fond
     this.add.rectangle(400,300,800,600,0xDDB8F2);
 
-    // Paramètres du niveau
     const levelData = levels[this.level - 1] || levels[0];
     this.timeLeft = levelData.time;
     this.pairs = levelData.pairs;
     const cols = levelData.cols;
 
-    // Score et paires restantes
     this.score = 0;
     this.matched = 0;
+
     this.timerText = this.add.text(20, 20, '⏳ Time: ' + this.timeLeft, { fontSize: '32px', color: '#333', fontStyle: 'bold' }).setDepth(5);
     this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, { fontSize: '32px', color: '#333', fontStyle: 'bold' }).setDepth(5);
-    this.remainingText = this.add.text(550, 60, 'Remaining: ' + this.pairs, { fontSize: '28px', color: '#333', fontStyle: 'bold' }).setDepth(5);
+    this.remainingText = this.add.text(550, 60, 'Pairs left: ' + this.pairs + ' 🧩', { fontSize: '28px', color: '#333', fontStyle: 'bold' }).setDepth(5);
 
-    // Liste des emojis
     this.emojis = ['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
     let cardEmojis = [];
     for (let i = 0; i < this.pairs; i++) {
@@ -115,7 +112,6 @@ class MainGame extends Phaser.Scene {
     }
     Phaser.Utils.Array.Shuffle(cardEmojis);
 
-    // Création des cartes
     this.cards = [];
     this.selected = null;
 
@@ -141,7 +137,6 @@ class MainGame extends Phaser.Scene {
       this.cards.push(card);
     }
 
-    // Musique
     const musicIcon = this.add.text(750,30,'🔊',{ fontSize:'32px', color:'#333' })
       .setInteractive({ useHandCursor:true }).setOrigin(0.5).setDepth(6);
 
@@ -155,7 +150,6 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    // Timer
     this.clignotementTween = null;
     this.timerEvent = this.time.addEvent({
       delay: 1000,
@@ -163,7 +157,6 @@ class MainGame extends Phaser.Scene {
       callback: () => {
         this.timeLeft--;
         this.timerText.setText('⏳ Time: ' + this.timeLeft);
-
         if (this.timeLeft === 10){
           this.timerText.setColor('#FF0000');
           this.clignotementTween = this.tweens.add({
@@ -174,7 +167,6 @@ class MainGame extends Phaser.Scene {
             repeat: -1
           });
         }
-
         if (this.timeLeft <= 0) this.endGame();
       }
     });
@@ -186,7 +178,6 @@ class MainGame extends Phaser.Scene {
     card.setText(card.emoji);
     card.revealed = true;
 
-    // Animation
     this.tweens.add({
       targets: card,
       scale: { from:0.8, to:1 },
@@ -203,7 +194,8 @@ class MainGame extends Phaser.Scene {
         this.matched++;
         this.score++;
         this.scoreText.setText('Found: ' + this.score);
-        this.remainingText.setText('Remaining: ' + (this.pairs - this.matched));
+        this.remainingText.setText('Pairs left: ' + (this.pairs - this.matched) + ' 🧩');
+
         if (this.matched === this.cards.length/2){
           if (this.level < levels.length) this.scene.start('LevelTransition', { level:this.level+1 });
           else this.endGame(true);
@@ -212,13 +204,14 @@ class MainGame extends Phaser.Scene {
         const first = this.selected;
         this.selected = null;
         this.sound.play('match');
-        // clignotement rouge
+
+        // Shake animation pour mauvaise paire
         this.tweens.add({
-          targets:[first, card],
-          tint: { from:0xFFFFFF, to:0xFF0000 },
-          duration: 200,
-          yoyo:true,
-          repeat:1,
+          targets: [first, card],
+          x: '+=10',
+          duration: 50,
+          yoyo: true,
+          repeat: 3,
           onComplete: () => {
             first.setText('❓'); first.revealed=false;
             card.setText('❓'); card.revealed=false;
@@ -255,4 +248,3 @@ new Phaser.Game(config);
 
 </body>
 </html>
-

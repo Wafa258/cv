@@ -6,7 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron&display=swap" rel="stylesheet">
 <style>
-  body { margin: 0; background: #0A0A2A; display:flex; justify-content:center; align-items:center; height:100vh;}
+  body { margin: 0; background: #E0E8FF; display:flex; justify-content:center; align-items:center; height:100vh;}
   canvas { border: 2px solid #00FFFF; }
 </style>
 </head>
@@ -18,7 +18,7 @@ function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28p
   const btnText = scene.add.text(0,0,text,{fontSize:fontSize,fontStyle:'bold',color:color,fontFamily:'Orbitron'}).setOrigin(0.5);
   const rectWidth = btnText.width + 40;
   const rectHeight = btnText.height + 20;
-  const rect = scene.add.rectangle(0,0,rectWidth,rectHeight,bgColor,0.8).setStrokeStyle(3,0x00FFFF);
+  const rect = scene.add.rectangle(0,0,rectWidth,rectHeight,bgColor,0.9).setStrokeStyle(3,0x00FFFF);
 
   const container = scene.add.container(x, y, [rect, btnText]);
   container.setSize(rect.width, rect.height);
@@ -71,10 +71,15 @@ class PreloadScene extends Phaser.Scene {
 class MainMenu extends Phaser.Scene {
   constructor(){ super('MainMenu'); }
   create(){
-    this.add.rectangle(450,300,900,600,0x0A0A2A); // fond futuriste
-    this.add.text(450,60,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#00FFFF',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
+    this.add.rectangle(450,300,900,600,0xE0E8FF); // fond clair futuriste
+    this.add.text(450,60,'🎮 Emoji Match 🎮',{
+        fontSize:'36px',
+        color:'#000033',
+        fontStyle:'bold',
+        fontFamily:'Orbitron'
+    }).setOrigin(0.5);
 
-    this.add.text(450,120,'Choisis ton thème :',{fontSize:'24px',color:'#00FFFF',fontFamily:'Orbitron'}).setOrigin(0.5);
+    this.add.text(450,120,'Choisis ton thème :',{fontSize:'24px',color:'#000033',fontFamily:'Orbitron'}).setOrigin(0.5);
 
     this.selectedTheme = null;
     const themes = [
@@ -85,27 +90,27 @@ class MainMenu extends Phaser.Scene {
     ];
 
     const positions = [
-      {x:250,y:180},
-      {x:650,y:180},
-      {x:250,y:300},
-      {x:650,y:300}
+      {x:200,y:180},
+      {x:700,y:180},
+      {x:200,y:300},
+      {x:700,y:300}
     ];
 
     themes.forEach((t,i)=>{
       const pos = positions[i];
-      const btn = createButton(this, pos.x, pos.y, t.name, '#00FFFF', 0x0D0D3A, ()=>{
+      const btn = createButton(this, pos.x, pos.y, t.name, '#FFFFFF', 0x8C82FF, ()=>{
         this.sound.play('click');
         this.selectedTheme = t.data;
         // surbrillance futuriste
         this.children.list.forEach(c=>{
-          if(c.list && c.list[0] && c.list[0].fillColor!==undefined) c.list[0].setFillStyle(0x0D0D3A,0.8);
+          if(c.list && c.list[0] && c.list[0].fillColor!==undefined) c.list[0].setFillStyle(0x8C82FF,0.9);
         });
-        btn.list[0].setFillStyle(0x00FFAA,0.8);
+        btn.list[0].setFillStyle(0x00FFAA,0.9);
       });
     });
 
     // Bouton Start Level 1 centré
-    createButton(this,450,420,'Start Level 1','#FFFFFF',0xF2509B,()=>{
+    createButton(this,450,420,'Start Level 1','#FFFFFF',0xFF88CC,()=>{
       if(!this.selectedTheme){
         alert('Veuillez choisir un thème avant de commencer !');
         return;
@@ -119,10 +124,10 @@ class LevelTransition extends Phaser.Scene {
   constructor(){ super('LevelTransition'); }
   init(data){ this.nextLevel = data.level || 2; this.theme = data.theme; }
   create(){
-    this.add.rectangle(450,300,900,600,0x0A0A2A);
-    this.add.text(450,180,'Félicitations🥳',{fontSize:'44px',color:'#00FFAA',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
-    this.add.text(450,250,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'28px',color:'#00FFFF',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
-    createButton(this,450,350,'Level '+this.nextLevel,'#FFFFFF',0xF2509B,()=>{ 
+    this.add.rectangle(450,300,900,600,0xE0E8FF);
+    this.add.text(450,180,'Félicitations🥳',{fontSize:'44px',color:'#00CCFF',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
+    this.add.text(450,250,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'28px',color:'#000033',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
+    createButton(this,450,350,'Level '+this.nextLevel,'#FFFFFF',0xFF88CC,()=>{ 
       this.sound.play('click'); 
       this.scene.start('MainGame',{level:this.nextLevel, theme:this.theme}); 
     });
@@ -134,7 +139,7 @@ class MainGame extends Phaser.Scene {
   init(data){ this.level = data.level || 1; this.theme = data.theme || 'emoji'; }
 
   create(){
-    this.add.rectangle(450,300,900,600,0x0A0A2A);
+    this.add.rectangle(450,300,900,600,0xE0E8FF);
     const levelData = levels[this.level-1] || levels[0];
     this.timeLeft = levelData.time;
     this.pairs = levelData.pairs;
@@ -142,11 +147,11 @@ class MainGame extends Phaser.Scene {
     this.matched = 0;
     this.selected = null;
 
-    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#00FFFF',fontStyle:'bold',fontFamily:'Orbitron'});
-    this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#00FFFF',fontStyle:'bold',fontFamily:'Orbitron'});
+    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#000033',fontStyle:'bold',fontFamily:'Orbitron'});
+    this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#000033',fontStyle:'bold',fontFamily:'Orbitron'});
 
     const bottomY = 550;
-    this.musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'40px',color:'#00FFFF'}).setOrigin(0.5).setInteractive();
+    this.musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'40px',color:'#000033'}).setOrigin(0.5).setInteractive();
     this.musicIcon.on('pointerdown',()=>{
       this.sound.unlock();
       if(!this.game.bgMusic){
@@ -157,13 +162,13 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'40px',color:'#FF00FF'}).setOrigin(0.5).setInteractive();
+    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'40px',color:'#FF88CC'}).setOrigin(0.5).setInteractive();
     this.pauseText.on('pointerdown',()=>{ 
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this}); 
     });
-    this.pauseText.on('pointerover',()=>this.pauseText.setColor('#00FFAA'));
-    this.pauseText.on('pointerout',()=>this.pauseText.setColor('#FF00FF'));
+    this.pauseText.on('pointerover',()=>this.pauseText.setColor('#00CCFF'));
+    this.pauseText.on('pointerout',()=>this.pauseText.setColor('#FF88CC'));
 
     // Cartes selon thème
     if(this.theme==='emoji'){
@@ -232,7 +237,6 @@ class MainGame extends Phaser.Scene {
     else{
       if(this.selected.realKey===card.realKey){
         this.sound.play('click');
-        // glow futuriste sur match
         this.tweens.add({targets:[this.selected,card],scale:{from:1,to:1.3},duration:150,yoyo:true,ease:'Power2'});
         this.selected=null;
         this.matched++; this.score++; this.scoreText.setText('Found: '+this.score);
@@ -260,9 +264,9 @@ class MainGame extends Phaser.Scene {
   endGame(win=false){
     if(this.clignotementTween) this.clignotementTween.stop();
     this.timerEvent.remove();
-    this.add.rectangle(450,300,900,600,0x000000,0.5);
-    this.add.text(450,180,win?'Level Complete!':'Time Over!',{fontSize:'44px',color:'#00FFFF',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
-    createButton(this,450,280,'Restart','#FFFFFF',0xF2509B,()=>{ 
+    this.add.rectangle(450,300,900,600,0xFFFFFF,0.5);
+    this.add.text(450,180,win?'Level Complete!':'Time Over!',{fontSize:'44px',color:'#000033',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
+    createButton(this,450,280,'Restart','#FFFFFF',0xFF88CC,()=>{ 
       this.sound.play('click'); 
       this.scene.start('MainMenu'); 
     });
@@ -273,9 +277,9 @@ class PauseScene extends Phaser.Scene{
   constructor(){ super('PauseScene'); }
   init(data){ this.parent=data.parent; }
   create(){
-    this.add.rectangle(450,300,900,600,0x000000,0.5);
-    this.add.text(450,180,'Paused',{fontSize:'44px',color:'#00FFFF',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
-    createButton(this,450,300,'▶ Resume','#FFFFFF',0xF2509B,()=>{this.scene.stop(); this.parent.scene.resume();},'32px');
+    this.add.rectangle(450,300,900,600,0xFFFFFF,0.5);
+    this.add.text(450,180,'Paused',{fontSize:'44px',color:'#000033',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
+    createButton(this,450,300,'▶ Resume','#FFFFFF',0xFF88CC,()=>{this.scene.stop(); this.parent.scene.resume();},'32px');
   }
 }
 

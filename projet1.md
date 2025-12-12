@@ -35,8 +35,12 @@ Lorsqu’un joueur termine le niveau 1 :
 - Bouton “Level 2”  
 - Son de clic  
 
-# Gestion du son
+## Gestion du son
 Le jeu intègre :
 
 - un son de clic  
-- un son lors d'une mauvaise paire  
+- un son lors d'une mauvaise paire
+
+## Contribution de l'IA et Assistance
+Outil utilisé : ChatGPT
+Défi : Le résultat de l'IA avait beaucoup de fautes, j'ai du corriger le code moi même dans la version 2. 

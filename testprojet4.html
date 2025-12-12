@@ -76,13 +76,13 @@ class MainGame extends Phaser.Scene {
     this.selected = null;
 
     // Texte Time et Found plus grands
-    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'26px',color:'#333',fontStyle:'bold'});
-    this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'26px',color:'#333',fontStyle:'bold'});
+    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'32px',color:'#333',fontStyle:'bold'});
+    this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'32px',color:'#333',fontStyle:'bold'});
 
-    // Icônes en bas
+    // Icônes en bas, plus grands et cliquables
     const bottomY = 570;
-    const musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'28px',color:'#333'}).setOrigin(0.5).setInteractive();
-    musicIcon.on('pointerdown',()=>{
+    this.musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'36px',color:'#333'}).setOrigin(0.5).setInteractive();
+    this.musicIcon.on('pointerdown',()=>{
       this.sound.unlock();
       if(!this.game.bgMusic){
         this.game.bgMusic=this.sound.add('bgMusic',{loop:true,volume:0.4});
@@ -92,15 +92,15 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    // Pause plus grand
-    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'28px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
-    this.pauseText.on('pointerdown',()=>{
+    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'36px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
+    this.pauseText.on('pointerdown',()=>{ 
       this.scene.pause();
-      this.scene.launch('PauseScene',{parent:this});
+      this.scene.launch('PauseScene',{parent:this}); 
     });
     this.pauseText.on('pointerover',()=>this.pauseText.setColor('#FF85C1'));
     this.pauseText.on('pointerout',()=>this.pauseText.setColor('#F2509B'));
 
+    // Création des cartes
     this.emojis=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
     let cardEmojis=[];
     for(let i=0;i<this.pairs;i++) cardEmojis.push(this.emojis[i%this.emojis.length],this.emojis[i%this.emojis.length]);
@@ -110,7 +110,7 @@ class MainGame extends Phaser.Scene {
     const cols = Math.ceil(Math.sqrt(this.pairs*2));
     const rows = Math.ceil((this.pairs*2)/cols);
     const cardSize = 64;
-    const spacing = 40; // espacement plus grand
+    const spacing = 60; // espacement augmenté
     const totalWidth = cols*cardSize + (cols-1)*spacing;
     const totalHeight = rows*cardSize + (rows-1)*spacing;
     const startX = 450 - totalWidth/2 + cardSize/2;
@@ -192,7 +192,7 @@ class PauseScene extends Phaser.Scene{
   create(){
     this.add.rectangle(450,300,900,600,0x000000,0.5);
     this.add.text(450,180,'Paused',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    createTextButton(this,450,550,'▶ Resume','#F2509B','32px',()=>{this.scene.stop(); this.parent.scene.resume();});
+    createTextButton(this,450,550,'▶ Resume','#F2509B',()=>{this.scene.stop(); this.parent.scene.resume();},'32px');
   }
 }
 

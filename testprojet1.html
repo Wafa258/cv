@@ -33,7 +33,10 @@ class MainMenu extends Phaser.Scene {
 
     btn.on('pointerover', () => btn.setFillStyle(0x663333));
     btn.on('pointerout', () => btn.setFillStyle(0x552222));
-    btn.on('pointerdown', () => this.scene.start('MainGame', { level: 1 }));
+
+    btn.on('pointerdown', () => {
+      this.scene.start('MainGame', { level: 1 });
+    });
   }
 }
 
@@ -53,6 +56,7 @@ class LevelTransition extends Phaser.Scene {
 
     btn.on('pointerover', () => btn.setFillStyle(0x663333));
     btn.on('pointerout', () => btn.setFillStyle(0x552222));
+
     btn.on('pointerdown', () => this.scene.start('MainGame', { level: this.nextLevel }));
   }
 }
@@ -70,8 +74,12 @@ class MainGame extends Phaser.Scene {
     this.timeLeft = this.level === 1 ? 60 : 90;
     this.pairs = this.level === 1 ? 8 : 12;
 
-    this.timerText = this.add.text(20, 20, 'Time: ' + this.timeLeft, { fontSize: '32px', color: '#EEE', fontStyle: 'bold' });
-    this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, { fontSize: '32px', color: '#EEE', fontStyle: 'bold' });
+    this.timerText = this.add.text(20, 20, 'Time: ' + this.timeLeft, {
+      fontSize: '32px', color: '#EEE', fontStyle: 'bold'
+    });
+    this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, {
+      fontSize: '32px', color: '#EEE', fontStyle: 'bold'
+    });
 
     this.emojis = ['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
 
@@ -91,22 +99,25 @@ class MainGame extends Phaser.Scene {
     for (let i = 0; i < cardEmojis.length; i++) {
       const row = Math.floor(i / cols), col = i % cols;
 
+      // Carte
       const card = this.add.text(
         startX + col * spacingX,
         startY + row * spacingY + 5,
         '❓',
-        { fontSize: '58px', fontFamily: 'Arial', color: "#EEE" }
+        {
+          fontSize: '120px', // taille beaucoup trop grande
+          fontFamily: 'Arial',
+          color: "#EEE"
+        }
       ).setOrigin(0.5).setInteractive();
 
-      // --- VERSION "DÉFECTUEUSE" : l'emoji apparaît écrasé + décalé vers le haut ---
-      card.setScale(1, 0.55); // écrase verticalement = haut perdu
-      card.y -= 12;           // décalé vers le haut, coupe encore plus
+      // → L'emoji est trop grand = son haut est naturellement hors écran
+      //   pas de scale, pas de masque, positions intactes
 
       card.emoji = cardEmojis[i];
       card.revealed = false;
 
       card.on('pointerdown', () => this.revealCard(card));
-
       this.cards.push(card);
     }
 
@@ -125,33 +136,32 @@ class MainGame extends Phaser.Scene {
     if (card.revealed || this.selected === card) return;
 
     card.setText(card.emoji);
-    card.setScale(1, 0.55);
-    card.y -= 12;
+    card.setFontSize(120); // toujours trop grand
 
     if (!this.selected) {
       this.selected = card;
     } else {
       if (this.selected.emoji === card.emoji) {
+
         this.selected = null;
-        this.matched++;
         this.score++;
+        this.matched++;
         this.scoreText.setText('Found: ' + this.score);
 
         if (this.matched === this.cards.length / 2) {
           if (this.level === 1) this.scene.start('LevelTransition', { level: 2 });
           else this.endGame(true);
         }
+
       } else {
         const first = this.selected;
         this.selected = null;
 
         this.time.delayedCall(800, () => {
           first.setText('❓');
+          first.setFontSize(120);
           card.setText('❓');
-
-          // réappliquer la "mauvaise taille"
-          first.setScale(1, 0.55); first.y -= 12;
-          card.setScale(1, 0.55);  card.y -= 12;
+          card.setFontSize(120);
         });
       }
     }
@@ -160,10 +170,15 @@ class MainGame extends Phaser.Scene {
   endGame(win = false) {
     this.timerEvent.remove();
     this.add.rectangle(400,300,800,600,0x000000,0.6);
-    this.add.text(400,250, win ? 'Level Complete!' : 'Time Over!', { fontSize: '48px', color: '#FFF', fontStyle: 'bold' }).setOrigin(0.5);
+    this.add.text(400,250, win ? 'Level Complete!' : 'Time Over!', {
+      fontSize: '48px', color: '#FFF', fontStyle: 'bold'
+    }).setOrigin(0.5);
 
-    const btnBg = this.add.rectangle(400,350,300,70,0x552222).setInteractive({ useHandCursor: true });
-    this.add.text(400,350,'Restart', { fontSize: '32px', color: '#EEE', fontStyle: 'bold' }).setOrigin(0.5);
+    const btnBg = this.add.rectangle(400,350,300,70,0x552222)
+      .setInteractive({ useHandCursor: true });
+    this.add.text(400,350,'Restart', {
+      fontSize: '32px', color: '#EEE', fontStyle: 'bold'
+    }).setOrigin(0.5);
 
     btnBg.on('pointerover', ()=> btnBg.setFillStyle(0x663333));
     btnBg.on('pointerout', ()=> btnBg.setFillStyle(0x552222));

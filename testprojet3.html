@@ -168,23 +168,27 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    // Timer amélioré avec emoji et clignotement
+    // Timer amélioré avec clignotement rapide et rouge immédiat
+    this.clignotementTween = null; // stocke le tween de clignotement
     this.timerEvent = this.time.addEvent({
       delay: 1000,
       loop: true,
       callback: () => {
         this.timeLeft--;
         let prefix = '';
-        if (this.timeLeft <= 10) prefix = '⏳ '; // emoji temps
+        if (this.timeLeft <= 10) prefix = '⏳ ';
         this.timerText.setText(prefix + 'Time: ' + this.timeLeft);
 
-        if (this.timeLeft <= 10) {
-          // clignotement rapide + rouge
-          this.timerText.setColor(this.timerText.visible ? '#FF0000' : '#FFFFFF');
-          this.timerText.visible = !this.timerText.visible;
-        } else {
-          this.timerText.setColor('#333');
-          this.timerText.visible = true;
+        if (this.timeLeft === 10) {
+          // démarrage du clignotement rapide et couleur rouge
+          this.timerText.setColor('#FF0000');
+          this.clignotementTween = this.tweens.add({
+            targets: this.timerText,
+            alpha: 0,
+            duration: 250, // clignotement rapide
+            yoyo: true,
+            repeat: -1
+          });
         }
 
         if (this.timeLeft <= 0) this.endGame();
@@ -222,6 +226,7 @@ class MainGame extends Phaser.Scene {
   }
 
   endGame(win = false) {
+    if (this.clignotementTween) this.clignotementTween.stop();
     this.timerEvent.remove();
     this.add.rectangle(400,300,800,600,0x000000,0.5);
     this.add.text(400,250, win ? 'Level Complete!' : 'Time Over!', { fontSize: '48px', color: '#FFF', fontStyle: 'bold' })
@@ -233,7 +238,6 @@ class MainGame extends Phaser.Scene {
     const btnText = this.add.text(400,350,'Restart', { fontSize: '32px', color: '#FFF', fontStyle: 'bold' })
       .setOrigin(0.5).setDepth(12);
 
-    // Hover amélioré sur restart
     btnBg.on('pointerover', () => {
       this.tweens.add({
         targets: btnBg,

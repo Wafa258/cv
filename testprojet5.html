@@ -67,8 +67,8 @@ class PreloadScene extends Phaser.Scene {
 // -------------------------
 class MainMenu extends Phaser.Scene {
   constructor(){ super('MainMenu'); }
-  create(){
 
+  create(){
     this.add.rectangle(450,300,900,600,0xE800F0);
 
     this.add.text(450,100,'🎮 Emoji Match 🎮',
@@ -77,28 +77,38 @@ class MainMenu extends Phaser.Scene {
     this.add.text(450,160,'Choose your theme :',
       {fontSize:'28px',color:'#FFF'}).setOrigin(0.5);
 
+    // Tableau pour stocker les boutons de thème
+    this.themeButtons = [];
+
+    // Fonction pour gérer la sélection du thème
+    const selectTheme = (themeName, btn) => {
+      selectedTheme = themeName;
+      this.sound.play('click');
+
+      // Réinitialiser tous les boutons
+      this.themeButtons.forEach(b => b.getAt(0).setFillStyle(0xF2509B));
+
+      // Mettre en surbrillance le bouton sélectionné
+      btn.getAt(0).setFillStyle(0xFF99CC);
+    };
+
     // --- BOUTONS DE THEMES ---
-    createButton(this, 250, 230, 'Emoji 😎', '#FFF', 0xF2509B, ()=>{
-      selectedTheme = "emoji";
-      this.sound.play('click');
-    });
+    let btnEmoji = createButton(this, 250, 230, 'Emoji 😎', '#FFF', 0xF2509B, ()=>selectTheme('emoji', btnEmoji));
+    this.themeButtons.push(btnEmoji);
 
-    createButton(this, 650, 230, 'Animaux 🐶', '#FFF', 0xF2509B, ()=>{
-      selectedTheme = "animals";
-      this.sound.play('click');
-    });
+    let btnAnimals = createButton(this, 650, 230, 'Animaux 🐶', '#FFF', 0xF2509B, ()=>selectTheme('animals', btnAnimals));
+    this.themeButtons.push(btnAnimals);
 
-    createButton(this, 250, 320, 'Fruits 🍎', '#FFF', 0xF2509B, ()=>{
-      selectedTheme = "fruits";
-      this.sound.play('click');
-    });
+    let btnFruits = createButton(this, 250, 320, 'Fruits 🍎', '#FFF', 0xF2509B, ()=>selectTheme('fruits', btnFruits));
+    this.themeButtons.push(btnFruits);
 
-    createButton(this, 650, 320, 'Sport ⚽', '#FFF', 0xF2509B, ()=>{
-      selectedTheme = "sport";
-      this.sound.play('click');
-    });
+    let btnSport = createButton(this, 650, 320, 'Sport ⚽', '#FFF', 0xF2509B, ()=>selectTheme('sport', btnSport));
+    this.themeButtons.push(btnSport);
 
-    // --- START ---
+    // Sélection par défaut du thème emoji
+    selectTheme('emoji', btnEmoji);
+
+    // --- START LEVEL 1 ---
     createButton(this,450,450,'Start Level 1','#FFFFFF',0xF2509B,()=>{ 
       this.sound.play('click'); 
       this.scene.start('MainGame',{level:1, theme:selectedTheme}); 
@@ -147,9 +157,6 @@ class MainGame extends Phaser.Scene {
     this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#333',fontStyle:'bold'});
     this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#333',fontStyle:'bold'});
 
-    // -------------------------
-    // CHOIX DU THÈME ICI
-    // -------------------------
     this.emojis = THEMES[this.theme];
 
     let cardEmojis=[];
@@ -160,11 +167,7 @@ class MainGame extends Phaser.Scene {
 
     Phaser.Utils.Array.Shuffle(cardEmojis);
 
-    // -------------------------
-    // Icônes du bas
-    // -------------------------
     const bottomY = 550;
-
     this.musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'40px',color:'#333'}).setOrigin(0.5).setInteractive();
     this.musicIcon.on('pointerdown',()=>{
       this.sound.unlock();
@@ -182,25 +185,19 @@ class MainGame extends Phaser.Scene {
       this.scene.launch('PauseScene',{parent:this}); 
     });
 
-    // -------------------------
-    // Placement des cartes
-    // -------------------------
     this.cards=[];
     const cols = this.level===1?4:5;
     const spacingX = 100;
     const spacingY = 100;
     const canvasWidth = 900;
-
     const startX = this.level===1
       ? (canvasWidth - (cols-1)*spacingX) / 2
       : 200;
-
     const startY = 160;
 
     for(let i=0;i<cardEmojis.length;i++){
       const row = Math.floor(i/cols);
       const col = i % cols;
-
       const x = startX + col*spacingX;
       const y = startY + row*spacingY;
 
@@ -210,30 +207,21 @@ class MainGame extends Phaser.Scene {
 
       card.emoji = cardEmojis[i];
       card.revealed = false;
-
       card.on('pointerdown',()=>this.revealCard(card));
-
       this.cards.push(card);
     }
 
-    // -------------------------
-    // Timer
-    // -------------------------
     this.timerEvent=this.time.addEvent({
       delay:1000,
       loop:true,
       callback:()=>{
         this.timeLeft--;
         this.timerText.setText('⏳ Time: '+this.timeLeft);
-
         if(this.timeLeft <= 0) this.endGame();
       }
     });
   }
 
-  // -------------------------
-  // LOGIQUE DU JEU
-  // -------------------------
   revealCard(card){
     if(card.revealed || this.selected===card) return;
 
@@ -245,10 +233,7 @@ class MainGame extends Phaser.Scene {
     }
     else{
       if(this.selected.emoji === card.emoji){
-
         this.sound.play('click');
-
-        // ---- ANIMATION SCALE ----
         this.tweens.add({
           targets: [this.selected, card],
           scale: { from: 1, to: 1.3 },
@@ -289,10 +274,8 @@ class MainGame extends Phaser.Scene {
 
   endGame(win=false){
     this.timerEvent.remove();
-
     this.add.rectangle(450,300,900,600,0x000000,0.5);
     this.add.text(450,180,win?'Level Complete!':'Time Over!',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-
     createButton(this,450,280,'Restart','#FFFFFF',0xFF6347,()=>{ 
       this.sound.play('click'); 
       this.scene.start('MainMenu'); 

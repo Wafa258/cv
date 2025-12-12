@@ -1,162 +1,147 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>🎮 Emoji Match 🎮</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      background: #1e1e1e;
-    }
-    canvas {
-      display: block;
-      margin: 30px auto;
-      border: 2px solid #000;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>🎮 Emoji Match 🎮</title>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+<style>
+    body { margin: 0; background: #f0f8ff; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    canvas { border: 2px solid #000; }
+</style>
 </head>
 <body>
 
 <script>
+// --- SCENES ---
 class MainMenu extends Phaser.Scene {
-  constructor() { super('MainMenu'); }
+    constructor() { super('MainMenu'); }
+    preload() { this.load.audio('click', 'https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg'); }
+    create() {
+        this.add.rectangle(400,300,800,600,0xc0428a); // fond bleu ciel
+        this.add.text(400,150,'🎮 Emoji Match 🎮',{fontSize:'40px', color:'#008080', fontStyle:'bold'}).setOrigin(0.5);
+        this.add.text(400,150,'🎮 Emoji Match 🎮',{fontSize:'40px', color:'#FFFFFF', fontStyle:'bold'}).setOrigin(0.5);
 
-  create() {
-    this.add.rectangle(400,300,800,600,0x2a0a24);
-    this.add.text(400, 150, '🎮 Emoji Match 🎮', { fontSize: '40px', color: '#EEE', fontStyle: 'bold' }).setOrigin(0.5);
+        // Bouton start
+        const btn = this.add.rectangle(400,400,300,70,0xFF6347).setInteractive({useHandCursor:true});
+        const txt = this.add.text(400,400,'Start Level 1',{fontSize:'32px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
 
-    const btn = this.add.rectangle(400, 400, 300, 70, 0x552222).setInteractive();
-    this.add.text(400, 400, 'Start Level 1', { fontSize: '32px', color: '#EEE', fontStyle: 'bold' }).setOrigin(0.5);
+        btn.on('pointerover',()=>btn.setFillStyle(0xFF4500));
+        btn.on('pointerout',()=>btn.setFillStyle(0xFF6347));
+        btn.on('pointerdown', ()=>{
+            this.sound.play('click');
+            this.scene.start('MainGame',{level:1});
+        });
+    }
+}
 
-    btn.on('pointerdown', () => this.scene.start('MainGame', { level: 1 }));
-  }
+class LevelTransition extends Phaser.Scene {
+    constructor(){ super('LevelTransition'); }
+    init(data){ this.nextLevel=data.level||2; }
+    preload(){ this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg'); }
+    create(){
+        this.add.rectangle(400,300,800,600,0xFFD700); // fond doré
+        this.add.text(400,250,'Félicitations !',{fontSize:'48px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
+        this.add.text(400,320,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'32px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
+
+        const btn = this.add.rectangle(400,400,300,70,0xFF6347).setOrigin(0.5).setInteractive({useHandCursor:true});
+        const txt = this.add.text(400,400,'Level '+this.nextLevel,{fontSize:'32px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+
+        btn.on('pointerover',()=>btn.setFillStyle(0xFF4500));
+        btn.on('pointerout',()=>btn.setFillStyle(0xFF6347));
+        btn.on('pointerdown', ()=>{
+            this.sound.play('click');
+            this.scene.start('MainGame',{level:this.nextLevel});
+        });
+    }
 }
 
 class MainGame extends Phaser.Scene {
-  constructor(){ super('MainGame'); }
-  init(data){ this.level = data.level || 1; }
-
-  create(){
-    this.add.rectangle(400,300,800,600,0x1e1e1e);
-
-    this.score = 0;
-    this.timeLeft = this.level === 1 ? 60 : 90;
-    this.pairs = this.level === 1 ? 8 : 12;
-
-    this.timerText = this.add.text(20, 20, 'Time: ' + this.timeLeft, {
-      fontSize: '32px', color: '#EEE', fontStyle: 'bold'
-    });
-    this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, {
-      fontSize: '32px', color: '#EEE', fontStyle: 'bold'
-    });
-
-    this.emojis = ['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
-
-    // Préparer la liste des emojis
-    let cardEmojis = [];
-    for (let i = 0; i < this.pairs; i++) {
-      cardEmojis.push(this.emojis[i]);
-      cardEmojis.push(this.emojis[i]);
+    constructor() { super('MainGame'); }
+    init(data){ this.level = data.level || 1; }
+    preload() { 
+        this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
+        this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/pop.ogg');
     }
-    Phaser.Utils.Array.Shuffle(cardEmojis);
+    create() {
+        this.add.rectangle(400,300,800,600,0xFFFFE0); // fond jaune clair
 
-    this.cards = [];
-    this.selected = null;
-    this.matched = 0;
+        // --- TEMPS ET PAIRES ---
+        if(this.level===1){ this.timeLeft=60; this.pairs=8; }
+        else{ this.timeLeft=90; this.pairs=12; }
 
-    const cols = 4, startX = 250, startY = 100, spacingX = 100, spacingY = 100;
+        this.score = 0;
+        this.timerText = this.add.text(20,20,'Time: '+this.timeLeft,{fontSize:'32px',color:'#333',fontStyle:'bold'});
+        this.scoreText = this.add.text(550,20,'Found: '+this.score,{fontSize:'32px',color:'#333',fontStyle:'bold'});
 
-    for (let i = 0; i < cardEmojis.length; i++) {
+        // Emojis
+        this.emojisArray=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
+        let cardEmojis=[];
+        for(let i=0;i<this.pairs;i++){ cardEmojis.push(this.emojisArray[i%this.emojisArray.length]); cardEmojis.push(this.emojisArray[i%this.emojisArray.length]); }
+        Phaser.Utils.Array.Shuffle(cardEmojis);
 
-      const row = Math.floor(i / cols), col = i % cols;
-
-      const card = this.add.text(
-        startX + col * spacingX,
-        startY + row * spacingY,
-        '❓',
-        { fontSize: '80px', fontFamily: 'Arial', color: "#EEE" }
-      ).setOrigin(0.5).setInteractive();
-
-      // 🌟 ROGNAGE réel = coupe le haut
-      card.setCrop(0, 25, card.width, card.height);  
-      // ↑ coupe 25px du haut → plus de front ❤️
-
-      card.emoji = cardEmojis[i];
-      card.revealed = false;
-
-      card.on('pointerdown', () => this.revealCard(card));
-
-      this.cards.push(card);
-    }
-
-    // timer
-    this.timeEvent = this.time.addEvent({
-      delay: 1000,
-      loop: true,
-      callback: () => {
-        this.timeLeft--;
-        this.timerText.setText("Time: " + this.timeLeft);
-        if (this.timeLeft <= 0) this.endGame();
-      }
-    });
-  }
-
-  revealCard(card){
-    if (card.revealed || this.selected === card) return;
-
-    card.setText(card.emoji);
-    card.setCrop(0, 25, card.width, card.height); // garder le crop même révélé
-
-    if (!this.selected) {
-      this.selected = card;
-    } else {
-      if (this.selected.emoji === card.emoji) {
-
-        this.selected = null;
-        this.matched++;
-        this.score++;
-        this.scoreText.setText("Found: " + this.score);
-
-        if (this.matched === this.cards.length / 2) {
-          this.endGame(true);
+        this.cards=[];
+        this.selected=null; this.matched=0;
+        const cols=4; const startX=200,startY=150,spacingX=120,spacingY=120;
+        for(let i=0;i<cardEmojis.length;i++){
+            const row=Math.floor(i/cols),col=i%cols;
+            const card=this.add.text(startX+col*spacingX,startY+row*spacingY,'❓',{fontSize:'66px'}).setOrigin(0.5).setInteractive();
+            card.emoji=cardEmojis[i]; card.revealed=false;
+            card.on('pointerdown',()=>this.revealCard(card));
+            this.cards.push(card);
         }
 
-      } else {
-        let first = this.selected;
-        this.selected = null;
-
-        this.time.delayedCall(800, () => {
-          first.setText("❓");
-          first.setCrop(0, 25, first.width, first.height);
-          card.setText("❓");
-          card.setCrop(0, 25, card.width, card.height);
-        });
-      }
+        // Timer
+        this.timerEvent=this.time.addEvent({delay:1000,loop:true,callback:()=>{
+            this.timeLeft--; this.timerText.setText('Time: '+this.timeLeft);
+            if(this.timeLeft<=0)this.endGame();
+        }});
     }
-  }
 
-  endGame(win = false){
-    this.timeEvent.remove();
-    this.add.rectangle(400,300,800,600,0x000000,0.6);
-    this.add.text(400,250, win ? "Level Complete!" : "Time Over!",
-    { fontSize:'48px', color:'#FFF', fontStyle:'bold' }).setOrigin(0.5);
+    revealCard(card){
+        if(card.revealed||this.selected===card)return;
+        card.setText(card.emoji);
+        if(!this.selected){ this.selected=card; } 
+        else{
+            if(this.selected.emoji===card.emoji){
+                this.selected=null;
+                this.matched++; this.score++; this.scoreText.setText('Found: '+this.score);
+                this.sound.play('click'); // son gagné
+                if(this.matched===this.cards.length/2){
+                    if(this.level===1)this.scene.start('LevelTransition',{level:2});
+                    else this.endGame(true);
+                }
+            } else{
+                const first=this.selected; this.selected=null;
+                this.time.delayedCall(800,()=>{first.setText('❓');card.setText('❓');},[],this);
+                 this.sound.play('match'); // son perdu
+            }
+        }
+    }
 
-    const btn = this.add.rectangle(400,350,300,70,0x552222).setInteractive();
-    this.add.text(400,350,'Restart',
-      { fontSize:'32px', color:'#EEE', fontStyle:'bold' }).setOrigin(0.5);
+    endGame(win=false){
+        this.timerEvent.remove();
+        const overlay=this.add.rectangle(400,300,800,600,0x000000,0.5);
+        const msgText=this.add.text(400,250,win?'Level Complete!':'Time Over!',{fontSize:'48px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
 
-    btn.on('pointerdown', ()=> this.scene.start('MainMenu'));
-  }
+        const btnBg=this.add.rectangle(400,350,300,70,0xFF6347).setOrigin(0.5).setInteractive({useHandCursor:true});
+        const btnText=this.add.text(400,350,'Restart',{fontSize:'32px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+        btnBg.on('pointerover',()=>btnBg.setFillStyle(0xFF4500));
+        btnBg.on('pointerout',()=>btnBg.setFillStyle(0xFF6347));
+        btnBg.on('pointerdown',()=>{ this.scene.start('MainMenu'); this.sound.play('click'); });
+    }
 }
 
-new Phaser.Game({
-  type: Phaser.AUTO,
-  width: 800,
-  height: 600,
-  scene: [MainMenu, MainGame]
-});
-</script>
+// --- CONFIG ---
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    parent: document.body,
+    scene: [MainMenu,LevelTransition,MainGame]
+};
 
+// --- START GAME ---
+new Phaser.Game(config);
+</script>
 </body>
 </html>

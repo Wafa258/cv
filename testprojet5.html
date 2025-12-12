@@ -75,7 +75,8 @@ class MainMenu extends Phaser.Scene {
     this.add.text(450,60,'🎮 Card Match 🎮',{fontSize:'36px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
 
     // Texte thème
-    this.add.text(450,150,'Choose your theme :',{fontSize:'28px',color:'#fff' ,fontStyle:'bold}).setOrigin(0.5);
+    this.add.text(450,150,'Choisis ton thème :',{fontSize:'28px',color:'#fff'}).setOrigin(0.5);
+    this.add.text(450,150,'Choose your theme :',{fontSize:'28px',color:'#fff'}).setOrigin(0.5);
 
     // Définir thèmes
     this.selectedTheme = null;
@@ -87,10 +88,10 @@ class MainMenu extends Phaser.Scene {
     ];
 
     // Espacement et position des boutons thème
-    const startX = 150;
+    const startX = 220;
     const startY = 190;
-    const spacingX = 200;
-    const spacingY = 210;
+    const spacingX = 280;
+    const spacingY = 190;
 
     themes.forEach((t,i)=>{
       const row = Math.floor(i/2);

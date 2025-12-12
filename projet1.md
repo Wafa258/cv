@@ -41,4 +41,3 @@ Le jeu intègre :
 
 - un son de clic  
 - un son lors d'une mauvaise paire  
-- une musique d’ambiance en b

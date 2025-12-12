@@ -129,11 +129,13 @@ class MainGame extends Phaser.Scene {
     this.selected = null;
     this.matched = 0;
 
-    // 🔥 Centrer niveau 1
+    // 🔥 Centrer niveau 1 correctement
     const cols = this.level === 1 ? 4 : 5; 
     const spacingX = 100;
     const spacingY = 100;
-    const startX = this.level === 1 ? (800 - (cols - 1) * spacingX) / 2 : 200;
+    const cardWidth = 58; // correspond à fontSize
+    const totalWidth = (cols - 1) * spacingX + cardWidth;
+    const startX = this.level === 1 ? (800 - totalWidth) / 2 + cardWidth / 2 : 200;
     const startY = 100;
 
     for (let i = 0; i < cardEmojis.length; i++) {

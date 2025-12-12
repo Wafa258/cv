@@ -27,7 +27,7 @@ function createButton(scene, x, y, width, height, color, text, callback) {
   btn.on('pointerover', () => {
     scene.tweens.add({
       targets: btn,
-      scale: 1.1,
+      scale: 1.05, // effet plus léger
       duration: 200,
       yoyo: true,
       repeat: -1
@@ -100,9 +100,8 @@ class MainGame extends Phaser.Scene {
     this.score = 0;
     this.matched = 0;
 
-    this.timerText = this.add.text(20, 20, '⏳ Time: ' + this.timeLeft, { fontSize: '32px', color: '#333', fontStyle: 'bold' }).setDepth(5);
-    this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, { fontSize: '32px', color: '#333', fontStyle: 'bold' }).setDepth(5);
-    this.remainingText = this.add.text(550, 60, 'Pairs left: ' + this.pairs + ' 🧩', { fontSize: '28px', color: '#333', fontStyle: 'bold' }).setDepth(5);
+    this.timerText = this.add.text(20, 20, '⏳ Time: ' + this.timeLeft, { fontSize: '24px', color: '#333', fontStyle: 'bold' }).setDepth(5);
+    this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, { fontSize: '24px', color: '#333', fontStyle: 'bold' }).setDepth(5);
 
     this.emojis = ['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
     let cardEmojis = [];
@@ -194,7 +193,6 @@ class MainGame extends Phaser.Scene {
         this.matched++;
         this.score++;
         this.scoreText.setText('Found: ' + this.score);
-        this.remainingText.setText('Pairs left: ' + (this.pairs - this.matched) + ' 🧩');
 
         if (this.matched === this.cards.length/2){
           if (this.level < levels.length) this.scene.start('LevelTransition', { level:this.level+1 });
@@ -205,13 +203,13 @@ class MainGame extends Phaser.Scene {
         this.selected = null;
         this.sound.play('match');
 
-        // Shake animation pour mauvaise paire
+        // Shake léger pour mauvaise paire
         this.tweens.add({
           targets: [first, card],
-          x: '+=10',
+          x: '+=8',
           duration: 50,
           yoyo: true,
-          repeat: 3,
+          repeat: 2,
           onComplete: () => {
             first.setText('❓'); first.revealed=false;
             card.setText('❓'); card.revealed=false;

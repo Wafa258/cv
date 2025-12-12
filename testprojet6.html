@@ -160,7 +160,7 @@ class MainGame extends Phaser.Scene {
     this.nightBtn = createButton(this, 800, 70, '🌙', '#FFF', 0x333, ()=>{
         nightMode = !nightMode;
         this.updateNightMode();
-    }, '32px');
+    }, '24px'); // bouton plus petit
 
     // -------------------------
     // Timer et score
@@ -242,7 +242,7 @@ class MainGame extends Phaser.Scene {
 
   updateNightMode(){
     if(nightMode){
-      this.background.setFillStyle(0x111111);
+      this.background.setFillStyle(0x0D1B2A); // bleu foncé
       this.cards.forEach(c => c.setColor('#0ff'));
       this.timerText.setColor('#0ff');
       this.scoreText.setColor('#0ff');

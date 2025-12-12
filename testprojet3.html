@@ -113,7 +113,8 @@ class MainGame extends Phaser.Scene {
     this.timeLeft = this.level === 1 ? 60 : 90;
     this.pairs = this.level === 1 ? 8 : 12;
 
-    this.timerText = this.add.text(20, 20, 'Time: ' + this.timeLeft, { fontSize: '32px', color: '#333', fontStyle: 'bold' }).setDepth(5);
+    // Timer avec emoji dès le début
+    this.timerText = this.add.text(20, 20, '⏳ Time: ' + this.timeLeft, { fontSize: '32px', color: '#333', fontStyle: 'bold' }).setDepth(5);
     this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, { fontSize: '32px', color: '#333', fontStyle: 'bold' }).setDepth(5);
 
     this.emojis = ['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
@@ -168,24 +169,22 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    // Timer amélioré avec clignotement rapide et rouge immédiat
-    this.clignotementTween = null; // stocke le tween de clignotement
+    // Timer avec clignotement rapide et rouge quand <10s
+    this.clignotementTween = null;
     this.timerEvent = this.time.addEvent({
       delay: 1000,
       loop: true,
       callback: () => {
         this.timeLeft--;
-        let prefix = '';
-        if (this.timeLeft <= 10) prefix = '⏳ ';
-        this.timerText.setText(prefix + 'Time: ' + this.timeLeft);
+        this.timerText.setText('⏳ Time: ' + this.timeLeft);
 
         if (this.timeLeft === 10) {
-          // démarrage du clignotement rapide et couleur rouge
+          // rouge + clignotement rapide
           this.timerText.setColor('#FF0000');
           this.clignotementTween = this.tweens.add({
             targets: this.timerText,
             alpha: 0,
-            duration: 250, // clignotement rapide
+            duration: 250,
             yoyo: true,
             repeat: -1
           });

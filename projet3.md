@@ -17,7 +17,7 @@ Les boutons suivants ont été améliorés :
 “Restart” à la fin du jeu.
 
 Effets au hover :
-Scale / agrandissement léger pour donner un feedback visuel.
+Scale / agrandissement léger au survol.
 Glow / contour jaune autour du bouton pour attirer l’œil.
 L’effet est réversible : quand la souris quitte le bouton, il redevient normal.
 L’animation est fluide et répétitive (pulsation légère).

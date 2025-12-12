@@ -18,7 +18,6 @@ const levels = [
   { time: 120, pairs: 15 }
 ];
 
-// Fonction pour créer un bouton simple (texte interactif)
 function createTextButton(scene, x, y, text, color, callback){
   const btnText = scene.add.text(x, y, text, { fontSize:'28px', fontStyle:'bold', color:color }).setOrigin(0.5).setInteractive({useHandCursor:true});
   btnText.on('pointerdown', callback);
@@ -27,7 +26,6 @@ function createTextButton(scene, x, y, text, color, callback){
   return btnText;
 }
 
-// Préchargement
 class PreloadScene extends Phaser.Scene {
   constructor(){ super('PreloadScene'); }
   preload(){
@@ -38,41 +36,38 @@ class PreloadScene extends Phaser.Scene {
   create(){ this.scene.start('MainMenu'); }
 }
 
-// Menu principal
 class MainMenu extends Phaser.Scene {
   constructor(){ super('MainMenu'); }
   create(){
-    this.add.rectangle(400,275,800,550,0xE800F0);
-    this.add.text(400,120,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    createTextButton(this,400,350,'Start Level 1','#FFFFFF',()=>{ 
+    this.add.rectangle(450,300,900,600,0xE800F0);
+    this.add.text(450,130,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+    createTextButton(this,450,360,'Start Level 1','#FFFFFF',()=>{ 
       this.sound.play('click'); 
       this.scene.start('MainGame',{level:1}); 
     });
   }
 }
 
-// Transition de niveau
 class LevelTransition extends Phaser.Scene {
   constructor(){ super('LevelTransition'); }
   init(data){ this.nextLevel = data.level || 2; }
   create(){
-    this.add.rectangle(400,275,800,550,0xEA5EF2);
-    this.add.text(400,180,'Félicitations🥳',{fontSize:'44px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
-    this.add.text(400,240,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'28px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
-    createTextButton(this,400,330,'Level '+this.nextLevel,'#FFFFFF',()=>{ 
+    this.add.rectangle(450,300,900,600,0xEA5EF2);
+    this.add.text(450,180,'Félicitations🥳',{fontSize:'44px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
+    this.add.text(450,250,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'28px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
+    createTextButton(this,450,350,'Level '+this.nextLevel,'#FFFFFF',()=>{ 
       this.sound.play('click'); 
       this.scene.start('MainGame',{level:this.nextLevel}); 
     });
   }
 }
 
-// Jeu principal
 class MainGame extends Phaser.Scene {
   constructor(){ super('MainGame'); }
   init(data){ this.level = data.level || 1; }
 
   create(){
-    this.add.rectangle(400,275,800,550,0xDDB8F2);
+    this.add.rectangle(450,300,900,600,0xDDB8F2);
     const levelData = levels[this.level-1] || levels[0];
     this.timeLeft = levelData.time;
     this.pairs = levelData.pairs;
@@ -80,12 +75,10 @@ class MainGame extends Phaser.Scene {
     this.matched = 0;
     this.selected = null;
 
-    // Timer et score
     this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'20px',color:'#333',fontStyle:'bold'});
-    this.scoreText = this.add.text(600,20,'Found: '+this.score,{fontSize:'20px',color:'#333',fontStyle:'bold'});
+    this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'20px',color:'#333',fontStyle:'bold'});
 
-    // Musique
-    const musicIcon = this.add.text(730,20,'🔊',{fontSize:'22px',color:'#333'}).setInteractive();
+    const musicIcon = this.add.text(850,20,'🔊',{fontSize:'22px',color:'#333'}).setInteractive();
     musicIcon.on('pointerdown',()=>{
       this.sound.unlock();
       if(!this.game.bgMusic){
@@ -96,8 +89,7 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    // Pause bouton
-    this.pauseText = this.add.text(730,60,'⏸️',{fontSize:'22px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
+    this.pauseText = this.add.text(850,60,'⏸️',{fontSize:'22px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
     this.pauseText.on('pointerdown',()=>{
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this});
@@ -105,7 +97,6 @@ class MainGame extends Phaser.Scene {
     this.pauseText.on('pointerover',()=>this.pauseText.setColor('#FF85C1'));
     this.pauseText.on('pointerout',()=>this.pauseText.setColor('#F2509B'));
 
-    // Préparer les cartes
     this.emojis=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
     let cardEmojis=[];
     for(let i=0;i<this.pairs;i++) cardEmojis.push(this.emojis[i%this.emojis.length],this.emojis[i%this.emojis.length]);
@@ -114,25 +105,36 @@ class MainGame extends Phaser.Scene {
     this.cards=[];
     const cols = Math.ceil(Math.sqrt(this.pairs*2));
     const rows = Math.ceil((this.pairs*2)/cols);
-    const spacingX = 700/cols;
-    const spacingY = 400/rows;
-    const offsetX = 50 + spacingX/2;
-    const offsetY = 100 + spacingY/2;
+    const cardSize = 64;
+    const spacing = 15; // espacement modéré
+    const totalWidth = cols*cardSize + (cols-1)*spacing;
+    const totalHeight = rows*cardSize + (rows-1)*spacing;
+    const startX = 450 - totalWidth/2 + cardSize/2;
+    const startY = 160;
 
     for(let i=0;i<cardEmojis.length;i++){
       const row=Math.floor(i/cols);
       const col=i%cols;
-      const card=this.add.text(offsetX+col*spacingX,offsetY+row*spacingY,'❓',{fontSize:'64px',fontFamily:'Arial'}).setOrigin(0.5).setInteractive();
+      const x = startX + col*(cardSize+spacing);
+      const y = startY + row*(cardSize+spacing);
+      const card=this.add.text(x,y,'❓',{fontSize:cardSize+'px',fontFamily:'Arial'}).setOrigin(0.5).setInteractive();
       card.emoji=cardEmojis[i]; card.revealed=false;
       card.on('pointerdown',()=>this.revealCard(card));
       this.cards.push(card);
     }
 
-    // Timer
+    // Timer avec rouge à <10s
+    this.clignotementTween=null;
     this.timerEvent=this.time.addEvent({delay:1000,loop:true,callback:()=>{
       this.timeLeft--;
       this.timerText.setText('⏳ Time: '+this.timeLeft);
-      if(this.timeLeft<=0) this.endGame();
+
+      if(this.timeLeft <= 10 && !this.clignotementTween){
+        this.timerText.setColor('#FF0000');
+        this.clignotementTween=this.tweens.add({targets:this.timerText,alpha:0,duration:300,yoyo:true,repeat:-1});
+      }
+
+      if(this.timeLeft <= 0) this.endGame();
     }});
   }
 
@@ -169,33 +171,31 @@ class MainGame extends Phaser.Scene {
   }
 
   endGame(win=false){
+    if(this.clignotementTween) this.clignotementTween.stop();
     this.timerEvent.remove();
-    this.add.rectangle(400,275,800,550,0x000000,0.5);
-    this.add.text(400,180,win?'Level Complete!':'Time Over!',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    createTextButton(this,400,280,'Restart','#FFFFFF',()=>{ 
+    this.add.rectangle(450,300,900,600,0x000000,0.5);
+    this.add.text(450,180,win?'Level Complete!':'Time Over!',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+    createTextButton(this,450,280,'Restart','#FFFFFF',()=>{ 
       this.sound.play('click'); 
       this.scene.start('MainMenu'); 
     });
   }
 }
 
-// Pause
 class PauseScene extends Phaser.Scene{
   constructor(){ super('PauseScene'); }
   init(data){ this.parent=data.parent; }
   create(){
-    this.add.rectangle(400,275,800,550,0x000000,0.5);
-    this.add.text(400,180,'Paused',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    // Resume en bas, sans fond
-    createTextButton(this,400,500,'▶ Resume','#F2509B',()=>{this.scene.stop(); this.parent.scene.resume();});
+    this.add.rectangle(450,300,900,600,0x000000,0.5);
+    this.add.text(450,180,'Paused',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+    createTextButton(this,450,550,'▶ Resume','#F2509B',()=>{this.scene.stop(); this.parent.scene.resume();});
   }
 }
 
-// Config
 const config={
   type: Phaser.AUTO,
-  width:800,
-  height:550,
+  width:900,
+  height:600,
   scene:[PreloadScene,MainMenu,LevelTransition,MainGame,PauseScene]
 };
 

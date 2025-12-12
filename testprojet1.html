@@ -7,7 +7,7 @@
   <style>
     body {
       margin: 0;
-      background: #f0f8ff;
+      background: #1e1e1e;
     }
     canvas {
       display: block;
@@ -22,24 +22,19 @@
 class MainMenu extends Phaser.Scene {
   constructor() { super('MainMenu'); }
 
-  preload() {
-    this.load.audio('click', 'https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-  }
+  preload() {}
 
   create() {
-    this.add.rectangle(400,300,800,600,0xc0428a);
-    this.add.text(400, 150, '🎮 Emoji Match 🎮', { fontSize: '40px', color: '#FFF', fontStyle: 'bold' }).setOrigin(0.5);
+    this.add.rectangle(400,300,800,600,0x2a0a24);
+    this.add.text(400, 150, '🎮 Emoji Match 🎮', { fontSize: '40px', color: '#EEE', fontStyle: 'bold' }).setOrigin(0.5);
 
-    const btn = this.add.rectangle(400, 400, 300, 70, 0xFF6347).setInteractive({ useHandCursor: true });
-    const btnText = this.add.text(400, 400, 'Start Level 1', { fontSize: '32px', color: '#FFF', fontStyle: 'bold' }).setOrigin(0.5);
-    btn.setDepth(1);
-    btnText.setDepth(2);
+    const btn = this.add.rectangle(400, 400, 300, 70, 0x552222).setInteractive({ useHandCursor: true });
+    const btnText = this.add.text(400, 400, 'Start Level 1', { fontSize: '32px', color: '#EEE', fontStyle: 'bold' }).setOrigin(0.5);
 
-    btn.on('pointerover', () => btn.setFillStyle(0xFF4500));
-    btn.on('pointerout', () => btn.setFillStyle(0xFF6347));
+    btn.on('pointerover', () => btn.setFillStyle(0x663333));
+    btn.on('pointerout', () => btn.setFillStyle(0x552222));
 
     btn.on('pointerdown', () => {
-      this.sound.play('click');
       this.scene.start('MainGame', { level: 1 });
     });
   }
@@ -49,22 +44,20 @@ class LevelTransition extends Phaser.Scene {
   constructor(){ super('LevelTransition'); }
   init(data) { this.nextLevel = data.level || 2; }
 
-  preload(){
-    this.load.audio('click', 'https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-  }
+  preload(){}
 
   create(){
-    this.add.rectangle(400,300,800,600,0xFFD700);
-    this.add.text(400,250,'Félicitations !', { fontSize:'48px', color:'#FF4500', fontStyle:'bold' }).setOrigin(0.5);
-    this.add.text(400,320,'Jouez au niveau '+this.nextLevel+' !', { fontSize:'32px', color:'#000', fontStyle:'bold' }).setOrigin(0.5);
+    this.add.rectangle(400,300,800,600,0x333300);
+    this.add.text(400,250,'Félicitations !', { fontSize:'48px', color:'#FFDD55', fontStyle:'bold' }).setOrigin(0.5);
+    this.add.text(400,320,'Jouez au niveau '+this.nextLevel+' !', { fontSize:'32px', color:'#EEE', fontStyle:'bold' }).setOrigin(0.5);
 
-    const btn = this.add.rectangle(400,400,300,70,0xFF6347).setInteractive({ useHandCursor: true });
-    const txt = this.add.text(400,400,'Level '+this.nextLevel, { fontSize:'32px', color:'#FFF', fontStyle:'bold' }).setOrigin(0.5);
+    const btn = this.add.rectangle(400,400,300,70,0x552222).setInteractive({ useHandCursor: true });
+    const txt = this.add.text(400,400,'Level '+this.nextLevel, { fontSize:'32px', color:'#EEE', fontStyle:'bold' }).setOrigin(0.5);
 
-    btn.on('pointerover', () => btn.setFillStyle(0xFF4500));
-    btn.on('pointerout', () => btn.setFillStyle(0xFF6347));
+    btn.on('pointerover', () => btn.setFillStyle(0x663333));
+    btn.on('pointerout', () => btn.setFillStyle(0x552222));
+
     btn.on('pointerdown', () => {
-      this.sound.play('click');
       this.scene.start('MainGame', { level: this.nextLevel });
     });
   }
@@ -74,21 +67,17 @@ class MainGame extends Phaser.Scene {
   constructor(){ super('MainGame'); }
   init(data){ this.level = data.level || 1; }
 
-  preload(){
-    this.load.audio('click', 'https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-    this.load.audio('match', 'https://actions.google.com/sounds/v1/cartoon/pop.ogg');
-    this.load.audio('bgMusic', 'https://wafa258.github.io/cv/xmas.mp3');
-  }
+  preload(){}
 
   create(){
-    this.add.rectangle(400,300,800,600,0xFFFFE0);
+    this.add.rectangle(400,300,800,600,0x1e1e1e);
 
     this.score = 0;
     this.timeLeft = this.level === 1 ? 60 : 90;
     this.pairs = this.level === 1 ? 8 : 12;
 
-    this.timerText = this.add.text(20, 20, 'Time: ' + this.timeLeft, { fontSize: '32px', color: '#333', fontStyle: 'bold' }).setDepth(5);
-    this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, { fontSize: '32px', color: '#333', fontStyle: 'bold' }).setDepth(5);
+    this.timerText = this.add.text(20, 20, 'Time: ' + this.timeLeft, { fontSize: '32px', color: '#EEE', fontStyle: 'bold' }).setDepth(5);
+    this.scoreText = this.add.text(550, 20, 'Found: ' + this.score, { fontSize: '32px', color: '#EEE', fontStyle: 'bold' }).setDepth(5);
 
     this.emojis = ['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
     let cardEmojis = [];
@@ -109,32 +98,27 @@ class MainGame extends Phaser.Scene {
         startX + col * spacingX,
         startY + row * spacingY + 5,
         '❓',
-        { fontSize: '58px', fontFamily: 'Arial', padding: { top: 10, bottom: 10 } }
+        { fontSize: '58px', fontFamily: 'Arial', color: "#EEE" }
       ).setOrigin(0.5).setInteractive().setDepth(4);
+
+      // Ajout du masque pour couper le haut des emojis
+      let maskShape = this.add.rectangle(
+        card.x,
+        card.y + 10, // décale le masque pour couper la partie haute
+        58,
+        35,  // plus petit = plus coupé
+        0xffffff
+      ).setVisible(false);
+
+      let mask = maskShape.createBitmapMask();
+      card.setMask(mask);
+
       card.emoji = cardEmojis[i];
       card.revealed = false;
       card.on('pointerdown', () => this.revealCard(card));
+
       this.cards.push(card);
     }
-
-    // Icône musique
-    const musicIcon = this.add.text(750, 30, '🔊', { fontSize: '32px', color: '#333' })
-      .setInteractive({ useHandCursor: true })
-      .setOrigin(0.5)
-      .setDepth(6);
-
-    musicIcon.on('pointerdown', () => {
-      // Forcer le déblocage audio
-      this.sound.unlock();
-
-      if (!this.game.bgMusic) {
-        this.game.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.4 });
-        this.game.bgMusic.play();
-      } else {
-        if (this.game.bgMusic.isPlaying) this.game.bgMusic.pause();
-        else this.game.bgMusic.resume();
-      }
-    });
 
     this.timerEvent = this.time.addEvent({
       delay: 1000,
@@ -159,7 +143,7 @@ class MainGame extends Phaser.Scene {
         this.matched++;
         this.score++;
         this.scoreText.setText('Found: ' + this.score);
-        this.sound.play('click');
+
         if (this.matched === this.cards.length / 2) {
           if (this.level === 1) this.scene.start('LevelTransition', { level: 2 });
           else this.endGame(true);
@@ -171,28 +155,26 @@ class MainGame extends Phaser.Scene {
           first.setText('❓');
           card.setText('❓');
         }, [], this);
-        this.sound.play('match');
       }
     }
   }
 
   endGame(win = false) {
     this.timerEvent.remove();
-    this.add.rectangle(400,300,800,600,0x000000,0.5);
+    this.add.rectangle(400,300,800,600,0x000000,0.6);
     this.add.text(400,250, win ? 'Level Complete!' : 'Time Over!', { fontSize: '48px', color: '#FFF', fontStyle: 'bold' })
       .setOrigin(0.5).setDepth(10);
 
-    const btnBg = this.add.rectangle(400,350,300,70,0xFF6347)
+    const btnBg = this.add.rectangle(400,350,300,70,0x552222)
       .setInteractive({ useHandCursor: true })
       .setDepth(11);
-    const btnText = this.add.text(400,350,'Restart', { fontSize: '32px', color: '#FFF', fontStyle: 'bold' })
+    const btnText = this.add.text(400,350,'Restart', { fontSize: '32px', color: '#EEE', fontStyle: 'bold' })
       .setOrigin(0.5).setDepth(12);
 
-    btnBg.on('pointerover', ()=> btnBg.setFillStyle(0xFF4500));
-    btnBg.on('pointerout', ()=> btnBg.setFillStyle(0xFF6347));
+    btnBg.on('pointerover', ()=> btnBg.setFillStyle(0x663333));
+    btnBg.on('pointerout', ()=> btnBg.setFillStyle(0x552222));
     btnBg.on('pointerdown', () => {
       this.scene.start('MainMenu');
-      this.sound.play('click');
     });
   }
 }
@@ -209,4 +191,3 @@ new Phaser.Game(config);
 
 </body>
 </html>
-

@@ -1,3 +1,75 @@
+<div class="projet-container">
+  <h2>🎮 Emoji Match 🎮</h2>
+
+  <p>Emoji Match est un jeu de mémoire où le joueur doit retrouver des paires d’emojis identiques dans une grille.
+  La grille contient 16 emojis disposés aléatoirement, et le but est de cliquer sur deux emojis pour découvrir s’ils forment une paire.</p>
+
+  <p>C’est un jeu simple mais addictif qui teste la mémoire et la rapidité du joueur.</p>
+
+  <div class="emoji-row">
+    <span>😀</span>
+    <span>😎</span>
+    <span>🎯</span>
+    <span>🎲</span>
+    <span>🕹️</span>
+  </div>
+
+<a href="testprojet.html" id="bouton">PLAY</a>
+  
+</div>
+
+<style>
+.projet-container {
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 30px;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb, #a1c4fd); /* dégradé joyeux et coloré */
+  border-radius: 20px;
+  color: #333333; /* texte foncé pour plus de lisibilité */
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.projet-container h2 {
+  font-size: 3em;
+  margin-bottom: 20px;
+  text-shadow: 1px 1px 3px rgba(255,255,255,0.6); /* léger contour pour le titre */
+}
+
+.projet-container p {
+  font-size: 1.2em;
+  margin: 15px 0;
+  line-height: 1.6;
+}
+
+.emoji-row {
+  margin-top: 30px;
+  font-size: 2.5em;
+}
+
+.emoji-row span {
+  margin: 0 10px;
+  display: inline-block;
+  animation: bounce 1.2s infinite;
+}
+
+a#bouton {
+  display:block;
+  background:#c0428a;
+  width:100px;
+  color:#FFF;
+  margin:auto;
+  text-decoration:none;
+  padding:10px;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+</style>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>

@@ -43,4 +43,5 @@ Le jeu intègre :
 
 ## Contribution de l'IA et Assistance
 Outil utilisé : ChatGPT
+
 Défi : Le résultat de l'IA avait beaucoup de fautes, j'ai du corriger le code moi même dans la version 2. 

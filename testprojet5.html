@@ -13,12 +13,14 @@
 
 <script>
 
-// ---------- Utilitaire pour créer un bouton ----------
+// ---------- Utilitaire pour créer un bouton avec largeur dynamique ----------
 function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28px'){
-  const container = scene.add.container(x, y);
-  const rect = scene.add.rectangle(0,0,250,60,bgColor,0.8).setStrokeStyle(3,0xFFFFFF);
   const btnText = scene.add.text(0,0,text,{fontSize:fontSize,fontStyle:'bold',color:color}).setOrigin(0.5);
-  container.add([rect,btnText]);
+  const rectWidth = btnText.width + 40; // largeur dynamique selon texte
+  const rectHeight = btnText.height + 20;
+  const rect = scene.add.rectangle(0,0,rectWidth,rectHeight,bgColor,0.8).setStrokeStyle(3,0xFFFFFF);
+
+  const container = scene.add.container(x, y, [rect, btnText]);
   container.setSize(rect.width, rect.height);
   container.setInteractive({useHandCursor:true})
            .on('pointerdown', callback)
@@ -85,9 +87,9 @@ class MainMenu extends Phaser.Scene {
     ];
 
     // Espacement et position des boutons thème
-    const startX = 180;
+    const startX = 220;
     const startY = 180;
-    const spacingX = 300;
+    const spacingX = 250;
     const spacingY = 100;
 
     themes.forEach((t,i)=>{
@@ -107,8 +109,8 @@ class MainMenu extends Phaser.Scene {
       });
     });
 
-    // Bouton Start Level 1
-    createButton(this,450,420,'Start Level 1','#FFFFFF',0x0000FF,()=>{
+    // Bouton Start Level 1 (couleur originale)
+    createButton(this,450,420,'Start Level 1','#FFFFFF',0xF2509B,()=>{
       if(!this.selectedTheme){
         alert('Veuillez choisir un thème avant de commencer !');
         return;
@@ -118,6 +120,7 @@ class MainMenu extends Phaser.Scene {
   }
 }
 
+// ---------- Les autres scènes restent identiques ----------
 class LevelTransition extends Phaser.Scene {
   constructor(){ super('LevelTransition'); }
   init(data){ this.nextLevel = data.level || 2; this.theme = data.theme; }
@@ -148,7 +151,6 @@ class MainGame extends Phaser.Scene {
     this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#333',fontStyle:'bold'});
     this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#333',fontStyle:'bold'});
 
-    // Icônes en bas
     const bottomY = 550;
     this.musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'40px',color:'#333'}).setOrigin(0.5).setInteractive();
     this.musicIcon.on('pointerdown',()=>{
@@ -169,7 +171,7 @@ class MainGame extends Phaser.Scene {
     this.pauseText.on('pointerover',()=>this.pauseText.setColor('#FF85C1'));
     this.pauseText.on('pointerout',()=>this.pauseText.setColor('#F2509B'));
 
-    // Définir cartes selon thème
+    // Cartes selon thème
     if(this.theme==='emoji'){
       this.cardEmojis=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
     } else if(this.theme==='animals'){
@@ -180,7 +182,6 @@ class MainGame extends Phaser.Scene {
       this.cardEmojis=['star1','star2','star3','star4'];
     }
 
-    // Créer les paires et mélanger
     let cardEmojis=[];
     for(let i=0;i<this.pairs;i++) cardEmojis.push(this.cardEmojis[i%this.cardEmojis.length],this.cardEmojis[i%this.cardEmojis.length]);
     Phaser.Utils.Array.Shuffle(cardEmojis);

@@ -4,147 +4,211 @@
 <meta charset="UTF-8">
 <title>🎮 Emoji Match Futuriste 🎮</title>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
 <style>
-  body { margin: 0; background: #D8B4FF; display:flex; justify-content:center; align-items:center; height:100vh;}
-  canvas { border: 2px solid #FFD700; }
+  body { margin: 0; background: #C36EFF; display:flex; justify-content:center; align-items:center; height:100vh; }
+  canvas { border: 2px solid #000; }
 </style>
 </head>
 <body>
 
 <script>
-// ---------- Utilitaire pour créer un bouton futuriste ----------
-function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28px'){
-  const btnText = scene.add.text(0,0,text,{fontSize:fontSize,fontStyle:'bold',color:color,fontFamily:'Orbitron'}).setOrigin(0.5);
-  const rectWidth = btnText.width + 40;
-  const rectHeight = btnText.height + 20;
-  const rect = scene.add.rectangle(0,0,rectWidth,rectHeight,bgColor,0.9).setStrokeStyle(3,0xFFD700);
+let selectedTheme = "emoji"; // thème par défaut
 
-  const container = scene.add.container(x, y, [rect, btnText]);
-  container.setSize(rect.width, rect.height);
-  container.setInteractive({useHandCursor:true})
-           .on('pointerdown', callback)
-           .on('pointerover', ()=>scene.tweens.add({targets:container,scale:1.05,duration:150,yoyo:true}))
-           .on('pointerout', ()=>container.setScale(1));
-  return container;
-}
+// --- LES THÈMES EN ÉMOJIS ---
+const THEMES = {
+  emoji: ['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'],
 
-// ---------- Données des niveaux ----------
+  animals: ['🐶','🐱','🦁','🐯','🐭','🐹','🐰','🐻','🐼','🐨','🐸','🐵','🐧','🐦','🐤','🦊'],
+
+  fruits: ['🍎','🍌','🍇','🍉','🍓','🍒','🍑','🍍','🥝','🥥','🍅','🥕','🥦','🌽','🍆','🍐'],
+
+  sport: ['⚽','🏀','🏈','⚾','🎾','🏓','🏒','🥊','🎱','🤿','🥋','⛷️','🏄','🚴','⛳','🥅']
+};
+
 const levels = [
   { time: 60, pairs: 8 },
   { time: 90, pairs: 12 },
   { time: 120, pairs: 15 }
 ];
 
-// ---------- Scènes ----------
+// --- CREATION DES BOUTONS ---
+function createButton(scene, x, y, text, callback){
+  const bg = scene.add.rectangle(x,y,260,70,0xF8D6FF).setStrokeStyle(4,0xFFFFFF);
+  const txt = scene.add.text(x,y,text,{fontSize:'26px',fontStyle:'bold',color:'#000'}).setOrigin(0.5);
+
+  bg.setInteractive({useHandCursor:true})
+    .on('pointerdown', callback)
+    .on('pointerover',()=> bg.setFillStyle(0xFFD8FB))
+    .on('pointerout',()=> bg.setFillStyle(0xF8D6FF));
+
+  return {bg,txt};
+}
+
+// --- PRELOAD ---
 class PreloadScene extends Phaser.Scene {
   constructor(){ super('PreloadScene'); }
   preload(){
     this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
     this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/pop.ogg');
-    this.load.audio('bgMusic','https://wafa258.github.io/cv/xmas.mp3');
-
-    // Images cartes thème animaux
-    this.load.image('lion','https://cdn.pixabay.com/photo/2016/03/31/15/54/lion-1299620_1280.png');
-    this.load.image('dog','https://cdn.pixabay.com/photo/2014/04/03/10/32/dog-311592_1280.png');
-    this.load.image('cat','https://cdn.pixabay.com/photo/2017/02/20/18/03/cat-2083492_1280.png');
-    this.load.image('elephant','https://cdn.pixabay.com/photo/2017/02/01/22/02/elephant-2032548_1280.png');
-
-    // Images cartes thème fruits
-    this.load.image('apple','https://i.imgur.com/1An1bbZ.png');
-    this.load.image('banana','https://i.imgur.com/cwYrx2q.png');
-    this.load.image('cherry','https://i.imgur.com/5zQaoOW.png');
-    this.load.image('orange','https://i.imgur.com/6plMx7b.png');
-
-    // Images cartes thème célébrités
-    this.load.image('star1','https://i.imgur.com/3Njp5lu.png');
-    this.load.image('star2','https://i.imgur.com/1kQLP1I.png');
-    this.load.image('star3','https://i.imgur.com/u4pSo3c.png');
-    this.load.image('star4','https://i.imgur.com/64OWx4L.png');
-
-    // Image dos de carte
-    this.load.image('backCard','https://i.imgur.com/NrJ6F7r.png');
   }
   create(){ this.scene.start('MainMenu'); }
 }
 
+// --- MENU PRINCIPAL ---
 class MainMenu extends Phaser.Scene {
   constructor(){ super('MainMenu'); }
+
   create(){
-    this.add.rectangle(450,300,900,600,0xD8B4FF); // fond violet clair
-    this.add.text(450,60,'🎮 Emoji Match 🎮',{
-        fontSize:'36px',
-        color:'#FFD700',
-        fontStyle:'bold',
-        fontFamily:'Orbitron'
-    }).setOrigin(0.5);
+    this.add.rectangle(450,300,900,600,0xC36EFF);
 
-    this.add.text(450,120,'Choisis ton thème :',{fontSize:'24px',color:'#FFD700',fontFamily:'Orbitron'}).setOrigin(0.5);
-    this.add.text(450,120,'Choose your theme :',{fontSize:'24px',color:'#FFD700',fontFamily:'Orbitron'}).setOrigin(0.5);
+    this.add.text(450,90,'🎮 Emoji Match Futuriste 🎮',
+      {fontSize:'40px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
 
-    this.selectedTheme = null;
+    this.add.text(450,150,'Choisis un thème :',
+      {fontSize:'28px',color:'#FFF'}).setOrigin(0.5);
+
+    // THÈMES (2 rangées)
     const themes = [
-      {name:'Emoji',data:'emoji'},
-      {name:'Animaux',data:'animals'},
-      {name:'Fruits & Légumes',data:'fruits'},
-      {name:'Célébrités',data:'celebs'}
+      {name:'emoji', label:'Emoji 😎'},
+      {name:'animals', label:'Animaux 🐶'},
+      {name:'fruits', label:'Fruits 🍎'},
+      {name:'sport', label:'Sport ⚽'}
     ];
 
-    const positions = [
-      {x:200,y:180},
-      {x:700,y:180},
-      {x:200,y:300},
-      {x:700,y:300}
-    ];
+    let y = 230;
+    let x1 = 300, x2 = 600;
 
-    themes.forEach((t,i)=>{
-      const pos = positions[i];
-      const btn = createButton(this, pos.x, pos.y, t.name, '#FFFFFF', 0xFF88FF, ()=>{
+    for(let i=0;i<themes.length;i++){
+      const tx = (i%2===0)?x1:x2;
+      if(i===2) y += 90;
+
+      createButton(this, tx, y, themes[i].label, ()=>{
+        selectedTheme = themes[i].name;
         this.sound.play('click');
-        this.selectedTheme = t.data;
-        // surbrillance futuriste
-        this.children.list.forEach(c=>{
-          if(c.list && c.list[0] && c.list[0].fillColor!==undefined) c.list[0].setFillStyle(0xFF88FF,0.9);
-        });
-        btn.list[0].setFillStyle(0xFFFF66,0.9); // jaune
       });
-    });
+    }
 
-    // Bouton Start Level 1 centré
-    createButton(this,450,420,'Start Level 1','#FFFFFF',0xFF88FF,()=>{
-      if(!this.selectedTheme){
-        alert('Veuillez choisir un thème avant de commencer !');
-        return;
-      }
-      this.scene.start('MainGame',{level:1, theme:this.selectedTheme});
+    // BOUTON START LEVEL 1
+    createButton(this, 450, 450, '▶ Start Level 1', ()=>{
+      this.sound.play('click');
+      this.scene.start('MainGame',{level:1, theme:selectedTheme});
     });
   }
 }
 
-// ---------- Les autres scènes (LevelTransition, MainGame, PauseScene) ----------
-// Elles restent identiques au code précédent mais on adapte les couleurs pour violet/rose/jaune
-// Exemple LevelTransition :
-class LevelTransition extends Phaser.Scene {
-  constructor(){ super('LevelTransition'); }
-  init(data){ this.nextLevel = data.level || 2; this.theme = data.theme; }
+// --- SCÈNE DU JEU ---
+class MainGame extends Phaser.Scene {
+  constructor(){ super('MainGame'); }
+  init(data){ 
+    this.level=data.level; 
+    this.theme=data.theme;
+  }
+
   create(){
-    this.add.rectangle(450,300,900,600,0xD8B4FF);
-    this.add.text(450,180,'Félicitations🥳',{fontSize:'44px',color:'#FFFF66',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
-    this.add.text(450,250,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'28px',color:'#FFD700',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
-    createButton(this,450,350,'Level '+this.nextLevel,'#FFFFFF',0xFF88FF,()=>{ 
-      this.sound.play('click'); 
-      this.scene.start('MainGame',{level:this.nextLevel, theme:this.theme}); 
+    this.add.rectangle(450,300,900,600,0xC36EFF);
+
+    const levelData = levels[this.level-1];
+    this.timeLeft = levelData.time;
+    this.pairs = levelData.pairs;
+
+    this.score = 0;
+    this.matched = 0;
+    this.selected = null;
+
+    this.timerText = this.add.text(20,20,'⏳ '+this.timeLeft,{fontSize:'36px',color:'#FFF'});
+    this.scoreText = this.add.text(650,20,'Trouvés: 0',{fontSize:'36px',color:'#FFF'});
+
+    // --- CREATION DES CARTES ---
+    let cardsList = [];
+    const themeSet = THEMES[this.theme];
+
+    for(let i=0;i<this.pairs;i++){
+      cardsList.push(themeSet[i%themeSet.length], themeSet[i%themeSet.length]);
+    }
+
+    Phaser.Utils.Array.Shuffle(cardsList);
+
+    this.cards = [];
+    const cols = 4;
+    const startX = 200, startY = 150;
+    const spacing = 120;
+
+    for(let i=0;i<cardsList.length;i++){
+      const row = Math.floor(i/cols);
+      const col = i%cols;
+      const x = startX + col*spacing;
+      const y = startY + row*spacing;
+
+      const card = this.add.text(x,y,'❓',{fontSize:'64px',color:'#FFF'})
+        .setOrigin(0.5).setInteractive();
+
+      card.value = cardsList[i];
+      card.revealed = false;
+
+      card.on('pointerdown',()=> this.revealCard(card));
+
+      this.cards.push(card);
+    }
+
+    // TIMER
+    this.timerEvent = this.time.addEvent({
+      delay:1000, loop:true, callback:()=>{
+        this.timeLeft--;
+        this.timerText.setText('⏳ '+this.timeLeft);
+        if(this.timeLeft<=0) this.endGame(false);
+    }});
+  }
+
+  revealCard(card){
+    if(card.revealed || this.selected===card) return;
+
+    card.setText(card.value);
+    card.revealed = true;
+
+    if(!this.selected){
+      this.selected = card;
+    } else {
+      if(this.selected.value === card.value){
+        this.sound.play('match');
+        this.score++;
+        this.scoreText.setText("Trouvés: "+this.score);
+        this.matched++;
+        this.selected = null;
+
+        if(this.matched === this.pairs){
+          this.endGame(true);
+        }
+
+      } else {
+        const first = this.selected;
+        this.selected = null;
+
+        this.time.delayedCall(500,()=>{
+          first.setText('❓'); first.revealed = false;
+          card.setText('❓');  card.revealed = false;
+        });
+      }
+    }
+  }
+
+  endGame(win){
+    this.timerEvent.remove();
+
+    this.add.rectangle(450,300,900,600,0x000000,0.5);
+    this.add.text(450,220, win?'🎉 Bravo !':'⏳ Temps écoulé !',
+      {fontSize:'48px',color:'#FFF'}).setOrigin(0.5);
+
+    createButton(this,450,330,'Retour Menu',()=>{
+      this.scene.start('MainMenu');
     });
   }
 }
 
-// Pour MainGame et PauseScene, il suffit d'adapter les couleurs de fond, texte et boutons : violet clair, rose clair, jaune pour les surbrillances.
-
-const config={
+const config = {
   type: Phaser.AUTO,
-  width:900,
-  height:600,
-  scene:[PreloadScene,MainMenu,LevelTransition,MainGame,PauseScene]
+  width: 900,
+  height: 600,
+  scene: [PreloadScene, MainMenu, MainGame]
 };
 
 new Phaser.Game(config);

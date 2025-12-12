@@ -99,11 +99,11 @@ class MainGame extends Phaser.Scene {
     this.selected = null;
 
     // Texte score et timer
-    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'24px',color:'#333',fontStyle:'bold'}).setDepth(5);
-    this.scoreText = this.add.text(550,20,'Found: '+this.score,{fontSize:'24px',color:'#333',fontStyle:'bold'}).setDepth(5);
+    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'20px',color:'#333',fontStyle:'bold'}).setDepth(5);
+    this.scoreText = this.add.text(550,20,'Found: '+this.score,{fontSize:'20px',color:'#333',fontStyle:'bold'}).setDepth(5);
 
     // Musique
-    const musicIcon = this.add.text(750,30,'🔊',{fontSize:'28px',color:'#333'}).setInteractive({useHandCursor:true}).setOrigin(0.5).setDepth(6);
+    const musicIcon = this.add.text(750,30,'🔊',{fontSize:'24px',color:'#333'}).setInteractive({useHandCursor:true}).setOrigin(0.5).setDepth(6);
     musicIcon.on('pointerdown',() => {
       this.sound.unlock();
       if(!this.game.bgMusic){
@@ -115,7 +115,7 @@ class MainGame extends Phaser.Scene {
     });
 
     // Icône pause/restart
-    const pauseIcon = this.add.text(750,70,'⏸️',{fontSize:'28px',color:'#333'}).setInteractive({useHandCursor:true}).setOrigin(0.5).setDepth(6);
+    const pauseIcon = this.add.text(750,70,'⏸️',{fontSize:'24px',color:'#333'}).setInteractive({useHandCursor:true}).setOrigin(0.5).setDepth(6);
     pauseIcon.on('pointerdown',() => {
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this});
@@ -130,15 +130,15 @@ class MainGame extends Phaser.Scene {
     this.cards=[];
     const cols = Math.ceil(Math.sqrt(this.pairs*2));
     const rows = Math.ceil((this.pairs*2)/cols);
-    const spacingX = 800/cols;
-    const spacingY = 400/rows;
-    const offsetX = spacingX/2;
-    const offsetY = spacingY/2+80;
+    const spacingX = Math.min(80, 800/cols); // réduit l'espacement max à 80
+    const spacingY = Math.min(80, 400/rows);
+    const offsetX = (800 - spacingX*(cols-1))/2;
+    const offsetY = (400 - spacingY*(rows-1))/2 + 80;
 
     for(let i=0;i<cardEmojis.length;i++){
       const row=Math.floor(i/cols);
       const col=i%cols;
-      const card=this.add.text(offsetX+col*spacingX,offsetY+row*spacingY,'❓',{fontSize:'58px',fontFamily:'Arial',padding:{top:10,bottom:10}})
+      const card=this.add.text(offsetX+col*spacingX,offsetY+row*spacingY,'❓',{fontSize:'50px',fontFamily:'Arial',padding:{top:10,bottom:10}})
         .setOrigin(0.5).setInteractive().setDepth(4);
       card.emoji=cardEmojis[i]; card.revealed=false;
       card.on('pointerdown',()=>this.revealCard(card));
@@ -159,21 +159,15 @@ class MainGame extends Phaser.Scene {
     if(card.revealed||this.selected===card) return;
     card.setText(card.emoji);
     card.revealed=true;
-    this.tweens.add({targets:card,scale:{from:0.8,to:1},duration:200,ease:'Back'});
+    this.tweens.add({targets:card,scale:{from:0.9,to:1.1},duration:200,ease:'Back',yoyo:true});
 
     if(!this.selected){
       this.selected=card;
     } else {
       if(this.selected.emoji===card.emoji){
-        // Bonne paire : effet “pop”
+        // Bonne paire : effet pop
         this.sound.play('click');
-        this.tweens.add({
-          targets:[this.selected,card],
-          scale:{from:1,to:1.3},
-          duration:150,
-          yoyo:true,
-          ease:'Back'
-        });
+        this.tweens.add({targets:[this.selected,card],scale:{from:1,to:1.3},duration:150,yoyo:true,ease:'Back'});
         this.selected=null;
         this.matched++;
         this.score++;
@@ -183,20 +177,13 @@ class MainGame extends Phaser.Scene {
           this.endLevel();
         }
       } else {
-        // Mauvaise paire : shake
+        // Mauvaise paire : juste remettre ❓
         const first=this.selected; this.selected=null;
-        this.sound.play('match');
-        this.tweens.add({
-          targets:[first,card],
-          x:'+=8',
-          duration:50,
-          yoyo:true,
-          repeat:2,
-          onComplete:()=>{
-            first.setText('❓'); first.revealed=false;
-            card.setText('❓'); card.revealed=false;
-          }
+        this.time.delayedCall(500,()=>{
+          first.setText('❓'); first.revealed=false;
+          card.setText('❓'); card.revealed=false;
         });
+        this.sound.play('match');
       }
     }
   }
@@ -215,7 +202,7 @@ class MainGame extends Phaser.Scene {
   endGame(win=false){
     this.timerEvent.remove();
     this.add.rectangle(400,300,800,600,0x000000,0.5);
-    this.add.text(400,250,win?'Level Complete!':'Time Over!',{fontSize:'48px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5).setDepth(10);
+    this.add.text(400,250,win?'Level Complete!':'Time Over!',{fontSize:'48px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
     createButton(this,400,350,300,70,0xFF6347,'Restart',()=>{
       this.sound.play('click');
       this.scene.start('MainMenu');
@@ -231,7 +218,8 @@ class PauseScene extends Phaser.Scene {
     this.add.rectangle(400,300,800,600,0x000000,0.5);
     this.add.text(400,250,'Paused',{fontSize:'48px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
     createButton(this,400,350,300,70,0x00BFFF,'Resume',()=>{
-      this.scene.stop(); this.parent.scene.resume();
+      this.scene.stop(); 
+      this.parent.scene.resume();
     });
   }
 }

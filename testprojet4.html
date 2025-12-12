@@ -18,8 +18,8 @@ const levels = [
   { time: 120, pairs: 15 }
 ];
 
-function createTextButton(scene, x, y, text, color, callback){
-  const btnText = scene.add.text(x, y, text, { fontSize:'28px', fontStyle:'bold', color:color }).setOrigin(0.5).setInteractive({useHandCursor:true});
+function createTextButton(scene, x, y, text, color, callback, fontSize='28px'){
+  const btnText = scene.add.text(x, y, text, { fontSize:fontSize, fontStyle:'bold', color:color }).setOrigin(0.5).setInteractive({useHandCursor:true});
   btnText.on('pointerdown', callback);
   btnText.on('pointerover',()=>btnText.setColor('#FFFF00'));
   btnText.on('pointerout',()=>btnText.setColor(color));
@@ -75,12 +75,13 @@ class MainGame extends Phaser.Scene {
     this.matched = 0;
     this.selected = null;
 
-    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'20px',color:'#333',fontStyle:'bold'});
-    this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'20px',color:'#333',fontStyle:'bold'});
+    // Texte Time et Found plus grands
+    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'26px',color:'#333',fontStyle:'bold'});
+    this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'26px',color:'#333',fontStyle:'bold'});
 
     // Icônes en bas
     const bottomY = 570;
-    const musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'22px',color:'#333'}).setOrigin(0.5).setInteractive();
+    const musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'28px',color:'#333'}).setOrigin(0.5).setInteractive();
     musicIcon.on('pointerdown',()=>{
       this.sound.unlock();
       if(!this.game.bgMusic){
@@ -91,7 +92,8 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'22px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
+    // Pause plus grand
+    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'28px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
     this.pauseText.on('pointerdown',()=>{
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this});
@@ -108,7 +110,7 @@ class MainGame extends Phaser.Scene {
     const cols = Math.ceil(Math.sqrt(this.pairs*2));
     const rows = Math.ceil((this.pairs*2)/cols);
     const cardSize = 64;
-    const spacing = 20; // plus confortable
+    const spacing = 40; // espacement plus grand
     const totalWidth = cols*cardSize + (cols-1)*spacing;
     const totalHeight = rows*cardSize + (rows-1)*spacing;
     const startX = 450 - totalWidth/2 + cardSize/2;
@@ -190,7 +192,7 @@ class PauseScene extends Phaser.Scene{
   create(){
     this.add.rectangle(450,300,900,600,0x000000,0.5);
     this.add.text(450,180,'Paused',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    createTextButton(this,450,550,'▶ Resume','#F2509B',()=>{this.scene.stop(); this.parent.scene.resume();});
+    createTextButton(this,450,550,'▶ Resume','#F2509B','32px',()=>{this.scene.stop(); this.parent.scene.resume();});
   }
 }
 

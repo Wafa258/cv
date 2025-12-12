@@ -2,6 +2,7 @@
 ### 1. Ajout de la musique de fond
 
 Une musique est intégrée au jeu.
+
 Une icône 🔊 permet de l’activer / mettre en pause.
 ➡️ Le jeu devient plus immersif.
 

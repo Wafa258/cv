@@ -13,6 +13,7 @@
 <body>
 
 <script>
+// ---------- Utilitaire pour créer un bouton futuriste ----------
 // ---------- Utilitaire pour créer un bouton ----------
 function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28px'){
   const btnText = scene.add.text(0,0,text,{fontSize:fontSize,fontStyle:'bold',color:color,fontFamily:'Orbitron'}).setOrigin(0.5);
@@ -36,6 +37,7 @@ const levels = [
   { time: 120, pairs: 15 }
 ];
 
+// ---------- Scènes ----------
 // ---------- PreloadScene ----------
 class PreloadScene extends Phaser.Scene {
   constructor(){ super('PreloadScene'); }
@@ -44,24 +46,28 @@ class PreloadScene extends Phaser.Scene {
     this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/pop.ogg');
     this.load.audio('bgMusic','https://wafa258.github.io/cv/xmas.mp3');
 
+    // Images cartes thème animaux
     // Images thème Animaux
     this.load.image('lion','https://cdn.pixabay.com/photo/2016/03/31/15/54/lion-1299620_1280.png');
     this.load.image('dog','https://cdn.pixabay.com/photo/2014/04/03/10/32/dog-311592_1280.png');
     this.load.image('cat','https://cdn.pixabay.com/photo/2017/02/20/18/03/cat-2083492_1280.png');
     this.load.image('elephant','https://cdn.pixabay.com/photo/2017/02/01/22/02/elephant-2032548_1280.png');
 
+    // Images cartes thème fruits
     // Images thème Fruits
     this.load.image('apple','https://i.imgur.com/1An1bbZ.png');
     this.load.image('banana','https://i.imgur.com/cwYrx2q.png');
     this.load.image('cherry','https://i.imgur.com/5zQaoOW.png');
     this.load.image('orange','https://i.imgur.com/6plMx7b.png');
 
+    // Images cartes thème célébrités
     // Images thème célébrités
     this.load.image('star1','https://i.imgur.com/3Njp5lu.png');
     this.load.image('star2','https://i.imgur.com/1kQLP1I.png');
     this.load.image('star3','https://i.imgur.com/u4pSo3c.png');
     this.load.image('star4','https://i.imgur.com/64OWx4L.png');
 
+    // Image dos de carte
     // Dos des cartes
     this.load.image('backCard','https://i.imgur.com/NrJ6F7r.png');
   }
@@ -72,9 +78,18 @@ class PreloadScene extends Phaser.Scene {
 class MainMenu extends Phaser.Scene {
   constructor(){ super('MainMenu'); }
   create(){
-    this.this.add.rectangle(450,300,900,600,0xC36EFF); 
-    this.add.text(450,60,'🎮 Card Match 🎮',{fontSize:'36px',color:'#FFD700',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
+    this.add.rectangle(450,300,900,600,0xD8B4FF); // fond violet clair
+    this.add.text(450,60,'🎮 Emoji Match 🎮',{
+        fontSize:'36px',
+        color:'#FFD700',
+        fontStyle:'bold',
+        fontFamily:'Orbitron'
+    }).setOrigin(0.5);
+
     this.add.text(450,120,'Choose your theme :',{fontSize:'24px',color:'#FFD700',fontFamily:'Orbitron'}).setOrigin(0.5);
+    this.add.rectangle(450,300,900,600,0xD8B4FF); 
+    this.add.text(450,60,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#FFD700',fontStyle:'bold',fontFamily:'Orbitron'}).setOrigin(0.5);
+    this.add.text(450,120,'Choisis ton thème :',{fontSize:'24px',color:'#FFD700',fontFamily:'Orbitron'}).setOrigin(0.5);
 
     this.selectedTheme = null;
     const themes = [
@@ -85,6 +100,10 @@ class MainMenu extends Phaser.Scene {
     ];
 
     const positions = [
+      {x:200,y:180},
+      {x:700,y:180},
+      {x:200,y:300},
+      {x:700,y:300}
       {x:225,y:180}, {x:675,y:180},
       {x:225,y:300}, {x:675,y:300}
     ];
@@ -94,14 +113,17 @@ class MainMenu extends Phaser.Scene {
       const btn = createButton(this, pos.x, pos.y, t.name, '#FFFFFF', 0xFF88FF, ()=>{
         this.sound.play('click');
         this.selectedTheme = t.data;
+        // surbrillance futuriste
         // surbrillance
         this.children.list.forEach(c=>{
           if(c.list && c.list[0] && c.list[0].fillColor!==undefined) c.list[0].setFillStyle(0xFF88FF,0.9);
         });
+        btn.list[0].setFillStyle(0xFFFF66,0.9); // jaune
         btn.list[0].setFillStyle(0xFFFF66,0.9);
       });
     });
 
+    // Bouton Start Level 1 centré
     // Bouton Start Level 1
     createButton(this,450,420,'Start Level 1','#FFFFFF',0xFF88FF,()=>{
       if(!this.selectedTheme){
@@ -113,6 +135,9 @@ class MainMenu extends Phaser.Scene {
   }
 }
 
+// ---------- Les autres scènes (LevelTransition, MainGame, PauseScene) ----------
+// Elles restent identiques au code précédent mais on adapte les couleurs pour violet/rose/jaune
+// Exemple LevelTransition :
 // ---------- LevelTransition ----------
 class LevelTransition extends Phaser.Scene {
   constructor(){ super('LevelTransition'); }
@@ -128,6 +153,7 @@ class LevelTransition extends Phaser.Scene {
   }
 }
 
+// Pour MainGame et PauseScene, il suffit d'adapter les couleurs de fond, texte et boutons : violet clair, rose clair, jaune pour les surbrillances.
 // ---------- MainGame ----------
 class MainGame extends Phaser.Scene {
   constructor(){ super('MainGame'); }

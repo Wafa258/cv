@@ -72,7 +72,7 @@ class MainMenu extends Phaser.Scene {
     // Texte thème
     this.add.text(450,140,'Choisis ton thème :',{fontSize:'24px',color:'#fff'}).setOrigin(0.5);
 
-    // Boutons thèmes
+    // Définir thèmes
     const themes = [
       {name:'Emoji',data:'emoji'},
       {name:'Animaux',data:'animals'},
@@ -80,13 +80,11 @@ class MainMenu extends Phaser.Scene {
       {name:'Célébrités',data:'celebs'}
     ];
 
-    this.selectedTheme = null;
-
-    // Position des boutons : deux lignes si nécessaire
-    const startX = 250;
-    const startY = 180;
-    const spacingX = 200;
-    const spacingY = 80;
+    // Espacement et position des boutons
+    const startX = 180;
+    const startY = 200;
+    const spacingX = 300;
+    const spacingY = 100;
 
     themes.forEach((t,i)=>{
       const row = Math.floor(i/2);
@@ -94,28 +92,10 @@ class MainMenu extends Phaser.Scene {
       const x = startX + col * spacingX;
       const y = startY + row * spacingY;
 
-      const btn = createButton(this, x, y, t.name, '#fff', 0xFF6347, ()=>{
+      createButton(this, x, y, t.name, '#fff', 0xFF6347, ()=>{
         this.sound.play('click');
-        this.selectedTheme = t.data;
-
-        // Indiquer visuellement le thème sélectionné
-        themes.forEach((th,j)=>{
-          const b = this.children.getByName('themeBtn'+j);
-          if(b) b.setScale(1);
-        });
-        btn.setScale(1.2);
+        this.scene.start('MainGame',{level:1, theme:t.data});
       });
-      btn.setName('themeBtn'+i);
-    });
-
-    // Bouton Start Level 1 (en bas)
-    this.startButton = createButton(this,450,350,'Start Level 1','#FFFFFF',0xF2509B,()=>{ 
-      if(!this.selectedTheme){
-        alert('Veuillez choisir un thème avant de commencer !'); 
-        return;
-      }
-      this.sound.play('click'); 
-      this.scene.start('MainGame',{level:1, theme:this.selectedTheme}); 
     });
   }
 }

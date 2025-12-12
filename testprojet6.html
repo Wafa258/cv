@@ -136,9 +136,7 @@ class MainGame extends Phaser.Scene {
   }
 
   create(){
-    // -------------------------
     // Couleur de fond selon thème
-    // -------------------------
     let bgColor = 0xDDB8F2;
     switch(this.theme){
         case 'emoji': bgColor = 0xDDB8F2; break;
@@ -148,23 +146,18 @@ class MainGame extends Phaser.Scene {
     }
     this.background = this.add.rectangle(450,300,900,600,bgColor);
 
-    // -------------------------
     // Icône thème
-    // -------------------------
     let themeIcons = { emoji:'😎', animals:'🐶', fruits:'🍎', sport:'⚽'};
     this.add.text(450,70, themeIcons[this.theme], {fontSize:'48px'}).setOrigin(0.5);
 
-    // -------------------------
-    // Mode nuit
-    // -------------------------
-    this.nightBtn = createButton(this, 800, 70, '🌙', '#FFF', 0x333, ()=>{
-        nightMode = !nightMode;
-        this.updateNightMode();
-    }, '24px'); // bouton plus petit
+    // Lune mode nuit (plus grande)
+    this.moonIcon = this.add.text(800,70,'🌙',{fontSize:'36px'}).setOrigin(0.5).setInteractive();
+    this.moonIcon.on('pointerdown',()=>{
+      nightMode = !nightMode;
+      this.updateNightMode();
+    });
 
-    // -------------------------
     // Timer et score
-    // -------------------------
     const levelData = levels[this.level-1] || levels[0];
     this.timeLeft = levelData.time;
     this.pairs = levelData.pairs;
@@ -175,9 +168,7 @@ class MainGame extends Phaser.Scene {
     this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#333',fontStyle:'bold'});
     this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#333',fontStyle:'bold'});
 
-    // -------------------------
     // Cartes
-    // -------------------------
     this.emojis = THEMES[this.theme];
     let cardEmojis=[];
     for(let i=0;i<this.pairs;i++){
@@ -225,7 +216,9 @@ class MainGame extends Phaser.Scene {
         .setInteractive();
       card.emoji = cardEmojis[i];
       card.revealed = false;
-      card.on('pointerdown',()=>this.revealCard(card));
+
+      card.on('pointerdown',()=>this.flipCard(card));
+
       this.cards.push(card);
     }
 
@@ -242,7 +235,7 @@ class MainGame extends Phaser.Scene {
 
   updateNightMode(){
     if(nightMode){
-      this.background.setFillStyle(0x0D1B2A); // bleu foncé
+      this.background.setFillStyle(0x0D1B2A);
       this.cards.forEach(c => c.setColor('#0ff'));
       this.timerText.setColor('#0ff');
       this.scoreText.setColor('#0ff');
@@ -261,11 +254,19 @@ class MainGame extends Phaser.Scene {
     }
   }
 
-  revealCard(card){
+  flipCard(card){
     if(card.revealed || this.selected===card) return;
 
-    card.setText(card.emoji);
-    card.revealed = true;
+    this.tweens.add({
+      targets: card,
+      scaleX: 0,
+      duration: 150,
+      onComplete: ()=>{
+        card.setText(card.emoji);
+        card.revealed = true;
+        this.tweens.add({targets: card, scaleX: 1, duration: 150});
+      }
+    });
 
     if(!this.selected){
       this.selected = card;
@@ -273,30 +274,25 @@ class MainGame extends Phaser.Scene {
     else{
       if(this.selected.emoji === card.emoji){
         this.sound.play('click');
-        this.tweens.add({
-          targets: [this.selected, card],
-          scale: { from: 1, to: 1.3 },
-          duration: 150,
-          yoyo: true,
-          ease: 'Back'
-        });
-
         this.matched++;
         this.score++;
         this.scoreText.setText('Found: '+this.score);
         this.selected = null;
-
         if(this.matched === this.cards.length/2){
           this.endLevel();
         }
-      }
-      else{
+      } else {
         const first = this.selected;
         this.selected = null;
-
-        this.time.delayedCall(500,()=>{
-          first.setText('❓'); first.revealed=false;
-          card.setText('❓'); card.revealed=false;
+        this.time.delayedCall(700, ()=>{
+          [first, card].forEach(c => {
+            this.tweens.add({
+              targets: c,
+              scaleX: 0,
+              duration: 150,
+              onComplete: ()=>{ c.setText('❓'); c.revealed=false; this.tweens.add({targets:c, scaleX:1, duration:150}); }
+            });
+          });
         });
       }
     }

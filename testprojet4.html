@@ -18,14 +18,13 @@ const levels = [
   { time: 120, pairs: 15 }
 ];
 
-// Fonction pour créer des boutons simples
-function createButton(scene, x, y, width, height, color, text, callback){
-  const btn = scene.add.rectangle(x, y, width, height, color).setInteractive({useHandCursor:true});
-  const btnText = scene.add.text(x, y, text, { fontSize:'28px', fontStyle:'bold', color:'#FFF' }).setOrigin(0.5);
-  btn.on('pointerover',()=>btn.setStrokeStyle(3,0xFFFF00));
-  btn.on('pointerout',()=>btn.setStrokeStyle());
-  btn.on('pointerdown', callback);
-  return {btn, btnText};
+// Fonction pour créer un bouton simple (texte interactif)
+function createTextButton(scene, x, y, text, color, callback){
+  const btnText = scene.add.text(x, y, text, { fontSize:'28px', fontStyle:'bold', color:color }).setOrigin(0.5).setInteractive({useHandCursor:true});
+  btnText.on('pointerdown', callback);
+  btnText.on('pointerover',()=>btnText.setColor('#FFFF00'));
+  btnText.on('pointerout',()=>btnText.setColor(color));
+  return btnText;
 }
 
 // Préchargement
@@ -43,9 +42,9 @@ class PreloadScene extends Phaser.Scene {
 class MainMenu extends Phaser.Scene {
   constructor(){ super('MainMenu'); }
   create(){
-    this.add.rectangle(350,250,700,500,0xE800F0);
-    this.add.text(350,100,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    createButton(this,350,350,250,60,0xF2509B,'Start Level 1',()=>{ 
+    this.add.rectangle(400,275,800,550,0xE800F0);
+    this.add.text(400,120,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+    createTextButton(this,400,350,'Start Level 1','#FFFFFF',()=>{ 
       this.sound.play('click'); 
       this.scene.start('MainGame',{level:1}); 
     });
@@ -57,10 +56,10 @@ class LevelTransition extends Phaser.Scene {
   constructor(){ super('LevelTransition'); }
   init(data){ this.nextLevel = data.level || 2; }
   create(){
-    this.add.rectangle(350,250,700,500,0xEA5EF2);
-    this.add.text(350,180,'Félicitations🥳',{fontSize:'44px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
-    this.add.text(350,240,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'28px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
-    createButton(this,350,330,250,60,0xFF6347,'Level '+this.nextLevel,()=>{ 
+    this.add.rectangle(400,275,800,550,0xEA5EF2);
+    this.add.text(400,180,'Félicitations🥳',{fontSize:'44px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
+    this.add.text(400,240,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'28px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
+    createTextButton(this,400,330,'Level '+this.nextLevel,'#FFFFFF',()=>{ 
       this.sound.play('click'); 
       this.scene.start('MainGame',{level:this.nextLevel}); 
     });
@@ -73,7 +72,7 @@ class MainGame extends Phaser.Scene {
   init(data){ this.level = data.level || 1; }
 
   create(){
-    this.add.rectangle(350,250,700,500,0xDDB8F2);
+    this.add.rectangle(400,275,800,550,0xDDB8F2);
     const levelData = levels[this.level-1] || levels[0];
     this.timeLeft = levelData.time;
     this.pairs = levelData.pairs;
@@ -82,11 +81,11 @@ class MainGame extends Phaser.Scene {
     this.selected = null;
 
     // Timer et score
-    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'18px',color:'#333',fontStyle:'bold'});
-    this.scoreText = this.add.text(500,20,'Found: '+this.score,{fontSize:'18px',color:'#333',fontStyle:'bold'});
+    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'20px',color:'#333',fontStyle:'bold'});
+    this.scoreText = this.add.text(600,20,'Found: '+this.score,{fontSize:'20px',color:'#333',fontStyle:'bold'});
 
     // Musique
-    const musicIcon = this.add.text(650,20,'🔊',{fontSize:'22px',color:'#333'}).setInteractive();
+    const musicIcon = this.add.text(730,20,'🔊',{fontSize:'22px',color:'#333'}).setInteractive();
     musicIcon.on('pointerdown',()=>{
       this.sound.unlock();
       if(!this.game.bgMusic){
@@ -98,14 +97,13 @@ class MainGame extends Phaser.Scene {
     });
 
     // Pause bouton
-    const pauseIcon = this.add.rectangle(650,50,50,35,0xF2509B).setInteractive();
-    this.add.text(650,50,'⏸️',{fontSize:'20px',color:'#FFF'}).setOrigin(0.5);
-    pauseIcon.on('pointerover',()=>pauseIcon.setFillStyle(0xFF85C1));
-    pauseIcon.on('pointerout',()=>pauseIcon.setFillStyle(0xF2509B));
-    pauseIcon.on('pointerdown',()=>{
+    this.pauseText = this.add.text(730,60,'⏸️',{fontSize:'22px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
+    this.pauseText.on('pointerdown',()=>{
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this});
     });
+    this.pauseText.on('pointerover',()=>this.pauseText.setColor('#FF85C1'));
+    this.pauseText.on('pointerout',()=>this.pauseText.setColor('#F2509B'));
 
     // Préparer les cartes
     this.emojis=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
@@ -116,15 +114,15 @@ class MainGame extends Phaser.Scene {
     this.cards=[];
     const cols = Math.ceil(Math.sqrt(this.pairs*2));
     const rows = Math.ceil((this.pairs*2)/cols);
-    const spacingX = 700/(cols+1);
-    const spacingY = 350/(rows+1);
-    const offsetX = spacingX;
-    const offsetY = 100;
+    const spacingX = 700/cols;
+    const spacingY = 400/rows;
+    const offsetX = 50 + spacingX/2;
+    const offsetY = 100 + spacingY/2;
 
     for(let i=0;i<cardEmojis.length;i++){
       const row=Math.floor(i/cols);
       const col=i%cols;
-      const card=this.add.text(offsetX+col*spacingX,offsetY+row*spacingY,'❓',{fontSize:'56px',fontFamily:'Arial'}).setOrigin(0.5).setInteractive();
+      const card=this.add.text(offsetX+col*spacingX,offsetY+row*spacingY,'❓',{fontSize:'64px',fontFamily:'Arial'}).setOrigin(0.5).setInteractive();
       card.emoji=cardEmojis[i]; card.revealed=false;
       card.on('pointerdown',()=>this.revealCard(card));
       this.cards.push(card);
@@ -172,9 +170,9 @@ class MainGame extends Phaser.Scene {
 
   endGame(win=false){
     this.timerEvent.remove();
-    this.add.rectangle(350,250,700,500,0x000000,0.5);
-    this.add.text(350,180,win?'Level Complete!':'Time Over!',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    createButton(this,350,280,250,60,0xFF6347,'Restart',()=>{ 
+    this.add.rectangle(400,275,800,550,0x000000,0.5);
+    this.add.text(400,180,win?'Level Complete!':'Time Over!',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+    createTextButton(this,400,280,'Restart','#FFFFFF',()=>{ 
       this.sound.play('click'); 
       this.scene.start('MainMenu'); 
     });
@@ -186,20 +184,18 @@ class PauseScene extends Phaser.Scene{
   constructor(){ super('PauseScene'); }
   init(data){ this.parent=data.parent; }
   create(){
-    this.add.rectangle(350,250,700,500,0x000000,0.5);
-    this.add.text(350,180,'Paused',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    const resumeText=this.add.text(350,400,'▶ Resume',{fontSize:'28px',color:'#F2509B',fontStyle:'bold'}).setOrigin(0.5).setInteractive();
-    resumeText.on('pointerdown',()=>{this.scene.stop(); this.parent.scene.resume();});
-    resumeText.on('pointerover',()=>resumeText.setColor('#FF85C1'));
-    resumeText.on('pointerout',()=>resumeText.setColor('#F2509B'));
+    this.add.rectangle(400,275,800,550,0x000000,0.5);
+    this.add.text(400,180,'Paused',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+    // Resume en bas, sans fond
+    createTextButton(this,400,500,'▶ Resume','#F2509B',()=>{this.scene.stop(); this.parent.scene.resume();});
   }
 }
 
 // Config
 const config={
   type: Phaser.AUTO,
-  width:700,
-  height:500,
+  width:800,
+  height:550,
   scene:[PreloadScene,MainMenu,LevelTransition,MainGame,PauseScene]
 };
 

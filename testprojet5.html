@@ -245,7 +245,18 @@ class MainGame extends Phaser.Scene {
     }
     else{
       if(this.selected.emoji === card.emoji){
+
         this.sound.play('click');
+
+        // ---- ANIMATION SCALE ----
+        this.tweens.add({
+          targets: [this.selected, card],
+          scale: { from: 1, to: 1.3 },
+          duration: 150,
+          yoyo: true,
+          ease: 'Back'
+        });
+
         this.matched++;
         this.score++;
         this.scoreText.setText('Found: '+this.score);
@@ -256,7 +267,7 @@ class MainGame extends Phaser.Scene {
         }
       }
       else{
-        const first=this.selected;
+        const first = this.selected;
         this.selected = null;
 
         this.time.delayedCall(500,()=>{

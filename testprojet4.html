@@ -78,7 +78,9 @@ class MainGame extends Phaser.Scene {
     this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'20px',color:'#333',fontStyle:'bold'});
     this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'20px',color:'#333',fontStyle:'bold'});
 
-    const musicIcon = this.add.text(850,20,'🔊',{fontSize:'22px',color:'#333'}).setInteractive();
+    // Icônes en bas
+    const bottomY = 570;
+    const musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'22px',color:'#333'}).setOrigin(0.5).setInteractive();
     musicIcon.on('pointerdown',()=>{
       this.sound.unlock();
       if(!this.game.bgMusic){
@@ -89,7 +91,7 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    this.pauseText = this.add.text(850,60,'⏸️',{fontSize:'22px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
+    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'22px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
     this.pauseText.on('pointerdown',()=>{
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this});
@@ -106,7 +108,7 @@ class MainGame extends Phaser.Scene {
     const cols = Math.ceil(Math.sqrt(this.pairs*2));
     const rows = Math.ceil((this.pairs*2)/cols);
     const cardSize = 64;
-    const spacing = 15; // espacement modéré
+    const spacing = 20; // plus confortable
     const totalWidth = cols*cardSize + (cols-1)*spacing;
     const totalHeight = rows*cardSize + (rows-1)*spacing;
     const startX = 450 - totalWidth/2 + cardSize/2;
@@ -123,7 +125,7 @@ class MainGame extends Phaser.Scene {
       this.cards.push(card);
     }
 
-    // Timer avec rouge à <10s
+    // Timer rouge + clignotant <10s
     this.clignotementTween=null;
     this.timerEvent=this.time.addEvent({delay:1000,loop:true,callback:()=>{
       this.timeLeft--;

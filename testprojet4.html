@@ -19,7 +19,6 @@ const levels = [
 ];
 
 function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28px'){
-  // Bouton avec cadre et texte centré
   const container = scene.add.container(x, y);
   const rect = scene.add.rectangle(0,0,250,60,bgColor,0.8).setStrokeStyle(3,0xFFFFFF);
   const btnText = scene.add.text(0,0,text,{fontSize:fontSize,fontStyle:'bold',color:color}).setOrigin(0.5);
@@ -81,11 +80,10 @@ class MainGame extends Phaser.Scene {
     this.matched = 0;
     this.selected = null;
 
-    // Texte Time et Found plus grands
     this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#333',fontStyle:'bold'});
     this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#333',fontStyle:'bold'});
 
-    // Icônes en bas, plus grands et cliquables
+    // Icônes en bas
     const bottomY = 550;
     this.musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'40px',color:'#333'}).setOrigin(0.5).setInteractive();
     this.musicIcon.on('pointerdown',()=>{
@@ -106,43 +104,39 @@ class MainGame extends Phaser.Scene {
     this.pauseText.on('pointerover',()=>this.pauseText.setColor('#FF85C1'));
     this.pauseText.on('pointerout',()=>this.pauseText.setColor('#F2509B'));
 
-    // Création des cartes
+    // Création des cartes avec l'ancien placement
     this.emojis=['😀','😎','😍','😂','🥰','😜','🤩','😇','😱','🤪','🤓','🤑','🥳','😏','🤠','🤖'];
     let cardEmojis=[];
     for(let i=0;i<this.pairs;i++) cardEmojis.push(this.emojis[i%this.emojis.length],this.emojis[i%this.emojis.length]);
     Phaser.Utils.Array.Shuffle(cardEmojis);
 
     this.cards=[];
-    const cols = Math.ceil(Math.sqrt(this.pairs*2));
-    const rows = Math.ceil((this.pairs*2)/cols);
-    const cardSize = 64;
-    const spacing = 70; // espacement légèrement plus grand
-    const totalWidth = cols*cardSize + (cols-1)*spacing;
-    const startX = 450 - totalWidth/2 + cardSize/2;
+    const cols = this.level===1?4:5;
+    const spacingX = 100;
+    const spacingY = 100;
+    const canvasWidth = 900;
+    const startX = this.level===1?(canvasWidth-(cols-1)*spacingX)/2:200;
     const startY = 160;
 
     for(let i=0;i<cardEmojis.length;i++){
       const row=Math.floor(i/cols);
       const col=i%cols;
-      const x = startX + col*(cardSize+spacing);
-      const y = startY + row*(cardSize+spacing);
-      const card=this.add.text(x,y,'❓',{fontSize:cardSize+'px',fontFamily:'Arial'}).setOrigin(0.5).setInteractive();
+      const x=startX+col*spacingX;
+      const y=startY+row*spacingY;
+      const card=this.add.text(x,y,'❓',{fontSize:'64px',fontFamily:'Arial'}).setOrigin(0.5).setInteractive();
       card.emoji=cardEmojis[i]; card.revealed=false;
       card.on('pointerdown',()=>this.revealCard(card));
       this.cards.push(card);
     }
 
-    // Timer rouge + clignotant <10s
     this.clignotementTween=null;
     this.timerEvent=this.time.addEvent({delay:1000,loop:true,callback:()=>{
       this.timeLeft--;
       this.timerText.setText('⏳ Time: '+this.timeLeft);
-
       if(this.timeLeft <= 10 && !this.clignotementTween){
         this.timerText.setColor('#FF0000');
         this.clignotementTween=this.tweens.add({targets:this.timerText,alpha:0,duration:300,yoyo:true,repeat:-1});
       }
-
       if(this.timeLeft <= 0) this.endGame();
     }});
   }
@@ -197,7 +191,6 @@ class PauseScene extends Phaser.Scene{
   create(){
     this.add.rectangle(450,300,900,600,0x000000,0.5);
     this.add.text(450,180,'Paused',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    // Bouton resume sous pause
     createButton(this,450,300,'▶ Resume','#FFFFFF',0xF2509B,()=>{this.scene.stop(); this.parent.scene.resume();},'32px');
   }
 }

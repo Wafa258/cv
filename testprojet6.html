@@ -169,31 +169,6 @@ class MainGame extends Phaser.Scene {
     this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#333',fontStyle:'bold'});
     this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#333',fontStyle:'bold'});
 
-    // Timer avec clignotement rapide et rouge quand <10s
-    this.clignotementTween = null;
-    this.timerEvent = this.time.addEvent({
-      delay: 1000,
-      loop: true,
-      callback: () => {
-        this.timeLeft--;
-        this.timerText.setText('⏳ Time: ' + this.timeLeft);
-
-        if (this.timeLeft === 10) {
-          // rouge + clignotement rapide
-          this.timerText.setColor('#FF0000');
-          this.clignotementTween = this.tweens.add({
-            targets: this.timerText,
-            alpha: 0,
-            duration: 250,
-            yoyo: true,
-            repeat: -1
-          });
-        }
-
-        if (this.timeLeft <= 0) this.endGame();
-      }
-    });
-
     // Cartes
     this.emojis = THEMES[this.theme];
     let cardEmojis=[];

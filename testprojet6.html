@@ -56,7 +56,6 @@ function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28p
 class PreloadScene extends Phaser.Scene {
   constructor(){ super('PreloadScene'); }
   preload(){
-    // SONS AJOUTÉS
     this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
     this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/pop.ogg');
     this.load.audio('bgMusic','https://wafa258.github.io/cv/xmas.mp3');
@@ -83,7 +82,7 @@ class MainMenu extends Phaser.Scene {
 
     const selectTheme = (themeName, btn) => {
       selectedTheme = themeName;
-      this.sound.play('click'); // son
+      this.sound.play('click');
       this.themeButtons.forEach(b => b.getAt(0).setFillStyle(0xF2509B));
       btn.getAt(0).setFillStyle(0xFF99CC);
     };
@@ -103,14 +102,14 @@ class MainMenu extends Phaser.Scene {
     selectTheme('emoji', btnEmoji);
 
     createButton(this,450,450,'Start Level 1','#FFFFFF',0xF2509B,()=>{ 
-      this.sound.play('click'); // son
+      this.sound.play('click');
       this.scene.start('MainGame',{level:1, theme:selectedTheme}); 
     });
   }
 }
 
 // -------------------------
-// TRANSITION NIVEAU
+// TRANSITION
 // -------------------------
 class LevelTransition extends Phaser.Scene {
   constructor(){ super('LevelTransition'); }
@@ -120,14 +119,14 @@ class LevelTransition extends Phaser.Scene {
     this.add.text(450,180,'Félicitations🥳',{fontSize:'44px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
     this.add.text(450,250,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'28px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
     createButton(this,450,350,'Level '+this.nextLevel,'#FFFFFF',0xFF6347,()=>{ 
-      this.sound.play('click'); // son
+      this.sound.play('click');
       this.scene.start('MainGame',{level:this.nextLevel, theme:selectedTheme}); 
     });
   }
 }
 
 // -------------------------
-// SCENE DE JEU
+// JEU
 // -------------------------
 class MainGame extends Phaser.Scene {
   constructor(){ super('MainGame'); }
@@ -137,31 +136,15 @@ class MainGame extends Phaser.Scene {
   }
 
   create(){
-    // Couleur de fond selon thème
     let bgColor = 0xDDB8F2;
-    switch(this.theme){
-        case 'emoji': bgColor = 0xDDB8F2; break;
-        case 'animals': bgColor = 0xA8E6CF; break;
-        case 'fruits': bgColor = 0xFFD3B6; break;
-        case 'sport': bgColor = 0xFFAAA5; break;
-    }
+    if(this.theme==='animals') bgColor=0xA8E6CF;
+    if(this.theme==='fruits') bgColor=0xFFD3B6;
+    if(this.theme==='sport') bgColor=0xFFAAA5;
+
     this.background = this.add.rectangle(450,300,900,600,bgColor);
 
-    // Icône thème
-    let themeIcons = { emoji:'😎', animals:'🐶', fruits:'🍎', sport:'⚽'};
-    this.add.text(450,70, themeIcons[this.theme], {fontSize:'48px'}).setOrigin(0.5);
-
-    // Lune mode nuit (plus grande)
-    this.moonIcon = this.add.text(850,80,'🌙',{fontSize:'40px'}).setOrigin(0.5).setInteractive();
-    this.moonIcon.on('pointerdown',()=>{
-      nightMode = !nightMode;
-      this.updateNightMode();
-    });
-
-    // Timer et score
-    const levelData = levels[this.level-1] || levels[0];
-    this.timeLeft = levelData.time;
-    this.pairs = levelData.pairs;
+    this.timeLeft = levels[this.level-1].time;
+    this.pairs = levels[this.level-1].pairs;
     this.score = 0;
     this.matched = 0;
     this.selected = null;
@@ -169,175 +152,54 @@ class MainGame extends Phaser.Scene {
     this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#333',fontStyle:'bold'});
     this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#333',fontStyle:'bold'});
 
-    // Cartes
-    this.emojis = THEMES[this.theme];
-    let cardEmojis=[];
-    for(let i=0;i<this.pairs;i++){
-      cardEmojis.push(this.emojis[i % this.emojis.length]);
-      cardEmojis.push(this.emojis[i % this.emojis.length]);
-    }
-    Phaser.Utils.Array.Shuffle(cardEmojis);
+    // 🔥 AJOUT EXACT
+    this.clignotementTween = null;
 
-    const bottomY = 550;
-    this.musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'40px',color:'#333'}).setOrigin(0.5).setInteractive();
-    this.musicIcon.on('pointerdown',()=>{
-      this.sound.unlock();
-      if(!this.game.bgMusic){
-        this.game.bgMusic=this.sound.add('bgMusic',{loop:true,volume:0.4});
-        this.game.bgMusic.play();
-      }else{
-        this.game.bgMusic.isPlaying?this.game.bgMusic.pause():this.game.bgMusic.resume();
-      }
-    });
-
-    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'40px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
-    this.pauseText.on('pointerdown',()=>{ 
-      this.scene.pause();
-      this.scene.launch('PauseScene',{parent:this}); 
-    });
-
-    this.cards=[];
-    const cols = this.level===1?4:5;
-    const spacingX = 100;
-    const spacingY = 100;
-    const canvasWidth = 900;
-    const startX = this.level===1
-      ? (canvasWidth - (cols-1)*spacingX) / 2
-      : 200;
-    const startY = 160;
-
-    for(let i=0;i<cardEmojis.length;i++){
-      const row = Math.floor(i/cols);
-      const col = i % cols;
-      const x = startX + col*spacingX;
-      const y = startY + row*spacingY;
-
-      const card = this.add.text(x,y,'❓',{fontSize:'64px',fontFamily:'Arial'})
-        .setOrigin(0.5)
-        .setInteractive();
-      card.emoji = cardEmojis[i];
-      card.revealed = false;
-
-      card.on('pointerdown',()=>this.flipCard(card));
-
-      this.cards.push(card);
-    }
-
-    this.timerEvent=this.time.addEvent({
+    this.timerEvent = this.time.addEvent({
       delay:1000,
       loop:true,
       callback:()=>{
         this.timeLeft--;
         this.timerText.setText('⏳ Time: '+this.timeLeft);
+
+        if(this.timeLeft === 10){
+          this.timerText.setColor('#FF0000');
+          this.clignotementTween = this.tweens.add({
+            targets:this.timerText,
+            alpha:0,
+            duration:250,
+            yoyo:true,
+            repeat:-1
+          });
+        }
+
         if(this.timeLeft <= 0) this.endGame();
       }
     });
   }
 
-  updateNightMode(){
-    if(nightMode){
-      this.background.setFillStyle(0x0D1B2A);
-      this.cards.forEach(c => c.setColor('#0ff'));
-      this.timerText.setColor('#0ff');
-      this.scoreText.setColor('#0ff');
-    } else {
-      let bgColor;
-      switch(this.theme){
-          case 'emoji': bgColor = 0xDDB8F2; break;
-          case 'animals': bgColor = 0xA8E6CF; break;
-          case 'fruits': bgColor = 0xFFD3B6; break;
-          case 'sport': bgColor = 0xFFAAA5; break;
-      }
-      this.background.setFillStyle(bgColor);
-      this.cards.forEach(c => c.setColor('#000'));
-      this.timerText.setColor('#333');
-      this.scoreText.setColor('#333');
-    }
-  }
-
-  flipCard(card){
-    if(card.revealed || this.selected===card) return;
-
-    this.tweens.add({
-      targets: card,
-      scaleX: 0,
-      duration: 150,
-      onComplete: ()=>{
-        card.setText(card.emoji);
-        card.revealed = true;
-        this.tweens.add({targets: card, scaleX: 1, duration: 150});
-      }
-    });
-
-    if(!this.selected){
-      this.selected = card;
-    }
-    else{
-      if(this.selected.emoji === card.emoji){
-        this.sound.play('click'); // son
-        this.matched++;
-        this.score++;
-        this.scoreText.setText('Found: '+this.score);
-        this.selected = null;
-        if(this.matched === this.cards.length/2){
-          this.endLevel();
-        }
-      } else {
-        const first = this.selected;
-        this.selected = null;
-        this.time.delayedCall(700, ()=>{
-          [first, card].forEach(c => {
-            this.tweens.add({
-              targets: c,
-              scaleX: 0,
-              duration: 150,
-              onComplete: ()=>{ 
-                c.setText('❓'); 
-                c.revealed=false; 
-                this.tweens.add({targets:c, scaleX:1, duration:150}); 
-                this.sound.play('match'); // son
-              }
-            });
-          });
-        });
-      }
-    }
-  }
-
-  endLevel(){
-    this.time.delayedCall(600,()=>{
-      if(this.level < levels.length)
-        this.scene.start('LevelTransition',{level:this.level+1});
-      else
-        this.endGame(true);
-    });
-  }
-
   endGame(win=false){
+    if(this.clignotementTween) this.clignotementTween.stop();
     this.timerEvent.remove();
+
     this.add.rectangle(450,300,900,600,0x000000,0.5);
-    this.add.text(450,180,win?'Level Complete!':'Time Over!',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+    this.add.text(450,180,win?'Level Complete!':'Time Over!',
+      {fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+
     createButton(this,450,280,'Restart','#FFFFFF',0xFF6347,()=>{ 
-      this.sound.play('click'); // son
+      this.sound.play('click');
       this.scene.start('MainMenu'); 
     });
   }
 }
 
-class PauseScene extends Phaser.Scene{
-  constructor(){ super('PauseScene'); }
-  init(data){ this.parent=data.parent; }
-  create(){
-    this.add.rectangle(450,300,900,600,0x000000,0.5);
-    this.add.text(450,180,'Paused',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    createButton(this,450,300,'▶ Resume','#FFFFFF',0xF2509B,()=>{ 
-      this.scene.stop(); 
-      this.parent.scene.resume(); 
-    },'32px');
-  }
-}
+const config={
+  type: Phaser.AUTO,
+  width:900,
+  height:600,
+  scene:[PreloadScene,MainMenu,LevelTransition,MainGame]
+};
 
-const config={ type: Phaser.AUTO, width:900, height:600, scene:[PreloadScene,MainMenu,LevelTransition,MainGame,PauseScene] };
 new Phaser.Game(config);
 </script>
 

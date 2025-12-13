@@ -44,7 +44,7 @@ function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28p
   container.add([rect,btnText]);
   container.setSize(rect.width, rect.height);
   container.setInteractive({useHandCursor:true})
-           .on('pointerdown', callback)
+           .on('pointerdown', ()=>{scene.sound.play('click'); callback();})
            .on('pointerover', ()=>scene.tweens.add({targets:container,scale:1.05,duration:150,yoyo:true}))
            .on('pointerout', ()=>container.setScale(1));
   return container;
@@ -78,9 +78,9 @@ class MainMenu extends Phaser.Scene {
 
     const selectTheme = (theme, btn) => {
       selectedTheme = theme;
-      this.sound.play('click');
       this.themeButtons.forEach(b => b.getAt(0).setFillStyle(0xF2509B));
       btn.getAt(0).setFillStyle(0xFF99CC);
+      this.sound.play('click');
     };
 
     const b1 = createButton(this,250,230,'Emoji 😎','#FFF',0xF2509B,()=>selectTheme('emoji',b1));
@@ -92,7 +92,6 @@ class MainMenu extends Phaser.Scene {
     selectTheme('emoji', b1);
 
     createButton(this,450,450,'Start Level 1','#FFF',0xF2509B,()=>{
-      this.sound.play('click');
       this.scene.start('MainGame',{level:1, theme:selectedTheme});
     });
   }
@@ -109,7 +108,6 @@ class LevelTransition extends Phaser.Scene {
     this.add.text(450,180,'Félicitations 🥳',{fontSize:'44px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
     this.add.text(450,250,'Jouez au niveau '+this.nextLevel,{fontSize:'28px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
     createButton(this,450,350,'Level '+this.nextLevel,'#FFF',0xFF6347,()=>{
-      this.sound.play('click');
       this.scene.start('MainGame',{level:this.nextLevel, theme:selectedTheme});
     });
   }
@@ -136,16 +134,16 @@ class MainGame extends Phaser.Scene {
     this.timerText=this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#333',fontStyle:'bold'});
     this.scoreText=this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#333',fontStyle:'bold'});
 
-    // 🔥 AJOUT UNIQUE
     this.clignotementTween = null;
 
     // Icônes
     this.moonIcon=this.add.text(850,80,'🌙',{fontSize:'40px'}).setOrigin(0.5).setInteractive();
-    this.moonIcon.on('pointerdown',()=>{ nightMode=!nightMode; this.updateNightMode(); });
+    this.moonIcon.on('pointerdown',()=>{ nightMode=!nightMode; this.updateNightMode(); this.sound.play('click'); });
 
     this.musicIcon=this.add.text(850,550,'🔊',{fontSize:'40px'}).setOrigin(0.5).setInteractive();
     this.musicIcon.on('pointerdown',()=>{
       this.sound.unlock();
+      this.sound.play('click');
       if(!this.game.bgMusic){
         this.game.bgMusic=this.sound.add('bgMusic',{loop:true,volume:0.4});
         this.game.bgMusic.play();
@@ -156,11 +154,12 @@ class MainGame extends Phaser.Scene {
 
     this.pauseText=this.add.text(50,550,'⏸️',{fontSize:'40px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
     this.pauseText.on('pointerdown',()=>{
+      this.sound.play('click');
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this});
     });
 
-    // Cartes (STRICTEMENT IDENTIQUE)
+    // Cartes
     this.cards=[];
     const emojis=THEMES[this.theme];
     let cardEmojis=[];
@@ -186,7 +185,7 @@ class MainGame extends Phaser.Scene {
       this.cards.push(card);
     });
 
-    // TIMER avec clignotement IDENTIQUE AU 1ER JEU
+    // TIMER avec clignotement
     this.timerEvent=this.time.addEvent({
       delay:1000,
       loop:true,
@@ -237,6 +236,17 @@ class MainGame extends Phaser.Scene {
         this.matched++;
         this.score++;
         this.scoreText.setText('Found: '+this.score);
+        this.sound.play('match');
+
+        // Animation de récompense
+        this.tweens.add({
+          targets:[card,this.selected],
+          scale:1.3,
+          duration:200,
+          yoyo:true,
+          onComplete:()=>{card.setScale(1); this.selected.setScale(1);}
+        });
+
         this.selected=null;
         if(this.matched===this.cards.length/2){
           this.level<levels.length
@@ -249,6 +259,7 @@ class MainGame extends Phaser.Scene {
         this.time.delayedCall(700,()=>{
           first.setText('❓'); first.revealed=false;
           card.setText('❓'); card.revealed=false;
+          this.sound.play('click');
         });
       }
     }

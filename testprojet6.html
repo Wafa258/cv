@@ -56,8 +56,8 @@ function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28p
 class PreloadScene extends Phaser.Scene {
   constructor(){ super('PreloadScene'); }
   preload(){
-    this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-    this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/pop.ogg');
+    this.load.audio('click','https://actions.google.com/sounds/v1/cartoon/pop.ogg');
+    this.load.audio('match','https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
     this.load.audio('bgMusic','https://wafa258.github.io/cv/xmas.mp3');
   }
   create(){ this.scene.start('MainMenu'); }

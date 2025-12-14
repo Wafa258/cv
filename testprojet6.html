@@ -44,7 +44,7 @@ function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28p
   container.add([rect,btnText]);
   container.setSize(rect.width, rect.height);
   container.setInteractive({useHandCursor:true})
-           .on('pointerdown', ()=>{scene.sound.play('click') callback(); })
+           .on('pointerdown', ()=>{scene.sound.play('click'); callback();})
            .on('pointerover', ()=>scene.tweens.add({targets:container,scale:1.05,duration:150,yoyo:true}))
            .on('pointerout', ()=>container.setScale(1));
   return container;
@@ -140,7 +140,7 @@ class MainGame extends Phaser.Scene {
 
     // Icône thème
     let themeIcons = { emoji:'😎', animals:'🐶', fruits:'🍎', sport:'⚽'};
-    this.add.text(450,70, themeIcons[this.theme], {fontSize:'40px'}).setOrigin(0.5);
+    this.add.text(450,70, themeIcons[this.theme], {fontSize:'48px'}).setOrigin(0.5);
 
     // Lune mode nuit
     this.moonIcon = this.add.text(850,80,'🌙',{fontSize:'40px'}).setOrigin(0.5).setInteractive();
@@ -180,7 +180,7 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    this.pauseText = this.add.text(48,bottomY,'⏸️',{fontSize:'37px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
+    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'40px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
     this.pauseText.on('pointerdown',()=>{ 
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this}); 
@@ -205,6 +205,7 @@ class MainGame extends Phaser.Scene {
       card.revealed = false;
 
       card.on('pointerdown',()=>{ 
+        this.sound.play('click');
         this.flipCard(card);
       });
 
@@ -304,9 +305,8 @@ class MainGame extends Phaser.Scene {
               onComplete: ()=>{
                 c.setText('❓');
                 c.revealed=false;
-                this.sound.play('click');
                 this.tweens.add({targets:c, scaleX:1, duration:150});
-              
+                this.sound.play('click');
               }
             });
           });

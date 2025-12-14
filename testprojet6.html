@@ -304,8 +304,9 @@ class MainGame extends Phaser.Scene {
               onComplete: ()=>{
                 c.setText('❓');
                 c.revealed=false;
-                this.tweens.add({targets:c, scaleX:1, duration:150});
                 this.sound.play('click');
+                this.tweens.add({targets:c, scaleX:1, duration:150});
+              
               }
             });
           });

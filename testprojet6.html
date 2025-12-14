@@ -167,16 +167,24 @@ class MainGame extends Phaser.Scene {
     Phaser.Utils.Array.Shuffle(cardEmojis);
 
     const bottomY = 550;
-    this.musicIcon = this.add.text(850,bottomY,'🔊',{fontSize:'40px',color:'#333'}).setOrigin(0.5).setInteractive();
-    this.musicIcon.on('pointerdown',()=>{
-      this.sound.unlock();
-      if(!this.game.bgMusic){
-        this.game.bgMusic=this.sound.add('bgMusic',{loop:true,volume:0.4});
+    this.musicIcon = this.add.text(850, bottomY, '🔊', {fontSize:'40px', color:'#333'}).setOrigin(0.5).setInteractive();
+this.musicIcon.on('pointerdown', ()=>{
+    this.sound.unlock();
+
+    if(!this.game.bgMusic){
+        this.game.bgMusic = this.sound.add('bgMusic',{loop:true,volume:0.4});
         this.game.bgMusic.play();
-      }else{
-        this.game.bgMusic.isPlaying?this.game.bgMusic.pause():this.game.bgMusic.resume();
-      }
-    });
+        this.musicIcon.setText('🔊');  // musique joue
+    } else {
+        if(this.game.bgMusic.isPlaying){
+            this.game.bgMusic.pause();
+            this.musicIcon.setText('🔇');  // musique arrêtée
+        } else {
+            this.game.bgMusic.resume();
+            this.musicIcon.setText('🔊');  // musique joue
+        }
+    }
+});
 
     this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'40px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
     this.pauseText.on('pointerdown',()=>{ 

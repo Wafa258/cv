@@ -44,7 +44,7 @@ function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28p
   container.add([rect,btnText]);
   container.setSize(rect.width, rect.height);
   container.setInteractive({useHandCursor:true})
-           .on('pointerdown', ()=>{scene.sound.play('click') callback();})
+           .on('pointerdown', ()=>{scene.sound.play('click') callback(); })
            .on('pointerover', ()=>scene.tweens.add({targets:container,scale:1.05,duration:150,yoyo:true}))
            .on('pointerout', ()=>container.setScale(1));
   return container;

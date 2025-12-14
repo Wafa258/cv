@@ -183,6 +183,11 @@ class MainGame extends Phaser.Scene {
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this}); 
     });
+    [this.musicIcon, this.pauseText, this.moonIcon].forEach(icon => {
+    icon.setInteractive({ useHandCursor: true })
+        .on('pointerover', () => icon.setScale(1.1))    // léger zoom
+        .on('pointerout', () => icon.setScale(1));
+});
 
     this.cards=[];
     const cols = this.level===1?4:5;

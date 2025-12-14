@@ -142,7 +142,7 @@ class MainGame extends Phaser.Scene {
     let themeIcons = { emoji:'😎', animals:'🐶', fruits:'🍎', sport:'⚽'};
     this.add.text(450,70, themeIcons[this.theme], {fontSize:'48px'}).setOrigin(0.5);
 
-    this.moonIcon = this.add.text(850, 90, nightMode ? '🌙' : '⛱️', {fontSize:'36px'}).setOrigin(0.5, 0.5);
+    this.moonIcon = this.add.text(850, 90, nightMode ? '🌙' : '🌞', {fontSize:'36px'}).setOrigin(0.5, 0.5);
     this.moonIcon.setInteractive({ useHandCursor: true })
     .on('pointerover', () => this.moonIcon.setScale(1.1))
     .on('pointerout', () => this.moonIcon.setScale(1));
@@ -153,7 +153,7 @@ this.moonIcon.on('pointerdown', () => {
     this.updateNightMode();   // méthode existante pour appliquer le mode nuit
 
     // Changer l’icône selon l’état
-    this.moonIcon.setText(nightMode ? '🌙' : '⛱️');  
+    this.moonIcon.setText(nightMode ? '🌙' : '🌞');  
 });
 
     const levelData = levels[this.level-1] || levels[0];

@@ -138,11 +138,9 @@ class MainGame extends Phaser.Scene {
     }
     this.background = this.add.rectangle(450,300,900,600,bgColor);
 
-    // Icône thème
     let themeIcons = { emoji:'😎', animals:'🐶', fruits:'🍎', sport:'⚽'};
     this.add.text(450,70, themeIcons[this.theme], {fontSize:'48px'}).setOrigin(0.5);
 
-    // Lune mode nuit
     this.moonIcon = this.add.text(850,80,'🌙',{fontSize:'40px'}).setOrigin(0.5).setInteractive();
     this.moonIcon.on('pointerdown',()=>{ 
       nightMode = !nightMode; 
@@ -159,7 +157,6 @@ class MainGame extends Phaser.Scene {
     this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#333',fontStyle:'bold'});
     this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#333',fontStyle:'bold'});
 
-    // Cartes
     this.emojis = THEMES[this.theme];
     let cardEmojis=[];
     for(let i=0;i<this.pairs;i++){
@@ -212,7 +209,6 @@ class MainGame extends Phaser.Scene {
       this.cards.push(card);
     }
 
-    // Timer avec clignotement à 10s
     this.clignotementTween = null;
     this.timerEvent=this.time.addEvent({
       delay:1000,
@@ -281,7 +277,6 @@ class MainGame extends Phaser.Scene {
         this.score++;
         this.scoreText.setText('Found: '+this.score);
 
-        // Animation scale pour la récompense
         this.tweens.add({
           targets: [this.selected, card],
           scale: 1.3,
@@ -296,6 +291,9 @@ class MainGame extends Phaser.Scene {
       } else {
         const first = this.selected;
         this.selected = null;
+
+        this.sound.play('click');
+
         this.time.delayedCall(700, ()=>{
           [first, card].forEach(c=>{
             this.tweens.add({
@@ -306,7 +304,6 @@ class MainGame extends Phaser.Scene {
                 c.setText('❓');
                 c.revealed=false;
                 this.tweens.add({targets:c, scaleX:1, duration:150});
-                this.sound.play('click');
               }
             });
           });

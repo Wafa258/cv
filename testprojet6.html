@@ -180,7 +180,7 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'40px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
+    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'35px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
     this.pauseText.on('pointerdown',()=>{ 
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this}); 

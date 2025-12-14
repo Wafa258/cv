@@ -6,7 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 <style>
   body { margin: 0; background: #f0f8ff; display:flex; justify-content:center; align-items:center; height:100vh;}
-  canvas { border: 2px solid #000; cursor: default; }
+  canvas { border: 2px solid #000; cursor: default;}
 </style>
 </head>
 <body>
@@ -68,7 +68,6 @@ class PreloadScene extends Phaser.Scene {
 // -------------------------
 class MainMenu extends Phaser.Scene {
   constructor(){ super('MainMenu'); }
-
   create(){
     this.add.rectangle(450,300,900,600,0xE800F0);
     this.add.text(450,100,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
@@ -82,22 +81,37 @@ class MainMenu extends Phaser.Scene {
       btn.getAt(0).setFillStyle(0xFF99CC);
     };
 
-    let btnEmoji = createButton(this, 250, 230, 'Emoji 😎', '#FFF', 0xF2509B, ()=>selectTheme('emoji', btnEmoji));
-    let btnAnimals = createButton(this, 650, 230, 'Animaux 🐶', '#FFF', 0xF2509B, ()=>selectTheme('animals', btnAnimals));
-    let btnFruits = createButton(this, 250, 320, 'Fruits 🍎', '#FFF', 0xF2509B, ()=>selectTheme('fruits', btnFruits));
-    let btnSport = createButton(this, 650, 320, 'Sport ⚽', '#FFF', 0xF2509B, ()=>selectTheme('sport', btnSport));
+    let btnEmoji = createButton(this,250,230,'Emoji 😎','#FFF',0xF2509B,()=>selectTheme('emoji',btnEmoji));
+    let btnAnimals = createButton(this,650,230,'Animaux 🐶','#FFF',0xF2509B,()=>selectTheme('animals',btnAnimals));
+    let btnFruits = createButton(this,250,320,'Fruits 🍎','#FFF',0xF2509B,()=>selectTheme('fruits',btnFruits));
+    let btnSport = createButton(this,650,320,'Sport ⚽','#FFF',0xF2509B,()=>selectTheme('sport',btnSport));
 
-    this.themeButtons.push(btnEmoji, btnAnimals, btnFruits, btnSport);
-    selectTheme('emoji', btnEmoji);
+    this.themeButtons.push(btnEmoji,btnAnimals,btnFruits,btnSport);
+    selectTheme('emoji',btnEmoji);
 
-    createButton(this,450,450,'Start Level 1','#FFFFFF',0xF2509B,()=>{ 
-      this.scene.start('MainGame',{level:1, theme:selectedTheme}); 
+    createButton(this,450,450,'Start Level 1','#FFF',0xF2509B,()=>{
+      this.scene.start('MainGame',{level:1, theme:selectedTheme});
     });
   }
 }
 
 // -------------------------
-// GAME
+// LEVEL TRANSITION
+// -------------------------
+class LevelTransition extends Phaser.Scene {
+  constructor(){ super('LevelTransition'); }
+  init(data){ this.nextLevel = data.level; }
+  create(){
+    this.add.rectangle(450,300,900,600,0xEA5EF2);
+    this.add.text(450,200,'Bravo 🥳',{fontSize:'44px',color:'#FFF'}).setOrigin(0.5);
+    createButton(this,450,320,'Level '+this.nextLevel,'#FFF',0xF2509B,()=>{
+      this.scene.start('MainGame',{level:this.nextLevel, theme:selectedTheme});
+    });
+  }
+}
+
+// -------------------------
+// MAIN GAME
 // -------------------------
 class MainGame extends Phaser.Scene {
   constructor(){ super('MainGame'); }
@@ -108,25 +122,25 @@ class MainGame extends Phaser.Scene {
   }
 
   create(){
-    this.sound.unlock(); // 🔊 important
-
+    this.sound.unlock();
     this.lockBoard = true; // 🎴 DISPATCH
 
-    let bgColor = {emoji:0xDDB8F2, animals:0xA8E6CF, fruits:0xFFD3B6, sport:0xFFAAA5}[this.theme];
-    this.background = this.add.rectangle(450,300,900,600,bgColor);
+    let bgColors = {emoji:0xDDB8F2, animals:0xA8E6CF, fruits:0xFFD3B6, sport:0xFFAAA5};
+    this.background = this.add.rectangle(450,300,900,600,bgColors[this.theme]);
 
-    const levelData = levels[this.level-1];
-    this.timeLeft = levelData.time;
-    this.pairs = levelData.pairs;
-    this.score = 0;
-    this.matched = 0;
-    this.selected = null;
-
-    this.timerText = this.add.text(20,20,'⏳ '+this.timeLeft,{fontSize:'32px',color:'#333'});
+    // UI
+    this.timerText = this.add.text(20,20,'',{fontSize:'32px',color:'#333'});
     this.scoreText = this.add.text(700,20,'Found: 0',{fontSize:'32px',color:'#333'});
 
-    // MUSIC
-    this.musicIcon = this.add.text(850,550,'🔊',{fontSize:'36px'}).setInteractive();
+    // Pause
+    this.pauseText = this.add.text(50,550,'⏸️',{fontSize:'40px'}).setInteractive();
+    this.pauseText.on('pointerdown',()=>{
+      this.scene.pause();
+      this.scene.launch('PauseScene',{parent:this});
+    });
+
+    // Music
+    this.musicIcon = this.add.text(850,550,'🔊',{fontSize:'40px'}).setInteractive();
     this.musicIcon.on('pointerdown',()=>{
       if(!this.game.bgMusic){
         this.game.bgMusic = this.sound.add('bgMusic',{loop:true,volume:0.4});
@@ -136,34 +150,35 @@ class MainGame extends Phaser.Scene {
       }
     });
 
-    // CARDS
+    // Cards
+    const levelData = levels[this.level-1];
+    this.timeLeft = levelData.time;
+    this.pairs = levelData.pairs;
+    this.timerText.setText('⏳ '+this.timeLeft);
+
     const emojis = THEMES[this.theme];
     let cardEmojis = [];
     for(let i=0;i<this.pairs;i++){
-      cardEmojis.push(emojis[i], emojis[i]);
+      cardEmojis.push(emojis[i],emojis[i]);
     }
     Phaser.Utils.Array.Shuffle(cardEmojis);
 
     this.cards = [];
-    const cols = this.level === 1 ? 4 : 5;
+    const cols = this.level===1?4:5;
     const spacing = 100;
-    const startX = (900 - (cols-1)*spacing)/2;
+    const startX = (900-(cols-1)*spacing)/2;
     const startY = 160;
 
     for(let i=0;i<cardEmojis.length;i++){
       const row = Math.floor(i/cols);
       const col = i % cols;
-
       const x = startX + col*spacing;
       const y = startY + row*spacing;
 
-      const card = this.add.text(450,300,'❓',{fontSize:'64px'})
-        .setOrigin(0.5)
-        .setInteractive();
-
-      card.finalX = x;       // 🎴 DISPATCH
-      card.finalY = y;       // 🎴 DISPATCH
-      card.alpha = 0;        // 🎴 DISPATCH
+      const card = this.add.text(450,300,'❓',{fontSize:'64px'}).setOrigin(0.5).setInteractive();
+      card.finalX = x;            // 🎴 DISPATCH
+      card.finalY = y;            // 🎴 DISPATCH
+      card.alpha = 0;             // 🎴 DISPATCH
       card.emoji = cardEmojis[i];
       card.revealed = false;
 
@@ -184,9 +199,9 @@ class MainGame extends Phaser.Scene {
       });
     });
 
-    this.time.delayedCall(700,()=> this.lockBoard = false); // 🎴 DISPATCH
+    this.time.delayedCall(700,()=>this.lockBoard=false);
 
-    // TIMER
+    // Timer
     this.timerEvent = this.time.addEvent({
       delay:1000,
       loop:true,
@@ -199,7 +214,7 @@ class MainGame extends Phaser.Scene {
   }
 
   flipCard(card){
-    if(this.lockBoard || card.revealed || this.selected===card) return;
+    if(this.lockBoard || card.revealed) return;
 
     card.setText(card.emoji);
     card.revealed = true;
@@ -209,11 +224,11 @@ class MainGame extends Phaser.Scene {
     } else {
       if(this.selected.emoji === card.emoji){
         this.sound.play('match');
-        this.score++;
-        this.matched++;
-        this.scoreText.setText('Found: '+this.score);
+        this.scoreText.setText('Found: '+(++this.matched));
         this.selected = null;
-        if(this.matched === this.cards.length/2) this.endGame(true);
+        if(this.matched === this.cards.length/2){
+          this.scene.start('LevelTransition',{level:this.level+1});
+        }
       } else {
         this.lockBoard = true;
         this.sound.play('click');
@@ -222,18 +237,28 @@ class MainGame extends Phaser.Scene {
         this.time.delayedCall(700,()=>{
           first.setText('❓'); first.revealed=false;
           card.setText('❓'); card.revealed=false;
-          this.lockBoard = false;
+          this.lockBoard=false;
         });
       }
     }
   }
 
-  endGame(win){
-    this.timerEvent.remove();
+  endGame(){
+    this.scene.start('MainMenu');
+  }
+}
+
+// -------------------------
+// PAUSE SCENE
+// -------------------------
+class PauseScene extends Phaser.Scene {
+  constructor(){ super('PauseScene'); }
+  init(data){ this.parent=data.parent; }
+  create(){
     this.add.rectangle(450,300,900,600,0x000000,0.6);
-    this.add.text(450,200,win?'🎉 Gagné !':'⏰ Perdu',{fontSize:'48px',color:'#FFF'}).setOrigin(0.5);
-    createButton(this,450,320,'Menu','#FFF',0xF2509B,()=>{
-      this.scene.start('MainMenu');
+    createButton(this,450,300,'▶ Resume','#FFF',0xF2509B,()=>{
+      this.scene.stop();
+      this.parent.scene.resume();
     });
   }
 }
@@ -243,7 +268,7 @@ const config = {
   type: Phaser.AUTO,
   width:900,
   height:600,
-  scene:[PreloadScene,MainMenu,MainGame]
+  scene:[PreloadScene,MainMenu,LevelTransition,MainGame,PauseScene]
 };
 
 new Phaser.Game(config);

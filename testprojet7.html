@@ -194,7 +194,7 @@ this.musicIcon.on('pointerdown', ()=>{
     }
 });
 
-    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'40px',color:'#F2509B'}).setOrigin(0.5, O.6).setInteractive();
+    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'40px',color:'#F2509B'}).setOrigin(0.5, 0.6).setInteractive();
     this.pauseText.on('pointerdown',()=>{ 
       this.scene.pause();
       this.scene.launch('PauseScene',{parent:this}); 

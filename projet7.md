@@ -8,3 +8,5 @@ J'ai choisi d'afficher 🔊 quand la musique joue, et 🔇 quand la musique est 
 Pareil pour l'icone mode nuit 🌙 qui se transforme en mode jour quand on clique dessus ☀️
 
 Cela donne un feedback visuel clair à l’utilisateur. 
+
+Diagramme : 

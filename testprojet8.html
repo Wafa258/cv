@@ -28,11 +28,14 @@ let nightMode = false;
 // -------------------------
 // PALETTE COULEURS (GAMING)
 // -------------------------
-const UI_PINK   = 0xFF4D8D;
-const UI_PURPLE = 0x6C63FF;
-const UI_BLUE   = 0x4FC3F7;
-const UI_GREEN  = 0x4CAF50;
-const UI_ORANGE = 0xFF9800;
+const DAY_COLORS = {
+  emoji:   0xC77DFF, // violet flashy
+  animals: 0x57CC99, // vert menthe punchy
+  fruits:  0xFFB703, // orange vitaminé
+  sport:   0xFF5C8A  // rose énergie
+};
+
+const NIGHT_BG = 0x1C1F33;
 // -------------------------
 // Niveaux
 // -------------------------
@@ -144,7 +147,9 @@ switch(this.theme){
     case 'fruits':  bgColor = 0xFFE5C7; break; // orange fruité
     case 'sport':   bgColor = 0xFFD6E0; break; // rose énergie
 }
-    this.background = this.add.rectangle(450,300,900,600,0xF6DFFF);
+    this.background = this.add.rectangle(
+  450, 300, 900, 600, DAY_COLORS[this.theme]
+);
 
     let themeIcons = { emoji:'😎', animals:'🐶', fruits:'🍎', sport:'⚽'};
     this.add.text(450,70, themeIcons[this.theme], {fontSize:'48px'}).setOrigin(0.5);

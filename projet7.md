@@ -11,12 +11,8 @@ Cela donne un feedback visuel clair à l’utilisateur.
 
 Diagramme : 
 
----
-config:
-  layout: fixed
----
-flowchart TB
-    A["🎮​ Emoji Match🎮​"] -- Play Level 1 --> B("Start Level 1")
+```mermaid
+ A["🎮​ Emoji Match🎮​"] -- Play Level 1 --> B("Start Level 1")
     B --> n1["Win"] & n2["Loose"]
     n1 -- Play Level 3 --> D["Start level 2"]
     n2 -- Restart --> A
@@ -39,3 +35,4 @@ flowchart TB
     style n3 stroke:#AA00FF,fill:#E1BEE7
     style n4 stroke:#000000,fill:#FFCDD2
     style n5 stroke:#AA00FF,fill:#E1BEE7
+```

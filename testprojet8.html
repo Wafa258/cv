@@ -268,22 +268,31 @@ this.musicIcon.on('pointerdown', ()=>{
 
  updateNightMode(){
   if(nightMode){
-    this.background.setFillStyle(0x1C1F33);   // vrai mode nuit
-    this.cards.forEach(c => c.setColor('#8BE9FD'));
-    this.timerText.setColor('#5A2D82'); // violet fun
-    this.scoreText.setColor('#C2185B'); // rose punchy
-  } else {
-    let bgColor;
-    switch(this.theme){
-      case 'emoji':   bgColor = 0xE6D9FF; break;
-      case 'animals': bgColor = 0xD9F5E5; break;
-      case 'fruits':  bgColor = 0xFFE1CC; break;
-      case 'sport':   bgColor = 0xFFD6D6; break;
+    this.background?.setFillStyle(0x1C1F33);
+
+    if(this.cards){
+      this.cards.forEach(c => c.setColor('#8BE9FD'));
     }
-    this.background.setFillStyle(bgColor);
-    this.cards.forEach(c => c.setColor('#000'));
-    this.timerText.setColor('#333');
-    this.scoreText.setColor('#333');
+
+    this.timerText?.setColor('#F1FA8C');
+    this.scoreText?.setColor('#FF79C6');
+
+  } else {
+    const DAY_COLORS = {
+      emoji:   0xC77DFF,
+      animals: 0x57CC99,
+      fruits:  0xFFB703,
+      sport:   0xFF5C8A
+    };
+
+    this.background?.setFillStyle(DAY_COLORS[this.theme]);
+
+    if(this.cards){
+      this.cards.forEach(c => c.setColor('#000'));
+    }
+
+    this.timerText?.setColor('#222');
+    this.scoreText?.setColor('#222');
   }
 }
 

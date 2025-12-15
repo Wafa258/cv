@@ -9,7 +9,7 @@ Pareil pour l'icone mode nuit 🌙 qui se transforme en mode jour quand on cliqu
 
 Cela donne un feedback visuel clair à l’utilisateur. 
 
-Diagramme : 
+### Diagramme de flux : 
 
 ```mermaid
 ---

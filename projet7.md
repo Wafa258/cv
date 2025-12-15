@@ -18,12 +18,12 @@ config:
 ---
 flowchart TB
     A["🎮​ Emoji Match🎮​"] -- Play Level 1 --> B("Start Level 1")
-    B --> n1["Win"] & n2["Loose"]
+    B --> n1["Win Level 1"] & n2["Loose"]
     n1 -- Play Level 2 --> D["Start level 2"]
     n2 -- Restart --> A
-    n3["Win"] -- Play Level 3 --> n4["Start level 3"]
+    n3["Win Level 2"] -- Play Level 3 --> n4["Start level 3"]
     D --> n3 & n2
-    n4 --> n5["Win"] & n2
+    n4 --> n5["Win ALL GAME"] & n2
     n5 -- Play again :) --> A
 
     n1@{ shape: stored-data}

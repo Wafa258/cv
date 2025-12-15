@@ -114,7 +114,6 @@ class MainMenu extends Phaser.Scene {
       this.scene.start('MainGame',{level:1, theme:selectedTheme}); 
     });
   }
-}
 
 // -------------------------
 // TRANSITION NIVEAU
@@ -148,7 +147,6 @@ class MainGame extends Phaser.Scene {
   case 'animals': bgColor = COLORS.green;  break;
   case 'fruits':  bgColor = COLORS.orange; break;
   case 'sport':   bgColor = COLORS.blue;   break;
-}
     }
     this.background = this.add.rectangle(450,300,900,600,bgColor);
 

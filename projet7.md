@@ -1,4 +1,4 @@
-# ✅ Améliorations apportées :
+# ✅ Améliorations apportées et diagramme :
 
 ### 1. Icones plus interactives
 J'ai amélioré les icones suivantes : 🔊 🌙

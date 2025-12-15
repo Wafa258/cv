@@ -21,7 +21,9 @@ const THEMES = {
   animals: ['🐶','🐱','🦁','🐯','🐭','🐹','🐰','🐻','🐼','🐨','🐸','🐵','🐔','🦊','🐴','🦄'],
   fruits: ['🍎','🍌','🍇','🍉','🍓','🍒','🍑','🍍','🥝','🥥','🍐','🍊','🥕','🍅','🥦','🌽'],
   sport: ['⚽','🏀','🏈','⚾','🎾','🏓','🏒','🥊','🎱','🤿','🥋','⛷️','🏄','🚴','⛳','🥅']
-  const COLORS = {
+ 
+};
+ const COLORS = {
   pink: 0xFF2FB3,
   purple: 0x7B2FFF,
   blue: 0x00C2FF,
@@ -32,8 +34,6 @@ const THEMES = {
   dark: 0x0B1026,
   lightText: '#FFFFFF',
   darkText: '#1A1A1A'
-};
-
   
 let selectedTheme = "emoji";
 let nightMode = false;
@@ -129,7 +129,6 @@ class LevelTransition extends Phaser.Scene {
       this.scene.start('MainGame',{level:this.nextLevel, theme:selectedTheme}); 
     });
   }
-}
 
 // -------------------------
 // SCENE DE JEU

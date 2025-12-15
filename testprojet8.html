@@ -137,14 +137,14 @@ class MainGame extends Phaser.Scene {
   }
 
   create(){
-   let bgColor = 0x1E1E2E;
+  let bgColor;
 switch(this.theme){
-  case 'emoji':   bgColor = 0x2A1E3F; break;
-  case 'animals': bgColor = 0x1F3D2B; break;
-  case 'fruits':  bgColor = 0x40221A; break;
-  case 'sport':   bgColor = 0x1B2A3A; break;
+    case 'emoji':   bgColor = 0xE6D9FF; break; // violet clair fun
+    case 'animals': bgColor = 0xD9F5E5; break; // vert menthe
+    case 'fruits':  bgColor = 0xFFE1CC; break; // pêche clair
+    case 'sport':   bgColor = 0xFFD6D6; break; // rouge clair énergique
 }
-    this.background = this.add.rectangle(450,300,900,600,bgColor);
+    this.background = this.add.rectangle(450,300,900,600,0xF3E8FF);
 
     let themeIcons = { emoji:'😎', animals:'🐶', fruits:'🍎', sport:'⚽'};
     this.add.text(450,70, themeIcons[this.theme], {fontSize:'48px'}).setOrigin(0.5);
@@ -261,24 +261,24 @@ this.musicIcon.on('pointerdown', ()=>{
     });
   }
 
-  updateNightMode(){
+ updateNightMode(){
   if(nightMode){
-    this.background.setFillStyle(0x0B0F1A);
-    this.cards.forEach(c => c.setColor('#4FC3F7'));
-    this.timerText.setColor('#4FC3F7');
-    this.scoreText.setColor('#FFD54F');
+    this.background.setFillStyle(0x1C1F33);   // vrai mode nuit
+    this.cards.forEach(c => c.setColor('#8BE9FD'));
+    this.timerText.setColor('#8BE9FD');
+    this.scoreText.setColor('#FFD866');
   } else {
     let bgColor;
     switch(this.theme){
-      case 'emoji': bgColor = 0x2A1E3F; break;
-      case 'animals': bgColor = 0x1F3D2B; break;
-      case 'fruits': bgColor = 0x40221A; break;
-      case 'sport': bgColor = 0x1B2A3A; break;
+      case 'emoji':   bgColor = 0xE6D9FF; break;
+      case 'animals': bgColor = 0xD9F5E5; break;
+      case 'fruits':  bgColor = 0xFFE1CC; break;
+      case 'sport':   bgColor = 0xFFD6D6; break;
     }
     this.background.setFillStyle(bgColor);
-    this.cards.forEach(c => c.setColor('#FFFFFF'));
-    this.timerText.setColor('#FFFFFF');
-    this.scoreText.setColor('#FFFFFF');
+    this.cards.forEach(c => c.setColor('#000'));
+    this.timerText.setColor('#333');
+    this.scoreText.setColor('#333');
   }
 }
 
@@ -366,7 +366,7 @@ class PauseScene extends Phaser.Scene{
   create(){
     this.add.rectangle(450,300,900,600,0x000000,0.65);
     this.add.text(450,180,'Paused',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    createButton(this,450,300,'▶ Resume','#FFFFFF',0xF2509B,()=>{ 
+    createButton(this,450,300,'▶ Resume','#FFFFFF',0xFF6FB1,()=>{ 
       this.scene.stop(); 
       this.parent.scene.resume(); 
     },'32px');

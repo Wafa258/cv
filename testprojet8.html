@@ -266,12 +266,27 @@ this.musicIcon.on('pointerdown', ()=>{
     });
   }
 
- if(nightMode){
-  this.background.setFillStyle(COLORS.dark);
-  this.cards.forEach(c => c.setColor('#00E5FF'));
-  this.timerText.setColor('#00E5FF');
-  this.scoreText.setColor('#00E5FF');
-} else {
+updateNightMode(){
+  if(nightMode){
+    this.background.setFillStyle(COLORS.dark);
+    this.cards.forEach(c => c.setColor('#00E5FF'));
+    this.timerText.setColor('#00E5FF');
+    this.scoreText.setColor('#00E5FF');
+  } else {
+    let bgColor;
+    switch(this.theme){
+      case 'emoji':   bgColor = COLORS.pink;   break;
+      case 'animals': bgColor = COLORS.green;  break;
+      case 'fruits':  bgColor = COLORS.orange; break;
+      case 'sport':   bgColor = COLORS.blue;   break;
+    }
+    this.background.setFillStyle(bgColor);
+    this.cards.forEach(c => c.setColor(COLORS.darkText));
+    this.timerText.setColor(COLORS.darkText);
+    this.scoreText.setColor(COLORS.darkText);
+  }
+}
+
 
   flipCard(card){
     if(card.revealed || this.selected===card) return;

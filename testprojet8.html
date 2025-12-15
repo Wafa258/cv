@@ -5,9 +5,8 @@
 <title>🎮 Emoji Match 🎮</title>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 <style>
-  body { margin: 0; background: #f0f8ff; display:flex; justify-content:center; align-items:center; height:100vh;}
-  canvas { border: 2px solid #000;
-          cursor: default;}
+  body { margin: 0; background: #1A1A1A; display:flex; justify-content:center; align-items:center; height:100vh;}
+  canvas { border: 2px solid #FFF; cursor: default;}
 </style>
 </head>
 <body>
@@ -40,7 +39,7 @@ const levels = [
 // -------------------------
 function createButton(scene, x, y, text, color, bgColor, callback, fontSize='28px'){
   const container = scene.add.container(x, y);
-  const rect = scene.add.rectangle(0,0,250,60,bgColor,0.8).setStrokeStyle(3,0xFFFFFF);
+  const rect = scene.add.rectangle(0,0,250,60,bgColor,0.9).setStrokeStyle(3,0xFFFFFF);
   const btnText = scene.add.text(0,0,text,{fontSize:fontSize,fontStyle:'bold',color:color}).setOrigin(0.5);
   container.add([rect,btnText]);
   container.setSize(rect.width, rect.height);
@@ -71,33 +70,33 @@ class MainMenu extends Phaser.Scene {
   constructor(){ super('MainMenu'); }
 
   create(){
-    this.add.rectangle(450,300,900,600,0xE800F0);
-    this.add.text(450,100,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    this.add.text(450,160,'Choose your theme :',{fontSize:'28px',color:'#FFF'}).setOrigin(0.5);
+    this.add.rectangle(450,300,900,600,0x1A1AFF); // bleu néon
+    this.add.text(450,100,'🎮 Emoji Match 🎮',{fontSize:'36px',color:'#FFFF00',fontStyle:'bold'}).setOrigin(0.5);
+    this.add.text(450,160,'Choose your theme :',{fontSize:'28px',color:'#00FFAA'}).setOrigin(0.5);
 
     this.themeButtons = [];
 
     const selectTheme = (themeName, btn) => {
       selectedTheme = themeName;
-      this.themeButtons.forEach(b => b.getAt(0).setFillStyle(0xF2509B));
-      btn.getAt(0).setFillStyle(0xFF99CC);
+      this.themeButtons.forEach(b => b.getAt(0).setFillStyle(0xFF00FF)); // rose néon
+      btn.getAt(0).setFillStyle(0xFFFFFF);
     };
 
-    let btnEmoji = createButton(this, 250, 230, 'Emoji 😎', '#FFF', 0xF2509B, ()=>selectTheme('emoji', btnEmoji));
+    let btnEmoji = createButton(this, 250, 230, 'Emoji 😎', '#FFFFFF', 0xFF00FF, ()=>selectTheme('emoji', btnEmoji));
     this.themeButtons.push(btnEmoji);
 
-    let btnAnimals = createButton(this, 650, 230, 'Animaux 🐶', '#FFF', 0xF2509B, ()=>selectTheme('animals', btnAnimals));
+    let btnAnimals = createButton(this, 650, 230, 'Animaux 🐶', '#FFFFFF', 0x00FFFF, ()=>selectTheme('animals', btnAnimals));
     this.themeButtons.push(btnAnimals);
 
-    let btnFruits = createButton(this, 250, 320, 'Fruits 🍎', '#FFF', 0xF2509B, ()=>selectTheme('fruits', btnFruits));
+    let btnFruits = createButton(this, 250, 320, 'Fruits 🍎', '#FFFFFF', 0xFFA500, ()=>selectTheme('fruits', btnFruits));
     this.themeButtons.push(btnFruits);
 
-    let btnSport = createButton(this, 650, 320, 'Sport ⚽', '#FFF', 0xF2509B, ()=>selectTheme('sport', btnSport));
+    let btnSport = createButton(this, 650, 320, 'Sport ⚽', '#FFFFFF', 0xFF0000, ()=>selectTheme('sport', btnSport));
     this.themeButtons.push(btnSport);
 
     selectTheme('emoji', btnEmoji);
 
-    createButton(this,450,450,'Start Level 1','#FFFFFF',0xF2509B,()=>{ 
+    createButton(this,450,450,'Start Level 1','#FFFFFF',0x00FF00,()=>{ 
       this.scene.start('MainGame',{level:1, theme:selectedTheme}); 
     });
   }
@@ -110,9 +109,9 @@ class LevelTransition extends Phaser.Scene {
   constructor(){ super('LevelTransition'); }
   init(data){ this.nextLevel = data.level || 2; }
   create(){
-    this.add.rectangle(450,300,900,600,0xEA5EF2);
-    this.add.text(450,180,'Félicitations🥳',{fontSize:'44px',color:'#FF4500',fontStyle:'bold'}).setOrigin(0.5);
-    this.add.text(450,250,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'28px',color:'#000',fontStyle:'bold'}).setOrigin(0.5);
+    this.add.rectangle(450,300,900,600,0xFF69B4); // rose punchy
+    this.add.text(450,180,'Félicitations🥳',{fontSize:'44px',color:'#00FFFF',fontStyle:'bold'}).setOrigin(0.5);
+    this.add.text(450,250,'Jouez au niveau '+this.nextLevel+' !',{fontSize:'28px',color:'#FFFF00',fontStyle:'bold'}).setOrigin(0.5);
     createButton(this,450,350,'Level '+this.nextLevel,'#FFFFFF',0xFF6347,()=>{ 
       this.scene.start('MainGame',{level:this.nextLevel, theme:selectedTheme}); 
     });
@@ -130,31 +129,28 @@ class MainGame extends Phaser.Scene {
   }
 
   create(){
-    let bgColor = 0xDDB8F2;
+    let bgColor;
     switch(this.theme){
-        case 'emoji': bgColor = 0xDDB8F2; break;
-        case 'animals': bgColor = 0xA8E6CF; break;
-        case 'fruits': bgColor = 0xFFD3B6; break;
-        case 'sport': bgColor = 0xFFAAA5; break;
+        case 'emoji': bgColor = 0xFF69B4; break; // rose punchy
+        case 'animals': bgColor = 0x7FFF00; break; // vert vif
+        case 'fruits': bgColor = 0xFFA500; break; // orange saturé
+        case 'sport': bgColor = 0x00FFFF; break; // cyan néon
     }
     this.background = this.add.rectangle(450,300,900,600,bgColor);
 
     let themeIcons = { emoji:'😎', animals:'🐶', fruits:'🍎', sport:'⚽'};
     this.add.text(450,70, themeIcons[this.theme], {fontSize:'48px'}).setOrigin(0.5);
 
-    this.moonIcon = this.add.text(850, 90, nightMode ? '🌙' : '⛱️', {fontSize:'36px'}).setOrigin(0.5, 0.5);
+    this.moonIcon = this.add.text(850, 90, nightMode ? '🌙' : '⛱️', {fontSize:'36px', color:'#FFFF00'}).setOrigin(0.5, 0.5);
     this.moonIcon.setInteractive({ useHandCursor: true })
     .on('pointerover', () => this.moonIcon.setScale(1.1))
     .on('pointerout', () => this.moonIcon.setScale(1));
 
-// Gestion du clic : toggle mode nuit
-this.moonIcon.on('pointerdown', () => { 
-    nightMode = !nightMode;   // on inverse l'état
-    this.updateNightMode();   // méthode existante pour appliquer le mode nuit
-
-    // Changer l’icône selon l’état
-    this.moonIcon.setText(nightMode ? '🌙' : '⛱️');  
-});
+    this.moonIcon.on('pointerdown', () => { 
+        nightMode = !nightMode;  
+        this.updateNightMode();  
+        this.moonIcon.setText(nightMode ? '🌙' : '⛱️');  
+    });
 
     const levelData = levels[this.level-1] || levels[0];
     this.timeLeft = levelData.time;
@@ -163,8 +159,8 @@ this.moonIcon.on('pointerdown', () => {
     this.matched = 0;
     this.selected = null;
 
-    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#333',fontStyle:'bold'});
-    this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#333',fontStyle:'bold'});
+    this.timerText = this.add.text(20,20,'⏳ Time: '+this.timeLeft,{fontSize:'36px',color:'#FF00FF',fontStyle:'bold'}); 
+    this.scoreText = this.add.text(700,20,'Found: '+this.score,{fontSize:'36px',color:'#FFFF00',fontStyle:'bold'}); 
 
     this.emojis = THEMES[this.theme];
     let cardEmojis=[];
@@ -175,35 +171,31 @@ this.moonIcon.on('pointerdown', () => {
     Phaser.Utils.Array.Shuffle(cardEmojis);
 
     const bottomY = 550;
-    this.musicIcon = this.add.text(850, bottomY, '🔊', {fontSize:'40px', color:'#333'}).setOrigin(0.5).setInteractive();
-this.musicIcon.on('pointerdown', ()=>{
-    this.sound.unlock();
-
-    if(!this.game.bgMusic){
-        this.game.bgMusic = this.sound.add('bgMusic',{loop:true,volume:0.4});
-        this.game.bgMusic.play();
-        this.musicIcon.setText('🔊');  // musique joue
-    } else {
-        if(this.game.bgMusic.isPlaying){
-            this.game.bgMusic.pause();
-            this.musicIcon.setText('🔇');  // musique arrêtée
+    this.musicIcon = this.add.text(850, bottomY, '🔊', {fontSize:'40px', color:'#FF00FF'}).setOrigin(0.5).setInteractive();
+    this.musicIcon.on('pointerdown', ()=>{
+        this.sound.unlock();
+        if(!this.game.bgMusic){
+            this.game.bgMusic = this.sound.add('bgMusic',{loop:true,volume:0.4});
+            this.game.bgMusic.play();
+            this.musicIcon.setText('🔊');  
         } else {
-            this.game.bgMusic.resume();
-            this.musicIcon.setText('🔊');  // musique joue
+            if(this.game.bgMusic.isPlaying){
+                this.game.bgMusic.pause();
+                this.musicIcon.setText('🔇');  
+            } else {
+                this.game.bgMusic.resume();
+                this.musicIcon.setText('🔊');  
+            }
         }
-    }
-});
-
-    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'40px',color:'#F2509B'}).setOrigin(0.5).setInteractive();
-    this.pauseText.on('pointerdown',()=>{ 
-      this.scene.pause();
-      this.scene.launch('PauseScene',{parent:this}); 
     });
+
+    this.pauseText = this.add.text(50,bottomY,'⏸️',{fontSize:'40px',color:'#FF00FF'}).setOrigin(0.5).setInteractive();
+
     [this.musicIcon, this.pauseText, this.moonIcon].forEach(icon => {
-    icon.setInteractive({ useHandCursor: true })
-        .on('pointerover', () => icon.setScale(1.1))    // léger zoom
-        .on('pointerout', () => icon.setScale(1));
-});
+      icon.setInteractive({ useHandCursor: true })
+          .on('pointerover', () => icon.setScale(1.1))
+          .on('pointerout', () => icon.setScale(1));
+    });
 
     this.cards=[];
     const cols = this.level===1?4:5;
@@ -219,7 +211,7 @@ this.musicIcon.on('pointerdown', ()=>{
       const x = startX + col*spacingX;
       const y = startY + row*spacingY;
 
-      const card = this.add.text(x,y,'❓',{fontSize:'64px',fontFamily:'Arial'}).setOrigin(0.5).setInteractive();
+      const card = this.add.text(x,y,'❓',{fontSize:'64px',fontFamily:'Arial',color:'#FFFFFF'}).setOrigin(0.5).setInteractive();
       card.emoji = cardEmojis[i];
       card.revealed = false;
 
@@ -256,22 +248,22 @@ this.musicIcon.on('pointerdown', ()=>{
 
   updateNightMode(){
     if(nightMode){
-      this.background.setFillStyle(0x0D1B2A);
-      this.cards.forEach(c => c.setColor('#0ff'));
-      this.timerText.setColor('#0ff');
-      this.scoreText.setColor('#0ff');
+      this.background.setFillStyle(0x111111);
+      this.cards.forEach(c => c.setColor('#00FFFF'));
+      this.timerText.setColor('#FF00FF');
+      this.scoreText.setColor('#FFFF00');
     } else {
       let bgColor;
       switch(this.theme){
-          case 'emoji': bgColor = 0xDDB8F2; break;
-          case 'animals': bgColor = 0xA8E6CF; break;
-          case 'fruits': bgColor = 0xFFD3B6; break;
-          case 'sport': bgColor = 0xFFAAA5; break;
+          case 'emoji': bgColor = 0xFF69B4; break;
+          case 'animals': bgColor = 0x7FFF00; break;
+          case 'fruits': bgColor = 0xFFA500; break;
+          case 'sport': bgColor = 0x00FFFF; break;
       }
       this.background.setFillStyle(bgColor);
-      this.cards.forEach(c => c.setColor('#000'));
-      this.timerText.setColor('#333');
-      this.scoreText.setColor('#333');
+      this.cards.forEach(c => c.setColor('#FFFFFF'));
+      this.timerText.setColor('#FF00FF');
+      this.scoreText.setColor('#FFFF00');
     }
   }
 
@@ -282,9 +274,7 @@ this.musicIcon.on('pointerdown', ()=>{
       targets: card,
       scaleX: 0,
       duration: 150,
-      onComplete: ()=>{
-        card.setText(card.emoji);
-        card.revealed = true;
+      onComplete: ()=>{ card.setText(card.emoji); card.revealed = true;
         this.tweens.add({targets: card, scaleX:1, duration:150});
       }
     });
@@ -297,35 +287,20 @@ this.musicIcon.on('pointerdown', ()=>{
         this.matched++;
         this.score++;
         this.scoreText.setText('Found: '+this.score);
-
-        this.tweens.add({
-          targets: [this.selected, card],
-          scale: 1.3,
-          duration: 150,
-          yoyo: true
-        });
-
+        this.tweens.add({ targets: [this.selected, card], scale: 1.3, duration: 150, yoyo: true });
         this.selected = null;
-        if(this.matched === this.cards.length/2){
-          this.endLevel();
-        }
+        if(this.matched === this.cards.length/2) this.endLevel();
       } else {
         const first = this.selected;
         this.selected = null;
-
         this.sound.play('click');
-
         this.time.delayedCall(700, ()=>{
           [first, card].forEach(c=>{
             this.tweens.add({
               targets: c,
               scaleX:0,
               duration:150,
-              onComplete: ()=>{
-                c.setText('❓');
-                c.revealed=false;
-                this.tweens.add({targets:c, scaleX:1, duration:150});
-              }
+              onComplete: ()=>{ c.setText('❓'); c.revealed=false; this.tweens.add({targets:c, scaleX:1, duration:150}); }
             });
           });
         });
@@ -346,7 +321,7 @@ this.musicIcon.on('pointerdown', ()=>{
     if(this.clignotementTween) this.clignotementTween.stop();
     this.timerEvent.remove();
     this.add.rectangle(450,300,900,600,0x000000,0.5);
-    this.add.text(450,180,win?'Level Complete!':'Time Over!',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
+    this.add.text(450,180,win?'Level Complete!':'Time Over!',{fontSize:'44px',color:'#FFFF00',fontStyle:'bold'}).setOrigin(0.5);
     createButton(this,450,280,'Restart','#FFFFFF',0xFF6347,()=>{ 
       this.scene.start('MainMenu'); 
     });
@@ -358,8 +333,8 @@ class PauseScene extends Phaser.Scene{
   init(data){ this.parent=data.parent; }
   create(){
     this.add.rectangle(450,300,900,600,0x000000,0.5);
-    this.add.text(450,180,'Paused',{fontSize:'44px',color:'#FFF',fontStyle:'bold'}).setOrigin(0.5);
-    createButton(this,450,300,'▶ Resume','#FFFFFF',0xF2509B,()=>{ 
+    this.add.text(450,180,'Paused',{fontSize:'44px',color:'#FFFF00',fontStyle:'bold'}).setOrigin(0.5);
+    createButton(this,450,300,'▶ Resume','#FFFFFF',0xFF00FF,()=>{ 
       this.scene.stop(); 
       this.parent.scene.resume(); 
     },'32px');
@@ -368,6 +343,7 @@ class PauseScene extends Phaser.Scene{
 
 const config={ type: Phaser.AUTO, width:900, height:600, scene:[PreloadScene,MainMenu,LevelTransition,MainGame,PauseScene] };
 new Phaser.Game(config);
+
 </script>
 
 </body>

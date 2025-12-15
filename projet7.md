@@ -20,19 +20,4 @@ Diagramme :
     D --> n3 & n2
     n4 --> n5["Win"] & n2
     n5 --> A
-
-    n1@{ shape: stored-data}
-    n2@{ shape: rect}
-    D@{ shape: rounded}
-    n3@{ shape: stored-data}
-    n4@{ shape: rounded}
-    n5@{ shape: stored-data}
-    style A stroke:#AA00FF,fill:#E1BEE7
-    style B fill:#FFCDD2
-    style n1 stroke:#AA00FF,fill:#E1BEE7
-    style n2 stroke:#AA00FF,fill:#FFF9C4
-    style D fill:#FFCDD2
-    style n3 stroke:#AA00FF,fill:#E1BEE7
-    style n4 stroke:#000000,fill:#FFCDD2
-    style n5 stroke:#AA00FF,fill:#E1BEE7
 ```

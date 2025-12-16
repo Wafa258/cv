@@ -4,9 +4,8 @@
 
 Emoji ⏳ ajouté dès le départ devant le texte du timer.
 
-Changement de couleur en rouge quand il reste moins de 10 secondes.
+Changement de couleur en rouge et clignotement du timer lorsqu'il est inférieur à 10 secondes. Cela créé un effet de pression. 
 
-Clignotement rapide du timer lorsqu’il est inférieur à 10 secondes pour créer un effet de pression.
 Le timer reste normal (noir, pas de clignotement) tant qu’il reste plus de 10 secondes.
 
 ### 2️. Boutons améliorés (hover)

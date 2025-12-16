@@ -3,10 +3,8 @@
 ### 1. Ajout d'un 3ème niveau plus difficile
 time: 120 secondes, paires: 15
 
-J'ai rajouté cette ligne pour le niveau 3 en m'appuyant sur le code des autres niveaux : 
+J'ai rajouté cette ligne dans script pour le niveau 3 en m'appuyant sur le code des autres niveaux : 
 
-<script>
-  
 const levels = [
   
   

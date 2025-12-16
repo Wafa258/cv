@@ -1,5 +1,5 @@
 # Projet de Codage
-Projet inspiré par le site Phaser
+Projet inspiré par le site Phaser : https://phaser.io/examples/v3.85.0/games/view/emoji-match
 
 ## Objectifs du projet
 Le but de ce projet est de créer un jeu de mémoire (Memory Game) ludique et dynamique utilisant des emojis.

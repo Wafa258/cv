@@ -6,7 +6,7 @@ Le joueur choisit son thème (Emoji, Animaux, Fruits & Légumes, Sports) avant d
 
 Les boutons de thème changent de couleur lorsqu’ils sont sélectionnés.
 
-J'ai rajouté ces lignes dans le code : 
+J'ai rajouté les 3 dernières lignes dans le code : 
 
 const THEMES = {
 

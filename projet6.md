@@ -62,7 +62,7 @@ Sport → rose clair
 
 J'ai demandé à ChatGPT de me séléctionner le thème choisit : 
 
-   createButton(this,450,450,'Start Level 1','#FFFFFF',0xF2509B,()=>{ 
+      createButton(this,450,450,'Start Level 1','#FFFFFF',0xF2509B,()=>{ 
    
       this.scene.start('MainGame',{level:1, theme:selectedTheme}); 
 

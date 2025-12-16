@@ -22,4 +22,8 @@ Meilleurs espacements et positionnement des cartes.
 Pour le niveau 2, la grille était trop petite pour contenir tous les emojis. J'ai donc ajusté sa taille. 
 ➡️ La grille est plus propre et plus équilibrée.
 
+J'ai modifié le spacing dans le code : 
+
+ const cols = 4, startX = 250, startY = 100, spacingX = 100, spacingY = 100;
+
 

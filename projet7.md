@@ -11,7 +11,7 @@ Cela donne un feedback visuel clair à l’utilisateur.
 
 J'ai demandé à ChatGPT de me fournir ce code, que j'ai du ajusté selon mon besoin, taille, positionnement, changement d'icone...
 
- this.moonIcon = this.add.text(850, 90, nightMode ? '🌙' : '⛱️', {fontSize:'36px'}).setOrigin(0.5, 0.5);
+    this.moonIcon = this.add.text(850, 90, nightMode ? '🌙' : '⛱️', {fontSize:'36px'}).setOrigin(0.5, 0.5);
  
     this.moonIcon.setInteractive({ useHandCursor: true })
     
@@ -20,15 +20,15 @@ J'ai demandé à ChatGPT de me fournir ce code, que j'ai du ajusté selon mon be
     .on('pointerout', () => this.moonIcon.setScale(1));
     
 
-// Gestion du clic : toggle mode nuit
+Gestion du clic : toggle mode nuit
 
-this.moonIcon.on('pointerdown', () => { 
+    this.moonIcon.on('pointerdown', () => { 
 
     nightMode = !nightMode;   // on inverse l'état
     
     this.updateNightMode();   // méthode existante pour appliquer le mode nuit
 
-// Changer l’icône selon l’état
+Changer l’icône selon l’état
     
     this.moonIcon.setText(nightMode ? '🌙' : '⛱️');  
     

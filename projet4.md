@@ -3,7 +3,7 @@
 ### 1. Ajout d'un 3ème niveau plus difficile
 time: 120 secondes, paires: 15
 
-J'ai rajouté la dernière ligne de ce code pour le niveau 3 : 
+J'ai rajouté la dernière ligne de ce code pour le niveau 3 en m'appuyant sur le code des autres niveaux : 
 
 <script>
   
@@ -18,6 +18,7 @@ const levels = [
 ];
 
 ### 2. Animation spécifique pour les bonnes paires 
+  
 Pop / tween scale quand deux cartes matchent, pour donner une sensation de récompense.
 
 ### 3. Ajout de l'icône pause, 

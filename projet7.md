@@ -32,7 +32,7 @@ Changer l’icône selon l’état
     
     this.moonIcon.setText(nightMode ? '🌙' : '⛱️');  
     
-});
+    });
 
 ### Diagramme de flux : 
 

@@ -9,6 +9,31 @@ Pareil pour l'icone mode nuit 🌙 qui se transforme en mode jour quand on cliqu
 
 Cela donne un feedback visuel clair à l’utilisateur. 
 
+J'ai demandé à ChatGPT de me fournir ce code, que j'ai du ajusté selon mon besoin, taille, positionnement, changement d'icone...
+
+ this.moonIcon = this.add.text(850, 90, nightMode ? '🌙' : '⛱️', {fontSize:'36px'}).setOrigin(0.5, 0.5);
+ 
+    this.moonIcon.setInteractive({ useHandCursor: true })
+    
+    .on('pointerover', () => this.moonIcon.setScale(1.1))
+    
+    .on('pointerout', () => this.moonIcon.setScale(1));
+    
+
+// Gestion du clic : toggle mode nuit
+
+this.moonIcon.on('pointerdown', () => { 
+
+    nightMode = !nightMode;   // on inverse l'état
+    
+    this.updateNightMode();   // méthode existante pour appliquer le mode nuit
+
+// Changer l’icône selon l’état
+    
+    this.moonIcon.setText(nightMode ? '🌙' : '⛱️');  
+    
+});
+
 ### Diagramme de flux : 
 
 ```mermaid

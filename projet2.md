@@ -5,6 +5,8 @@ Une musique est intégrée au jeu.
 
 Une icône 🔊 permet de l’activer / mettre en pause.
 ➡️ Le jeu devient plus immersif.
+Musique utilisée : xmas, importée sur mon github 
+Je l'ai intégrée dans le code comme ceci en demandant à ChatGPT :  this.load.audio('bgMusic', 'https://wafa258.github.io/cv/xmas.mp3');
 
 ### 2. Meilleure qualité d’affichage des emojis
 

@@ -46,6 +46,7 @@ J'ai rajouté ce code pour cette fonctionnalité :
     }
     
   }
+  
 
   Et je l'ai appelé au début du code : 
   let nightMode = false;

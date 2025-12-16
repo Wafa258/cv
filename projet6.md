@@ -60,6 +60,12 @@ Animaux → vert clair
 Fruits → orange clair
 Sport → rose clair
 
+J'ai demandé à ChatGPT de me séléctionner le thème choisit : 
+
+   createButton(this,450,450,'Start Level 1','#FFFFFF',0xF2509B,()=>{ 
+   
+      this.scene.start('MainGame',{level:1, theme:selectedTheme}); 
+
 ### 3. Animation plus fluide pour les cartes
 
 Lorsqu’une carte est révélée, elle “tourne” horizontalement avant d’afficher son emoji.

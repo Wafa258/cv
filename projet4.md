@@ -7,7 +7,7 @@ time: 120 secondes, paires: 15
 Pop / tween scale quand deux cartes matchent, pour donner une sensation de récompense.
 
 ### 3. Ajout de l'icône pause, 
-On peut arreter le jeu, et reprendre plus tard, le timer s'arrête. 
+On peut arrêter le jeu, et reprendre plus tard, le timer s'arrête. 
 
 ### 4. Boutons modernisés : Start Level, Level X, Restart, Resume
 Cadre coloré, texte centré, hover léger avec mise à l’échelle.

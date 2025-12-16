@@ -9,7 +9,7 @@ Pareil pour l'icone mode nuit 🌙 qui se transforme en mode jour quand on cliqu
 
 Cela donne un feedback visuel clair à l’utilisateur. 
 
-J'ai demandé à ChatGPT de me fournir ce code, que j'ai du ajusté selon mon besoin, taille, positionnement, changement d'icone...
+J'ai demandé à ChatGPT de me fournir ce code, que j'ai du ajuster selon mon besoin, taille, positionnement, changement d'icone...
 
     this.moonIcon = this.add.text(850, 90, nightMode ? '🌙' : '⛱️', {fontSize:'36px'}).setOrigin(0.5, 0.5);
  

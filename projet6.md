@@ -1,9 +1,10 @@
 # ✅ Améliorations apportées :
 
 ### 1. Ajout du mode nuit 
-Ajout de l'icone lune 🌙 en haut à droite pour choisir le mode nuit / normal 
+Ajout de l'icone lune 🌙 en haut à droite pour choisir le mode nuit / normal.
+
 Les textes et les cartes passent en couleurs néon pour bien contraster avec le fond.
-Permet de jouer confortablement dans une ambiance plus sombre.
+Cela permet de jouer confortablement dans une ambiance plus sombre.
 
 ### 2. Changer la couleur de fond selon le thème
 

@@ -32,7 +32,6 @@ const THEMES = {
       
       this.sound.play('click');
       
-
-    Et de ettre en surbrillance le bouton sélectionné
+  Et de ettre en surbrillance le bouton sélectionné
     
       btn.getAt(0).setFillStyle(0xFF99CC);
